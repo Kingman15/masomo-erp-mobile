@@ -21,7 +21,7 @@ export function useInfiniteScrollQuery<T>({
     queryFn: ({ pageParam }) => queryFn(pageParam, perPage),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
-      lastPage.meta.currentPage < lastPage.meta.lastPage
+      lastPage.meta && lastPage.meta.currentPage < lastPage.meta.lastPage
         ? lastPage.meta.currentPage + 1
         : undefined,
     enabled,

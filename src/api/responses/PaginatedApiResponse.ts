@@ -5,7 +5,7 @@ interface PaginatedApiResponse<T> {
     lastPage: number;
     perPage: number;
     total: number;
-  };
+  } | null;
 }
 
 export default PaginatedApiResponse;

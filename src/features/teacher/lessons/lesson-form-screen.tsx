@@ -9,12 +9,18 @@ import {
 } from "@/hooks/queries/items/lesson";
 import { useSchoolClasses } from "@/hooks/queries/items/school-class";
 import { useSchoolSpaces } from "@/hooks/queries/items/school-space";
-import { useCurrentSchoolYear, useSchoolYears } from "@/hooks/queries/items/school-year";
+import {
+  useCurrentSchoolYear,
+  useSchoolYears,
+} from "@/hooks/queries/items/school-year";
 import { useTeachingCourses } from "@/hooks/queries/items/teaching-course";
 import { useTeachingSchedulesByLessonDate } from "@/hooks/queries/items/teaching-schedule";
 import { handleApiError } from "@/lib/handle-api-error";
 import { toastNotify } from "@/lib/toast";
-import { lessonSchema, type LessonFormValues } from "@/utils/schemas/lesson-schema";
+import {
+  lessonSchema,
+  type LessonFormValues,
+} from "@/utils/schemas/lesson-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router, Stack } from "expo-router";
 import { useEffect } from "react";
@@ -125,7 +131,8 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
 
   useEffect(() => {
     if (isEditing) return;
-    if (schoolClasses?.length === 1) setValue("schoolClassId", schoolClasses[0].id);
+    if (schoolClasses?.length === 1)
+      setValue("schoolClassId", schoolClasses[0].id);
   }, [schoolClasses, isEditing, setValue]);
 
   useEffect(() => {
@@ -149,7 +156,8 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
       teachingSchedules[teachingSchedules.length - 1]?.courseSchedulePeriod
         ?.endTime;
 
-    if (!dirtyFields.startTime && first) setValue("startTime", first.slice(0, 5));
+    if (!dirtyFields.startTime && first)
+      setValue("startTime", first.slice(0, 5));
     if (!dirtyFields.endTime && last) setValue("endTime", last.slice(0, 5));
   }, [teachingSchedules, dirtyFields.startTime, dirtyFields.endTime, setValue]);
 
@@ -169,7 +177,9 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
       }
 
       toastNotify(
-        isEditing ? "Leçon modifiée avec succès." : "Leçon ajoutée avec succès.",
+        isEditing
+          ? "Leçon modifiée avec succès."
+          : "Leçon ajoutée avec succès.",
         "success",
       );
       router.back();
@@ -207,7 +217,10 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
         }}
       />
 
-      <ScrollView className="flex-1 bg-white" contentContainerStyle={{ padding: 16 }}>
+      <ScrollView
+        className="flex-1 bg-white"
+        contentContainerStyle={{ padding: 16 }}
+      >
         <Text className="text-sm font-medium text-gray-700 mb-2">N° Fiche</Text>
         <Controller
           control={control}
@@ -223,7 +236,9 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
           )}
         />
         {errors.fileNo && (
-          <Text className="text-xs text-red-500 mb-3">{errors.fileNo.message}</Text>
+          <Text className="text-xs text-red-500 mb-3">
+            {errors.fileNo.message}
+          </Text>
         )}
 
         <Controller
@@ -253,7 +268,8 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
               placeholder="Sélectionner une classe"
               options={(schoolClasses ?? []).map((schoolClass) => ({
                 id: schoolClass.id,
-                label: schoolClass.title ?? schoolClass.abbreviation ?? "Classe",
+                label:
+                  schoolClass.title ?? schoolClass.abbreviation ?? "Classe",
               }))}
               value={value}
               onChange={(id) => {
@@ -292,7 +308,9 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
           )}
         />
         {errors.courseId && (
-          <Text className="text-xs text-red-500 mb-3">{errors.courseId.message}</Text>
+          <Text className="text-xs text-red-500 mb-3">
+            {errors.courseId.message}
+          </Text>
         )}
 
         <Controller
@@ -307,7 +325,9 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
           )}
         />
         {errors.lessonDate && (
-          <Text className="text-xs text-red-500 mb-3">{errors.lessonDate.message}</Text>
+          <Text className="text-xs text-red-500 mb-3">
+            {errors.lessonDate.message}
+          </Text>
         )}
 
         <View className="flex-row gap-3">
@@ -335,10 +355,14 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
           />
         </View>
         {errors.startTime && (
-          <Text className="text-xs text-red-500 mt-1">{errors.startTime.message}</Text>
+          <Text className="text-xs text-red-500 mt-1">
+            {errors.startTime.message}
+          </Text>
         )}
         {errors.endTime && (
-          <Text className="text-xs text-red-500 mb-3">{errors.endTime.message}</Text>
+          <Text className="text-xs text-red-500 mb-3">
+            {errors.endTime.message}
+          </Text>
         )}
 
         <Controller
@@ -379,10 +403,14 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
           )}
         />
         {errors.subject && (
-          <Text className="text-xs text-red-500 mb-3">{errors.subject.message}</Text>
+          <Text className="text-xs text-red-500 mb-3">
+            {errors.subject.message}
+          </Text>
         )}
 
-        <Text className="text-sm font-medium text-gray-700 mb-2">Commentaires</Text>
+        <Text className="text-sm font-medium text-gray-700 mb-2">
+          Commentaires
+        </Text>
         <Controller
           control={control}
           name="comments"
@@ -397,7 +425,9 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
           )}
         />
         {errors.comments && (
-          <Text className="text-xs text-red-500 mb-1">{errors.comments.message}</Text>
+          <Text className="text-xs text-red-500 mb-1">
+            {errors.comments.message}
+          </Text>
         )}
 
         <Pressable

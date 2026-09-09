@@ -4,10 +4,39 @@ import { Pressable, Text, View } from "react-native";
 type FilterButtonProps = {
   activeCount?: number;
   onPress: () => void;
+  fullWidth?: boolean;
 };
 
-export function FilterButton({ activeCount = 0, onPress }: FilterButtonProps) {
+export function FilterButton({
+  activeCount = 0,
+  onPress,
+  fullWidth = false,
+}: FilterButtonProps) {
   const hasActiveFilters = activeCount > 0;
+
+  if (fullWidth) {
+    return (
+      <Pressable
+        onPress={onPress}
+        className={`h-11 w-full flex-row items-center justify-center gap-2 rounded-lg ${
+          hasActiveFilters ? "bg-black" : "bg-gray-100"
+        }`}
+      >
+        <Ionicons
+          name="options-outline"
+          size={18}
+          color={hasActiveFilters ? "#FFFFFF" : "#374151"}
+        />
+        <Text
+          className={`text-sm font-medium ${
+            hasActiveFilters ? "text-white" : "text-gray-700"
+          }`}
+        >
+          {hasActiveFilters ? `Filtrer (${activeCount})` : "Filtrer"}
+        </Text>
+      </Pressable>
+    );
+  }
 
   return (
     <Pressable

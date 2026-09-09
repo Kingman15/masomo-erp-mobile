@@ -12,6 +12,7 @@ export default function TeacherLayout() {
     >
       <Drawer.Screen name="lessons" options={{ headerShown: false }} />
       <Drawer.Screen name="teaching-courses" options={{ headerShown: false }} />
+      <Drawer.Screen name="evaluations" options={{ headerShown: false }} />
     </Drawer>
   );
 }
