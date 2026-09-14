@@ -1,10 +1,11 @@
 import { FilterButton } from "@/components/list/filter-button";
 import { SearchBar } from "@/components/list/search-bar";
+import { DrawerMenuButton } from "@/features/teacher/drawer-menu-button";
 import { useLessons } from "@/hooks/queries/items/lesson";
 import type { Lesson } from "@/utils/types/Lesson";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { FlashList } from "@shopify/flash-list";
-import { Stack, router, useNavigation } from "expo-router";
+import { Stack, router } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { LessonFilterPanel } from "./lesson-filter-panel";
@@ -12,7 +13,6 @@ import { emptyLessonFilters, type LessonFiltersForm } from "./lesson-filters";
 import { LessonRow } from "./lesson-row";
 
 export function LessonsScreen() {
-  const navigation = useNavigation();
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<LessonFiltersForm>(emptyLessonFilters);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -57,14 +57,7 @@ export function LessonsScreen() {
       <Stack.Screen
         options={{
           title: "Leçons",
-          headerLeft: () => (
-            <Pressable
-              onPress={() => navigation.dispatch({ type: "OPEN_DRAWER" })}
-              hitSlop={8}
-            >
-              <Ionicons name="menu-outline" size={24} color="#000000" />
-            </Pressable>
-          ),
+          headerLeft: () => <DrawerMenuButton />,
           headerRight: () => (
             <Pressable
               onPress={() => router.push("/teacher/lessons/new")}

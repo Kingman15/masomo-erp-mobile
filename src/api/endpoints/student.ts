@@ -1,5 +1,6 @@
 import { Student } from "@/utils/types/Student";
 import { AxiosInstance } from "axios";
+import ApiResponse from "../responses/ApiResponse";
 import PaginatedApiResponse from "../responses/PaginatedApiResponse";
 
 interface StudentFilters {
@@ -17,4 +18,11 @@ export async function index(
     params: { ...filters, page, perPage },
   });
   return data;
+}
+
+export async function currentStudents(api: AxiosInstance): Promise<Student[]> {
+  const { data } = await api.get<ApiResponse<Student[]>>(
+    "/students/current-students",
+  );
+  return data.data;
 }

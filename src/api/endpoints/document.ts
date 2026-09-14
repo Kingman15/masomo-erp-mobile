@@ -85,3 +85,43 @@ export async function store(
   );
   return data.data;
 }
+
+export interface CreateDocumentUploadPayload {
+  uri: string;
+  name: string;
+  mimeType: string;
+  schoolYearId?: string | null;
+  title?: string | null;
+  category?: string | null;
+  description?: string | null;
+}
+
+// Téléversement simple, sans partage (distinct de store()/"Partager un
+// document") — utilisé pour joindre un nouveau fichier à un message.
+export async function storeUpload(
+  api: AxiosInstance,
+  payload: CreateDocumentUploadPayload,
+): Promise<Document> {
+  const formData = new FormData();
+
+  formData.append("file", {
+    uri: payload.uri,
+    name: payload.name,
+    type: payload.mimeType,
+  } as unknown as Blob);
+  if (payload.schoolYearId) {
+    formData.append("school_year_id", payload.schoolYearId);
+  }
+  if (payload.title) formData.append("title", payload.title);
+  if (payload.category) formData.append("category", payload.category);
+  if (payload.description) {
+    formData.append("description", payload.description);
+  }
+
+  const { data } = await api.post<ApiResponse<Document>>(
+    "/document-uploads",
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return data.data;
+}

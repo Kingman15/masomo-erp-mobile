@@ -5,7 +5,10 @@ type PlaceholderScreenProps = {
   description?: string;
 };
 
-export function PlaceholderScreen({ title, description }: PlaceholderScreenProps) {
+export function PlaceholderScreen({
+  title,
+  description,
+}: PlaceholderScreenProps) {
   return (
     <View className="flex-1 items-center justify-center px-6 bg-white">
       <Text className="text-2xl font-medium mb-2 text-center">{title}</Text>

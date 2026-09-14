@@ -1,10 +1,11 @@
 import { FilterButton } from "@/components/list/filter-button";
 import { SearchBar } from "@/components/list/search-bar";
+import { DrawerMenuButton } from "@/features/teacher/drawer-menu-button";
 import { useDocuments } from "@/hooks/queries/items/document";
 import { useCurrentSchoolYear } from "@/hooks/queries/items/school-year";
 import type { Document } from "@/utils/types/Document";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { router, Stack, useNavigation } from "expo-router";
+import { router, Stack } from "expo-router";
 import { useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -54,7 +55,6 @@ function groupDocumentsByCategory(documents: Document[]): DocumentGroup[] {
 }
 
 export function DocumentsScreen() {
-  const navigation = useNavigation();
 
   const [filters, setFilters] = useState<DocumentFiltersForm>(
     emptyDocumentFilters,
@@ -96,14 +96,7 @@ export function DocumentsScreen() {
       <Stack.Screen
         options={{
           title: "Documents",
-          headerLeft: () => (
-            <Pressable
-              onPress={() => navigation.dispatch({ type: "OPEN_DRAWER" })}
-              hitSlop={8}
-            >
-              <Ionicons name="menu-outline" size={24} color="#000000" />
-            </Pressable>
-          ),
+          headerLeft: () => <DrawerMenuButton />,
           headerRight: () => (
             <Pressable
               onPress={() => router.push("/teacher/documents/new")}

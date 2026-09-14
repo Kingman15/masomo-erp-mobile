@@ -11,3 +11,5 @@
 Le projet web équivalent est dans ../web (lecture seule, ne jamais modifier).
 Toute logique métier (validation, appels API, types) doit s'aligner sur ce qui existe là-bas.
 Ne pas consulter l'api dans ../api, le web fait foi.
+
+- Mon systeme de pagination se base surtout dans ApiResource, il faut etendre dès qu'il faut faire la pagination.

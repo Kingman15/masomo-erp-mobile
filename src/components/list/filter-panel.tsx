@@ -10,6 +10,9 @@ type FilterPanelProps = {
   onClose: () => void;
   applyLabel?: string;
   resetLabel?: string;
+  /** Le panneau ne pose pas sa propre marge horizontale : à utiliser quand le
+   * parent fournit déjà l'espacement (ex. contenu déjà en padding). */
+  bleed?: boolean;
 };
 
 export function FilterPanel({
@@ -20,12 +23,13 @@ export function FilterPanel({
   onClose,
   applyLabel = "Appliquer",
   resetLabel = "Réinitialiser",
+  bleed = false,
 }: FilterPanelProps) {
   return (
     <Animated.View
       entering={FadeIn.duration(150)}
       exiting={FadeOut.duration(120)}
-      className="mx-4 mb-2 rounded-xl border border-gray-200 bg-white overflow-hidden"
+      className={`${bleed ? "" : "mx-4"} mb-2 rounded-xl border border-gray-200 bg-white overflow-hidden`}
     >
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100">
         <Text className="text-base font-semibold">{title}</Text>

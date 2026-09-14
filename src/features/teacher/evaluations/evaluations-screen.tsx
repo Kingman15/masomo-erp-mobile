@@ -1,10 +1,11 @@
 import { FilterButton } from "@/components/list/filter-button";
+import { DrawerMenuButton } from "@/features/teacher/drawer-menu-button";
 import { useCurrentSchoolYear } from "@/hooks/queries/items/school-year";
 import { useTeachingCourseEvaluations } from "@/hooks/queries/items/teaching-course-evaluation";
 import type { TeachingCourseEvaluation } from "@/utils/types/TeachingCourseEvaluation";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { FlashList } from "@shopify/flash-list";
-import { Stack, router, useNavigation } from "expo-router";
+import { Stack, router } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { EvaluationFilterPanel } from "./evaluation-filter-panel";
@@ -15,7 +16,6 @@ import {
 import { EvaluationRow } from "./evaluation-row";
 
 export function EvaluationsScreen() {
-  const navigation = useNavigation();
   const [filters, setFilters] = useState<EvaluationFiltersForm>(
     emptyEvaluationFilters,
   );
@@ -76,14 +76,7 @@ export function EvaluationsScreen() {
       <Stack.Screen
         options={{
           title: "Évaluations",
-          headerLeft: () => (
-            <Pressable
-              onPress={() => navigation.dispatch({ type: "OPEN_DRAWER" })}
-              hitSlop={8}
-            >
-              <Ionicons name="menu-outline" size={24} color="#000000" />
-            </Pressable>
-          ),
+          headerLeft: () => <DrawerMenuButton />,
           headerRight: () => (
             <Pressable
               onPress={() => router.push("/teacher/evaluations/new")}

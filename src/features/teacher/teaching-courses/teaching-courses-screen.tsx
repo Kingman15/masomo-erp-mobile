@@ -1,8 +1,9 @@
+import { DrawerMenuButton } from "@/features/teacher/drawer-menu-button";
 import { useTeachingCourses } from "@/hooks/queries/items/teaching-course";
 import type { TeachingCourse } from "@/utils/types/TeachingCourse";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { FlashList } from "@shopify/flash-list";
-import { Stack, router, useNavigation } from "expo-router";
+import { Stack, router } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { TeachingCourseFilterPanel } from "./teaching-course-filter-panel";
@@ -13,7 +14,6 @@ import {
 import { TeachingCourseRow } from "./teaching-course-row";
 
 export function TeachingCoursesScreen() {
-  const navigation = useNavigation();
   const [filters, setFilters] = useState<TeachingCourseFiltersForm>(
     emptyTeachingCourseFilters,
   );
@@ -49,14 +49,7 @@ export function TeachingCoursesScreen() {
       <Stack.Screen
         options={{
           title: "Cours",
-          headerLeft: () => (
-            <Pressable
-              onPress={() => navigation.dispatch({ type: "OPEN_DRAWER" })}
-              hitSlop={8}
-            >
-              <Ionicons name="menu-outline" size={24} color="#000000" />
-            </Pressable>
-          ),
+          headerLeft: () => <DrawerMenuButton />,
         }}
       />
 

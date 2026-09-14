@@ -69,4 +69,10 @@ export const TEACHER_MENU: TeacherMenuItem[] = [
     icon: "chatbubble-ellipses-outline",
     href: "/teacher/messaging",
   },
+  {
+    type: "link",
+    label: "Profil",
+    icon: "person-outline",
+    href: "/teacher/profil",
+  },
 ];

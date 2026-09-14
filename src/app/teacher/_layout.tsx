@@ -21,6 +21,7 @@ export default function TeacherLayout() {
         options={{ headerShown: false }}
       />
       <Drawer.Screen name="documents" options={{ headerShown: false }} />
+      <Drawer.Screen name="messaging" options={{ headerShown: false }} />
     </Drawer>
   );
 }

@@ -1,10 +1,11 @@
 import { FilterButton } from "@/components/list/filter-button";
+import { DrawerMenuButton } from "@/features/teacher/drawer-menu-button";
 import { useCurrentSchoolYear } from "@/hooks/queries/items/school-year";
 import { useStudentIncidentSanctions } from "@/hooks/queries/items/student-incident-sanction";
 import type { StudentIncidentSanction } from "@/utils/types/StudentIncidentSanction";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { FlashList } from "@shopify/flash-list";
-import { Stack, router, useNavigation } from "expo-router";
+import { Stack, router } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { SanctionFilterPanel } from "./sanction-filter-panel";
@@ -15,7 +16,6 @@ import {
 import { SanctionRow } from "./sanction-row";
 
 export function SanctionsScreen() {
-  const navigation = useNavigation();
   const [filters, setFilters] = useState<SanctionFiltersForm>(
     emptySanctionFilters,
   );
@@ -65,14 +65,7 @@ export function SanctionsScreen() {
       <Stack.Screen
         options={{
           title: "Sanctions",
-          headerLeft: () => (
-            <Pressable
-              onPress={() => navigation.dispatch({ type: "OPEN_DRAWER" })}
-              hitSlop={8}
-            >
-              <Ionicons name="menu-outline" size={24} color="#000000" />
-            </Pressable>
-          ),
+          headerLeft: () => <DrawerMenuButton />,
         }}
       />
 

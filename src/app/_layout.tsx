@@ -4,11 +4,14 @@ import { checkHealth } from "@/api/endpoints/health";
 import { Toast } from "@/components/toast";
 import { queryClient } from "@/lib/queryClient";
 import { useAuthStore } from "@/stores/auth";
+import { usePortalSelectionStore } from "@/stores/portal-selection";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Redirect, Stack, useSegments } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 
 const ROLE_HOME = {
   backoffice: "/backoffice",
@@ -18,9 +21,12 @@ const ROLE_HOME = {
 
 export default function RootLayout() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <RootNavigation />
-    </QueryClientProvider>
+    <KeyboardProvider>
+      <QueryClientProvider client={queryClient}>
+        <StatusBar style="dark" />
+        <RootNavigation />
+      </QueryClientProvider>
+    </KeyboardProvider>
   );
 }
 
@@ -30,6 +36,7 @@ function RootNavigation() {
 
   useEffect(() => {
     hydrate();
+    usePortalSelectionStore.getState().hydrate();
 
     checkHealth()
       .then(() => console.log("[health] serveur joignable"))

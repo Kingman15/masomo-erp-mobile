@@ -7,6 +7,8 @@ import '@/global.css';
 
 import { Platform } from 'react-native';
 
+export const BRAND_PRIMARY = '#7351E8';
+
 export const Colors = {
   light: {
     text: '#000000',
@@ -14,6 +16,7 @@ export const Colors = {
     backgroundElement: '#F0F0F3',
     backgroundSelected: '#E0E1E6',
     textSecondary: '#60646C',
+    primary: BRAND_PRIMARY,
   },
   dark: {
     text: '#ffffff',
@@ -21,6 +24,7 @@ export const Colors = {
     backgroundElement: '#212225',
     backgroundSelected: '#2E3135',
     textSecondary: '#B0B4BA',
+    primary: BRAND_PRIMARY,
   },
 } as const;
 

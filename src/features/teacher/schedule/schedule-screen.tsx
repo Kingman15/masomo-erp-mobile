@@ -1,9 +1,10 @@
 import { FilterButton } from "@/components/list/filter-button";
+import { DrawerMenuButton } from "@/features/teacher/drawer-menu-button";
 import { useActiveCourseSchedule } from "@/hooks/queries/items/course-schedule";
 import { useCurrentSchoolYear } from "@/hooks/queries/items/school-year";
 import { useTeachingScheduleDTOs } from "@/hooks/queries/items/teaching-schedule";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Stack, useNavigation } from "expo-router";
+import { Stack } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -22,7 +23,6 @@ import {
 } from "./schedule-filters";
 
 export function ScheduleScreen() {
-  const navigation = useNavigation();
 
   const [filters, setFilters] = useState<ScheduleFiltersForm>(
     emptyScheduleFilters,
@@ -78,14 +78,7 @@ export function ScheduleScreen() {
       <Stack.Screen
         options={{
           title: "Horaire",
-          headerLeft: () => (
-            <Pressable
-              onPress={() => navigation.dispatch({ type: "OPEN_DRAWER" })}
-              hitSlop={8}
-            >
-              <Ionicons name="menu-outline" size={24} color="#000000" />
-            </Pressable>
-          ),
+          headerLeft: () => <DrawerMenuButton />,
         }}
       />
 

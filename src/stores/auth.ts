@@ -8,6 +8,7 @@ import {
   verifySchoolCode,
   type LoginPayload,
 } from "@/api/endpoints/auth";
+import { usePortalSelectionStore } from "@/stores/portal-selection";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
 import { create } from "zustand";
@@ -113,6 +114,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   changeSchool: async () => {
     await SecureStore.deleteItemAsync(SCHOOL_INFO_KEY);
     await clearSchoolCode();
+    usePortalSelectionStore.getState().clearSelection();
     set({ school: null, status: "needsSchool", user: null });
   },
 
@@ -150,6 +152,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       SecureStore.deleteItemAsync(AUTH_STORAGE_KEY),
       AsyncStorage.removeItem(USER_STORAGE_KEY),
     ]);
+
+    usePortalSelectionStore.getState().clearSelection();
 
     set({
       user: null,

@@ -1,12 +1,18 @@
 import api from "@/api/client";
 import {
   index,
+  portalIndex,
+  portalShow,
   show as fetchStudentIncidentSanctionById,
+  type PortalSanctionDetailDTO,
 } from "@/api/endpoints/studentIncidentSanction";
 import { studentIncidentSanctionKeys } from "@/utils/query-keys/student-incident-sanction";
-import { StudentIncidentSanction } from "@/utils/types/StudentIncidentSanction";
+import { portalSanctionKeys } from "@/utils/query-keys/portal-sanction";
+import { StudentIncidentSanction, StudentIncidentSanctionStatus } from "@/utils/types/StudentIncidentSanction";
 import { useDetailQuery } from "../use-detail-query";
 import { useInfiniteScrollQuery } from "../use-infinite-scroll-query";
+import { useListQuery } from "../use-list-query";
+import { useSingletonQuery } from "../use-singleton-query";
 
 interface UseStudentIncidentSanctionsParams {
   filters: {
@@ -75,5 +81,75 @@ export function useStudentIncidentSanctionById(id: string | undefined) {
     studentIncidentSanctionIsLoading: query.isLoading,
     studentIncidentSanctionError: query.error,
     loadStudentIncidentSanction: query.refetch,
+  };
+}
+
+interface UsePortalSanctionsParams {
+  studentId?: string | null;
+  filters?: {
+    schoolYearId?: string | null;
+    incidentTypeId?: string | null;
+    sanctionTypeId?: string | null;
+    status?: StudentIncidentSanctionStatus | null;
+    startDate?: string | null;
+    endDate?: string | null;
+    schoolClassId?: string | null;
+  };
+  enabled?: boolean;
+}
+
+export function usePortalSanctions({
+  studentId,
+  filters = {},
+  enabled = true,
+}: UsePortalSanctionsParams) {
+  const normalizedFilters = {
+    schoolYearId: filters.schoolYearId ?? undefined,
+    incidentTypeId: filters.incidentTypeId ?? undefined,
+    sanctionTypeId: filters.sanctionTypeId ?? undefined,
+    status: filters.status ?? undefined,
+    startDate: filters.startDate ?? undefined,
+    endDate: filters.endDate ?? undefined,
+    schoolClassId: filters.schoolClassId ?? undefined,
+  };
+
+  const query = useListQuery<PortalSanctionDetailDTO["sanction"]>({
+    queryKey: portalSanctionKeys.list(studentId, filters),
+    queryFn: () => portalIndex(api, studentId!, normalizedFilters),
+    label: "Sanctions",
+    enabled: enabled && Boolean(studentId),
+  });
+
+  return {
+    portalSanctions: query.data,
+    portalSanctionsError: query.error,
+    portalSanctionsIsLoading: query.isLoading,
+    portalSanctionsIsFetching: query.isFetching,
+    loadPortalSanctions: query.refetch,
+  };
+}
+
+interface UsePortalSanctionParams {
+  studentId?: string | null;
+  sanctionId?: string | null;
+}
+
+export function usePortalSanction({
+  studentId,
+  sanctionId,
+}: UsePortalSanctionParams) {
+  const query = useSingletonQuery<PortalSanctionDetailDTO>({
+    queryKey: portalSanctionKeys.detail(studentId, sanctionId ?? undefined),
+    queryFn: () => portalShow(api, studentId!, sanctionId!),
+    label: "Sanction",
+    enabled: Boolean(studentId && sanctionId),
+  });
+
+  return {
+    portalSanction: query.data?.sanction ?? null,
+    portalSanctionIncident: query.data?.incident ?? null,
+    portalSanctionIsLoading: query.isLoading,
+    portalSanctionError: query.error,
+    loadPortalSanction: query.refetch,
   };
 }

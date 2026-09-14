@@ -1,9 +1,10 @@
 import { FilterButton } from "@/components/list/filter-button";
+import { DrawerMenuButton } from "@/features/teacher/drawer-menu-button";
 import { useCurrentSchoolYear } from "@/hooks/queries/items/school-year";
 import { useStudentInternalRegulations } from "@/hooks/queries/items/student-internal-regulation";
 import { useStudentRegulationArticles } from "@/hooks/queries/items/student-regulation-article";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Stack, useNavigation } from "expo-router";
+import { Stack } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -31,7 +32,6 @@ function countActiveFilters(filters: InternalRegulationFiltersForm): number {
 }
 
 export function InternalRegulationsScreen() {
-  const navigation = useNavigation();
 
   const [filters, setFilters] = useState<InternalRegulationFiltersForm>(
     emptyInternalRegulationFilters,
@@ -121,14 +121,7 @@ export function InternalRegulationsScreen() {
       <Stack.Screen
         options={{
           title: "Règlement d'ordre intérieur",
-          headerLeft: () => (
-            <Pressable
-              onPress={() => navigation.dispatch({ type: "OPEN_DRAWER" })}
-              hitSlop={8}
-            >
-              <Ionicons name="menu-outline" size={24} color="#000000" />
-            </Pressable>
-          ),
+          headerLeft: () => <DrawerMenuButton />,
         }}
       />
 

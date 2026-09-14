@@ -3,4 +3,6 @@ export const studentKeys = {
 
   list: (filters: { schoolYearId?: string | null; searchTerm?: string | null }) =>
     [...studentKeys.all, "list", filters] as const,
+
+  currentStudents: () => [...studentKeys.all, "currentStudents"] as const,
 };

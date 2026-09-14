@@ -1,7 +1,10 @@
+import { useUnreadNotificationsCount } from "@/hooks/queries/items/notification";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router/js-tabs";
 
 export default function PortalLayout() {
+  const { unreadCount } = useUnreadNotificationsCount({});
+
   return (
     <Tabs
       screenOptions={{
@@ -47,6 +50,8 @@ export default function PortalLayout() {
               size={size}
             />
           ),
+          tabBarBadge: unreadCount > 0 ? (unreadCount > 9 ? "9+" : unreadCount) : undefined,
+          tabBarBadgeStyle: { backgroundColor: "#EF4444" },
         }}
       />
       <Tabs.Screen

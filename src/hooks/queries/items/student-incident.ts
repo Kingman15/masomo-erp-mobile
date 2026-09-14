@@ -1,15 +1,21 @@
 import api from "@/api/client";
 import {
   index,
+  portalIndex,
+  portalShow,
   show as fetchStudentIncidentById,
   teacherReport,
+  type PortalIncidentDetailDTO,
   type TeacherReportStudentIncidentPayload,
 } from "@/api/endpoints/studentIncident";
 import { studentIncidentKeys } from "@/utils/query-keys/student-incident";
-import { StudentIncident } from "@/utils/types/StudentIncident";
+import { portalIncidentKeys } from "@/utils/query-keys/portal-incident";
+import { StudentIncident, StudentIncidentStatus } from "@/utils/types/StudentIncident";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useDetailQuery } from "../use-detail-query";
 import { useInfiniteScrollQuery } from "../use-infinite-scroll-query";
+import { useListQuery } from "../use-list-query";
+import { useSingletonQuery } from "../use-singleton-query";
 
 interface UseStudentIncidentsParams {
   filters: {
@@ -78,6 +84,72 @@ export function useStudentIncidentById(id: string | undefined) {
     studentIncidentIsLoading: query.isLoading,
     studentIncidentError: query.error,
     loadStudentIncident: query.refetch,
+  };
+}
+
+interface UsePortalIncidentsParams {
+  studentId?: string | null;
+  filters?: {
+    schoolYearId?: string | null;
+    status?: StudentIncidentStatus | null;
+    startDate?: string | null;
+    endDate?: string | null;
+    schoolClassId?: string | null;
+  };
+  enabled?: boolean;
+}
+
+export function usePortalIncidents({
+  studentId,
+  filters = {},
+  enabled = true,
+}: UsePortalIncidentsParams) {
+  const normalizedFilters = {
+    schoolYearId: filters.schoolYearId ?? undefined,
+    status: filters.status ?? undefined,
+    startDate: filters.startDate ?? undefined,
+    endDate: filters.endDate ?? undefined,
+    schoolClassId: filters.schoolClassId ?? undefined,
+  };
+
+  const query = useListQuery<PortalIncidentDetailDTO["incident"]>({
+    queryKey: portalIncidentKeys.list(studentId, filters),
+    queryFn: () => portalIndex(api, studentId!, normalizedFilters),
+    label: "Incidents",
+    enabled: enabled && Boolean(studentId),
+  });
+
+  return {
+    portalIncidents: query.data,
+    portalIncidentsError: query.error,
+    portalIncidentsIsLoading: query.isLoading,
+    portalIncidentsIsFetching: query.isFetching,
+    loadPortalIncidents: query.refetch,
+  };
+}
+
+interface UsePortalIncidentParams {
+  studentId?: string | null;
+  incidentId?: string | null;
+}
+
+export function usePortalIncident({
+  studentId,
+  incidentId,
+}: UsePortalIncidentParams) {
+  const query = useSingletonQuery<PortalIncidentDetailDTO>({
+    queryKey: portalIncidentKeys.detail(studentId, incidentId ?? undefined),
+    queryFn: () => portalShow(api, studentId!, incidentId!),
+    label: "Incident",
+    enabled: Boolean(studentId && incidentId),
+  });
+
+  return {
+    portalIncident: query.data?.incident ?? null,
+    portalIncidentSanctions: query.data?.sanctions ?? [],
+    portalIncidentIsLoading: query.isLoading,
+    portalIncidentError: query.error,
+    loadPortalIncident: query.refetch,
   };
 }
 

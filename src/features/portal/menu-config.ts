@@ -23,7 +23,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
     icon: "document-text-outline",
     color: "#2563eb",
     subItems: [
-      { slug: "assessments", label: "Évaluations", icon: "create-outline" },
+      { slug: "evaluations", label: "Évaluations", icon: "create-outline" },
       { slug: "results", label: "Résultats", icon: "bar-chart-outline" },
       { slug: "averages", label: "Moyennes", icon: "calculator-outline" },
       { slug: "honor-roll", label: "Palmarès", icon: "trophy-outline" },
@@ -39,7 +39,11 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       { slug: "attendance", label: "Présences", icon: "checkbox-outline" },
       { slug: "incidents", label: "Incidents", icon: "alert-circle-outline" },
       { slug: "sanctions", label: "Sanctions", icon: "hand-left-outline" },
-      { slug: "rules", label: "Règlement d'ordre intérieur", icon: "book-outline" },
+      {
+        slug: "rules",
+        label: "Règlement d'ordre intérieur",
+        icon: "book-outline",
+      },
     ],
   },
   {
@@ -62,10 +66,18 @@ export const MENU_CATEGORIES: MenuCategory[] = [
     color: "#d97706",
     subItems: [
       { slug: "subscriptions", label: "Abonnements", icon: "bookmark-outline" },
-      { slug: "subscription-fees", label: "Frais d'abonnement", icon: "pricetag-outline" },
-      { slug: "invoices-payments", label: "Factures & paiements", icon: "receipt-outline" },
+      {
+        slug: "subscription-fees",
+        label: "Frais d'abonnement",
+        icon: "pricetag-outline",
+      },
+      {
+        slug: "invoices-payments",
+        label: "Factures & paiements",
+        icon: "receipt-outline",
+      },
       { slug: "schedule", label: "Horaires", icon: "time-outline" },
-      { slug: "card", label: "Carte", icon: "id-card-outline" },
+      { slug: "card-maps", label: "Carte Maps", icon: "id-card-outline" },
     ],
   },
   {
@@ -75,9 +87,21 @@ export const MENU_CATEGORIES: MenuCategory[] = [
     icon: "chatbubbles-outline",
     color: "#7c3aed",
     subItems: [
-      { slug: "documents", label: "Documents partagés", icon: "folder-outline" },
-      { slug: "announcements", label: "Communiqués", icon: "megaphone-outline" },
-      { slug: "messaging", label: "Messagerie", icon: "chatbubble-ellipses-outline" },
+      {
+        slug: "documents",
+        label: "Documents partagés",
+        icon: "folder-outline",
+      },
+      {
+        slug: "announcements",
+        label: "Communiqués",
+        icon: "megaphone-outline",
+      },
+      {
+        slug: "messaging",
+        label: "Messagerie",
+        icon: "chatbubble-ellipses-outline",
+      },
     ],
   },
   {

@@ -7,6 +7,8 @@ import {
   store,
   update,
   updateCountsTowardsFinal,
+  portalIndex,
+  portalShow,
 } from "@/api/endpoints/teachingCourseEvaluation";
 import {
   TeachingCourseEvaluationCountsTowardsFinalFormValues,
@@ -18,6 +20,10 @@ import { TeachingCourseEvaluation } from "@/utils/types/TeachingCourseEvaluation
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useDetailQuery } from "../use-detail-query";
 import { useInfiniteScrollQuery } from "../use-infinite-scroll-query";
+import { useListQuery } from "../use-list-query";
+import { useSingletonQuery } from "../use-singleton-query";
+import { PortalTeachingCourseEvaluationDTO } from "@/utils/types/objects/PortalTeachingCourseEvaluationDTO";
+import { portalTeachingCourseEvaluationKeys } from "@/utils/query-keys/portal-teaching-course-evaluation";
 
 interface UseTeachingCourseEvaluationsParams {
   filters: {
@@ -66,6 +72,77 @@ export function useTeachingCourseEvaluations({
     teachingCourseEvaluationsHasNextPage: query.hasNextPage,
     fetchNextTeachingCourseEvaluations: query.fetchNextPage,
     loadTeachingCourseEvaluations: query.refetch,
+  };
+}
+
+interface UsePortalTeachingCourseEvaluationsParams {
+  studentId?: string | null;
+  filters?: {
+    schoolYearId?: string | null;
+    schoolClassId?: string | null;
+    evaluationPeriodId?: string | null;
+    courseId?: string | null;
+  };
+  enabled?: boolean;
+}
+
+export function usePortalTeachingCourseEvaluations({
+  studentId,
+  filters = {},
+  enabled = true,
+}: UsePortalTeachingCourseEvaluationsParams) {
+  const normalizedFilters = {
+    schoolYearId: filters.schoolYearId ?? undefined,
+    schoolClassId: filters.schoolClassId ?? undefined,
+    evaluationPeriodId: filters.evaluationPeriodId ?? undefined,
+    courseId: filters.courseId ?? undefined,
+  };
+
+  const query = useListQuery<PortalTeachingCourseEvaluationDTO>({
+    queryKey: portalTeachingCourseEvaluationKeys.list(
+      studentId,
+      normalizedFilters,
+    ),
+    queryFn: () => portalIndex(api, studentId!, normalizedFilters),
+    label: "Évaluations",
+    enabled:
+      enabled &&
+      Boolean(studentId && filters.schoolYearId && filters.schoolClassId),
+  });
+
+  return {
+    portalTeachingCourseEvaluations: query.data,
+    portalTeachingCourseEvaluationsError: query.error,
+    portalTeachingCourseEvaluationsIsLoading: query.isLoading,
+    portalTeachingCourseEvaluationsIsFetching: query.isFetching,
+    loadPortalTeachingCourseEvaluations: query.refetch,
+  };
+}
+
+interface UsePortalTeachingCourseEvaluationByIdParams {
+  studentId?: string | null;
+  evaluationId?: string;
+}
+
+export function usePortalTeachingCourseEvaluationById({
+  studentId,
+  evaluationId,
+}: UsePortalTeachingCourseEvaluationByIdParams) {
+  const query = useSingletonQuery<PortalTeachingCourseEvaluationDTO>({
+    queryKey: portalTeachingCourseEvaluationKeys.detail(
+      studentId,
+      evaluationId,
+    ),
+    queryFn: () => portalShow(api, studentId!, evaluationId!),
+    label: "Évaluation",
+    enabled: Boolean(studentId && evaluationId),
+  });
+
+  return {
+    portalTeachingCourseEvaluation: query.data,
+    portalTeachingCourseEvaluationIsLoading: query.isLoading,
+    portalTeachingCourseEvaluationError: query.error,
+    loadPortalTeachingCourseEvaluation: query.refetch,
   };
 }
 
@@ -178,7 +255,9 @@ export function useUpdateTeachingCourseEvaluationCountsTowardsFinal(
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (payload: TeachingCourseEvaluationCountsTowardsFinalFormValues) => {
+    mutationFn: (
+      payload: TeachingCourseEvaluationCountsTowardsFinalFormValues,
+    ) => {
       if (!id) return Promise.reject(new Error("No evaluation to update"));
       return updateCountsTowardsFinal(api, id, payload);
     },

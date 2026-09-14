@@ -7,6 +7,7 @@ import { TeachingCourseEvaluation } from "@/utils/types/TeachingCourseEvaluation
 import { AxiosInstance } from "axios";
 import ApiResponse from "../responses/ApiResponse";
 import PaginatedApiResponse from "../responses/PaginatedApiResponse";
+import { PortalTeachingCourseEvaluationDTO } from "@/utils/types/objects/PortalTeachingCourseEvaluationDTO";
 
 interface TeachingCourseEvaluationFilters {
   schoolYearId?: string | null;
@@ -18,17 +19,49 @@ interface TeachingCourseEvaluationFilters {
   endDate?: string | null;
 }
 
+interface PortalTeachingCourseEvaluationFilters {
+  schoolYearId?: string;
+  schoolClassId?: string;
+  evaluationPeriodId?: string;
+  courseId?: string;
+}
+
 export async function index(
   api: AxiosInstance,
   filters: TeachingCourseEvaluationFilters,
   page: number,
   perPage: number | "all",
 ): Promise<PaginatedApiResponse<TeachingCourseEvaluation>> {
-  const { data } = await api.get<PaginatedApiResponse<TeachingCourseEvaluation>>(
-    "/teaching-course-evaluations",
-    { params: { ...filters, page, perPage } },
-  );
+  const { data } = await api.get<
+    PaginatedApiResponse<TeachingCourseEvaluation>
+  >("/teaching-course-evaluations", { params: { ...filters, page, perPage } });
   return data;
+}
+
+export async function portalIndex(
+  api: AxiosInstance,
+  studentId: string,
+  filters: PortalTeachingCourseEvaluationFilters,
+): Promise<PortalTeachingCourseEvaluationDTO[]> {
+  const { data } = await api.get<
+    ApiResponse<PortalTeachingCourseEvaluationDTO[]>
+  >(`/portal/students/${studentId}/teaching-course-evaluations`, {
+    params: filters,
+  });
+
+  return data.data;
+}
+
+export async function portalShow(
+  api: AxiosInstance,
+  studentId: string,
+  evaluationId: string,
+): Promise<PortalTeachingCourseEvaluationDTO> {
+  const { data } = await api.get<ApiResponse<PortalTeachingCourseEvaluationDTO>>(
+    `/portal/students/${studentId}/teaching-course-evaluations/${evaluationId}`,
+  );
+
+  return data.data;
 }
 
 function toRequestBody(payload: TeachingCourseEvaluationFormValues) {

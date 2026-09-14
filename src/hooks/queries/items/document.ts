@@ -3,7 +3,9 @@ import {
   index,
   show,
   store,
+  storeUpload,
   type CreateDocumentPayload,
+  type CreateDocumentUploadPayload,
 } from "@/api/endpoints/document";
 import { documentKeys } from "@/utils/query-keys/document";
 import { Document } from "@/utils/types/Document";
@@ -79,5 +81,22 @@ export function useCreateDocument() {
   return {
     createDocument: mutation.mutateAsync,
     createDocumentIsPending: mutation.isPending,
+  };
+}
+
+export function useUploadDocument() {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (payload: CreateDocumentUploadPayload) =>
+      storeUpload(api, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: documentKeys.all });
+    },
+  });
+
+  return {
+    uploadDocument: mutation.mutateAsync,
+    uploadDocumentIsPending: mutation.isPending,
   };
 }

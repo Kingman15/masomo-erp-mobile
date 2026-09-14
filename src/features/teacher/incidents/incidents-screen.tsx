@@ -1,11 +1,12 @@
 import { FilterButton } from "@/components/list/filter-button";
 import { SearchBar } from "@/components/list/search-bar";
+import { DrawerMenuButton } from "@/features/teacher/drawer-menu-button";
 import { useCurrentSchoolYear } from "@/hooks/queries/items/school-year";
 import { useStudentIncidents } from "@/hooks/queries/items/student-incident";
 import type { StudentIncident } from "@/utils/types/StudentIncident";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { FlashList } from "@shopify/flash-list";
-import { Stack, router, useNavigation } from "expo-router";
+import { Stack, router } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { IncidentFilterPanel } from "./incident-filter-panel";
@@ -16,7 +17,6 @@ import {
 import { IncidentRow } from "./incident-row";
 
 export function IncidentsScreen() {
-  const navigation = useNavigation();
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<IncidentFiltersForm>(
     emptyIncidentFilters,
@@ -68,14 +68,7 @@ export function IncidentsScreen() {
       <Stack.Screen
         options={{
           title: "Incidents",
-          headerLeft: () => (
-            <Pressable
-              onPress={() => navigation.dispatch({ type: "OPEN_DRAWER" })}
-              hitSlop={8}
-            >
-              <Ionicons name="menu-outline" size={24} color="#000000" />
-            </Pressable>
-          ),
+          headerLeft: () => <DrawerMenuButton />,
           headerRight: () => (
             <Pressable
               onPress={() => router.push("/teacher/incidents/new")}

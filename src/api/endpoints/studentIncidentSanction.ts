@@ -1,4 +1,9 @@
-import { StudentIncidentSanction } from "@/utils/types/StudentIncidentSanction";
+import {
+  StudentIncidentSanction,
+  StudentIncidentSanctionStatus,
+} from "@/utils/types/StudentIncidentSanction";
+import { PortalSanctionDTO } from "@/utils/types/objects/PortalSanctionDTO";
+import { PortalSanctionIncidentDTO } from "@/utils/types/objects/PortalSanctionIncidentDTO";
 import { AxiosInstance } from "axios";
 import ApiResponse from "../responses/ApiResponse";
 import PaginatedApiResponse from "../responses/PaginatedApiResponse";
@@ -11,6 +16,45 @@ interface StudentIncidentSanctionFilters {
   status?: string | null;
   startDate?: string | null;
   endDate?: string | null;
+}
+
+interface PortalSanctionFilters {
+  schoolYearId?: string;
+  incidentTypeId?: string;
+  sanctionTypeId?: string;
+  status?: StudentIncidentSanctionStatus;
+  startDate?: string;
+  endDate?: string;
+  schoolClassId?: string;
+}
+
+export interface PortalSanctionDetailDTO {
+  sanction: PortalSanctionDTO;
+  incident: PortalSanctionIncidentDTO;
+}
+
+export async function portalIndex(
+  api: AxiosInstance,
+  studentId: string,
+  filters: PortalSanctionFilters,
+): Promise<PortalSanctionDTO[]> {
+  const { data } = await api.get<ApiResponse<PortalSanctionDTO[]>>(
+    "/portal/student-sanctions",
+    { params: { studentId, ...filters } },
+  );
+  return data.data;
+}
+
+export async function portalShow(
+  api: AxiosInstance,
+  studentId: string,
+  sanctionId: string,
+): Promise<PortalSanctionDetailDTO> {
+  const { data } = await api.get<ApiResponse<PortalSanctionDetailDTO>>(
+    `/portal/student-sanctions/${sanctionId}`,
+    { params: { studentId } },
+  );
+  return data.data;
 }
 
 export async function index(
