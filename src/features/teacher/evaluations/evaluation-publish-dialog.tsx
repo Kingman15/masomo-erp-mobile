@@ -1,4 +1,5 @@
 import { DateField } from "@/components/list/date-field";
+import { Toast } from "@/components/toast";
 import {
   teachingCourseEvaluationPublishSchema,
   type TeachingCourseEvaluationPublishFormValues,
@@ -84,6 +85,7 @@ export function EvaluationPublishDialog({
           </Pressable>
         </View>
       </View>
+      <Toast />
     </Modal>
   );
 }

@@ -24,13 +24,13 @@ export interface TeachingCourseEvaluationResult {
   evaluation: TeachingCourseEvaluation | null;
 }
 
-// Une entrée par élève inscrit (score/status null tant que non noté),
-// renvoyée par GET /teaching-course-evaluation-results/get-by-evaluation/{evaluationId}
+// Une entrée par élève inscrit (score null tant que non noté), renvoyée par
+// GET /teaching-course-evaluation-results/get-by-evaluation/{evaluationId}.
+// L'API (TeachingCourseEvaluationResultDTOResource) ne renvoie que ces deux
+// champs — pas de `id`/`enrollmentId`/`status`/`comments` à plat : l'UUID de
+// l'inscription se lit via `enrollment.id` (cf. web:
+// teaching-course-evaluation-result-wizard-form-dialog.tsx, qui fait pareil).
 export interface TeachingCourseEvaluationResultRosterEntry {
-  id: string | null;
-  enrollmentId: string;
   score: string | null;
-  status: TeachingCourseEvaluationResultStatus | null;
-  comments: string | null;
   enrollment: Enrollment;
 }

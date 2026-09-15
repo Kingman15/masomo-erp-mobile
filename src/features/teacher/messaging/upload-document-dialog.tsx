@@ -1,4 +1,5 @@
 import { ChipSelect } from "@/components/list/chip-select";
+import { Toast } from "@/components/toast";
 import { DOCUMENT_CATEGORIES } from "@/features/teacher/documents/document-categories";
 import { useUploadDocument } from "@/hooks/queries/items/document";
 import { handleApiError } from "@/lib/handle-api-error";
@@ -210,6 +211,7 @@ export function UploadDocumentDialog({
           </Pressable>
         </ScrollView>
       </View>
+      <Toast />
     </Modal>
   );
 }

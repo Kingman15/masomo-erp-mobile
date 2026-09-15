@@ -1,4 +1,5 @@
 import { ChipSelect } from "@/components/list/chip-select";
+import { Toast } from "@/components/toast";
 import type { TeachingCourseEvaluationDocumentType } from "@/utils/types/TeachingCourseEvaluationDocument";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as DocumentPicker from "expo-document-picker";
@@ -192,6 +193,7 @@ export function EvaluationDocumentUploadDialog({
           </Pressable>
         </View>
       </View>
+      <Toast />
     </Modal>
   );
 }

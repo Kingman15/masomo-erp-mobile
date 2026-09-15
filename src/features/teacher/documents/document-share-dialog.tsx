@@ -1,5 +1,6 @@
 import { ComboBox } from "@/components/list/combo-box";
 import { DateField } from "@/components/list/date-field";
+import { Toast } from "@/components/toast";
 import { useGeneralClasses } from "@/hooks/queries/items/general-class";
 import { useOptions } from "@/hooks/queries/items/option";
 import { useSchoolClasses } from "@/hooks/queries/items/school-class";
@@ -284,6 +285,7 @@ export function DocumentShareDialog({
           </Pressable>
         </ScrollView>
       </View>
+      <Toast />
     </Modal>
   );
 }

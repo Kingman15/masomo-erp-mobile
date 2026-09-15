@@ -25,3 +25,35 @@ export async function save(
     })),
   });
 }
+
+export async function exportResults(
+  api: AxiosInstance,
+  evaluationId: string,
+): Promise<ArrayBuffer> {
+  const { data } = await api.get<ArrayBuffer>(
+    `/teaching-course-evaluation-results/export/${evaluationId}`,
+    { responseType: "arraybuffer" },
+  );
+  return data;
+}
+
+export async function importResults(
+  api: AxiosInstance,
+  evaluationId: string,
+  file: { uri: string; name: string; mimeType: string },
+): Promise<TeachingCourseEvaluationResultRosterEntry[]> {
+  const formData = new FormData();
+  // React Native FormData accepte un objet { uri, name, type } comme fichier.
+  formData.append("file", {
+    uri: file.uri,
+    name: file.name,
+    type: file.mimeType,
+  } as unknown as Blob);
+
+  const { data } = await api.post<
+    ApiResponse<TeachingCourseEvaluationResultRosterEntry[]>
+  >(`/teaching-course-evaluation-results/import/${evaluationId}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return data.data;
+}

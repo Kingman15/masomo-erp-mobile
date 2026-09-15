@@ -1,3 +1,4 @@
+import { Toast } from "@/components/toast";
 import { Enrollment } from "@/utils/types/Enrollment";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { ActivityIndicator, Modal, Pressable, ScrollView, Text, View } from "react-native";
@@ -73,6 +74,7 @@ export function StudentEnrollmentDialog({
           )}
         </ScrollView>
       </View>
+      <Toast />
     </Modal>
   );
 }

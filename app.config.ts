@@ -25,7 +25,7 @@ const config: ExpoConfig = {
         : "com.masomo.app",
   },
 
-  plugins: ["@react-native-community/datetimepicker"],
+  plugins: ["@react-native-community/datetimepicker", "expo-sharing"],
 
   extra: {
     eas: { projectId: "620aca7b-b2e1-4d1e-8299-229f427e68f2" },

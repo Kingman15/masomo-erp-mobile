@@ -1,3 +1,4 @@
+import { Toast } from "@/components/toast";
 import {
   teachingCourseEvaluationQuestionSchema,
   type TeachingCourseEvaluationQuestionFormValues,
@@ -246,6 +247,7 @@ export function EvaluationQuestionDialog({
           </View>
         </ScrollView>
       </View>
+      <Toast />
     </Modal>
   );
 }

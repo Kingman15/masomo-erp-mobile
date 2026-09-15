@@ -1,4 +1,5 @@
 import { ComboBox } from "@/components/list/combo-box";
+import { Toast } from "@/components/toast";
 import { useAttachableDocuments } from "@/hooks/queries/items/conversation";
 import type { MessageDocumentDraft } from "@/utils/types/MessageDocument";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -99,6 +100,7 @@ export function AttachExistingDocumentDialog({
           </Pressable>
         </View>
       </View>
+      <Toast />
     </Modal>
   );
 }

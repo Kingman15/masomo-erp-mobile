@@ -1,3 +1,4 @@
+import { Toast } from "@/components/toast";
 import { useGuardians } from "@/hooks/queries/items/guardian";
 import type { Guardian } from "@/utils/types/Guardian";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -149,6 +150,7 @@ export function GuardianPicker({
             />
           )}
         </View>
+        <Toast />
       </Modal>
     </View>
   );

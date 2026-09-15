@@ -1,6 +1,8 @@
 import api from "@/api/client";
 import {
+  exportResults,
   getByEvaluation,
+  importResults,
   save,
 } from "@/api/endpoints/teachingCourseEvaluationResult";
 import { teachingCourseEvaluationKeys } from "@/utils/query-keys/teaching-course-evaluation";
@@ -55,5 +57,51 @@ export function useSaveTeachingCourseEvaluationResults(
   return {
     saveTeachingCourseEvaluationResults: mutation.mutateAsync,
     saveTeachingCourseEvaluationResultsIsPending: mutation.isPending,
+  };
+}
+
+export function useExportTeachingCourseEvaluationResults(
+  evaluationId: string | undefined,
+) {
+  const mutation = useMutation({
+    mutationFn: () => {
+      if (!evaluationId) {
+        return Promise.reject(new Error("ID is required"));
+      }
+      return exportResults(api, evaluationId);
+    },
+  });
+
+  return {
+    exportTeachingCourseEvaluationResults: mutation.mutateAsync,
+    exportTeachingCourseEvaluationResultsIsPending: mutation.isPending,
+  };
+}
+
+export function useImportTeachingCourseEvaluationResults(
+  evaluationId: string | undefined,
+) {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (file: { uri: string; name: string; mimeType: string }) => {
+      if (!evaluationId) {
+        return Promise.reject(new Error("ID is required"));
+      }
+      return importResults(api, evaluationId, file);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: teachingCourseEvaluationResultKeys.roster(evaluationId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: teachingCourseEvaluationKeys.detail(evaluationId),
+      });
+    },
+  });
+
+  return {
+    importTeachingCourseEvaluationResults: mutation.mutateAsync,
+    importTeachingCourseEvaluationResultsIsPending: mutation.isPending,
   };
 }

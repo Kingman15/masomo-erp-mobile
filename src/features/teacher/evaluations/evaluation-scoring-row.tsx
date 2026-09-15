@@ -32,7 +32,8 @@ export function EvaluationScoringRow({
             keyboardType="decimal-pad"
             placeholder="—"
             placeholderTextColor="#9CA3AF"
-            className={`w-16 h-9 border rounded-lg px-2 text-center ${
+            style={{ textAlignVertical: "center", includeFontPadding: false }}
+            className={`w-20 h-11 border rounded-lg px-2 text-base leading-tight text-center ${
               error ? "border-red-400" : "border-gray-300"
             }`}
           />

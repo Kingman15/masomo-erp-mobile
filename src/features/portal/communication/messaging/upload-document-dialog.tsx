@@ -1,3 +1,4 @@
+import { Toast } from "@/components/toast";
 import { useUploadPortalDocument } from "@/hooks/queries/items/portal-document";
 import { handleApiError } from "@/lib/handle-api-error";
 import type { MessageDocumentDraft } from "@/utils/types/MessageDocument";
@@ -180,6 +181,7 @@ export function UploadDocumentDialog({
           </Pressable>
         </ScrollView>
       </View>
+      <Toast />
     </Modal>
   );
 }

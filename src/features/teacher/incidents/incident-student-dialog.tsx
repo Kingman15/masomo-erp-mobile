@@ -1,5 +1,6 @@
 import { StudentPicker } from "@/components/list/student-picker";
 import { ChipSelect } from "@/components/list/chip-select";
+import { Toast } from "@/components/toast";
 import {
   incidentStudentFormSchema,
   type IncidentStudentFormValues,
@@ -136,6 +137,7 @@ export function IncidentStudentDialog({
           </Pressable>
         </ScrollView>
       </View>
+      <Toast />
     </Modal>
   );
 }

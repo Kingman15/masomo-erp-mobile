@@ -1,4 +1,5 @@
 import { CheckboxRow } from "@/components/list/checkbox-row";
+import { Toast } from "@/components/toast";
 import {
   teachingCourseEvaluationCountsTowardsFinalSchema,
   type TeachingCourseEvaluationCountsTowardsFinalFormValues,
@@ -129,6 +130,7 @@ export function EvaluationCountsTowardsFinalDialog({
           </Pressable>
         </View>
       </View>
+      <Toast />
     </Modal>
   );
 }

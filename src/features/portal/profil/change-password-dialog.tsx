@@ -1,3 +1,4 @@
+import { Toast } from "@/components/toast";
 import { useChangePassword } from "@/hooks/queries/items/account";
 import { handleApiError } from "@/lib/handle-api-error";
 import { toastNotify } from "@/lib/toast";
@@ -183,6 +184,7 @@ export function ChangePasswordDialog({ visible, onClose }: ChangePasswordDialogP
           </Pressable>
         </ScrollView>
       </View>
+      <Toast />
     </Modal>
   );
 }
