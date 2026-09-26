@@ -38,6 +38,12 @@ const QUICK_ACCESS: QuickAccessItem[] = [
     href: "/teacher/schedule",
   },
   {
+    label: "Présences",
+    description: "Pointage des présences",
+    icon: "checkbox-outline",
+    href: "/teacher/attendance",
+  },
+  {
     label: "Incidents",
     description: "Signaler et suivre les incidents",
     icon: "warning-outline",

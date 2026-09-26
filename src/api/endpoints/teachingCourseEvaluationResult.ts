@@ -1,6 +1,7 @@
 import { TeachingCourseEvaluationResultFormValues } from "@/utils/schemas/teaching-course-evaluation-result-schema";
 import { TeachingCourseEvaluationResultRosterEntry } from "@/utils/types/TeachingCourseEvaluationResult";
 import { AxiosInstance } from "axios";
+import { toRequestConfig, type WriteRequestOptions } from "../idempotency";
 import ApiResponse from "../responses/ApiResponse";
 
 export async function getByEvaluation(
@@ -16,14 +17,19 @@ export async function getByEvaluation(
 export async function save(
   api: AxiosInstance,
   payload: TeachingCourseEvaluationResultFormValues,
+  options?: WriteRequestOptions,
 ): Promise<void> {
-  await api.post("/teaching-course-evaluation-results", {
-    evaluation_id: payload.evaluationId,
-    results: payload.results.map((result) => ({
-      enrollment_id: result.enrollmentId,
-      score: result.score ?? null,
-    })),
-  });
+  await api.post(
+    "/teaching-course-evaluation-results",
+    {
+      evaluation_id: payload.evaluationId,
+      results: payload.results.map((result) => ({
+        enrollment_id: result.enrollmentId,
+        score: result.score ?? null,
+      })),
+    },
+    toRequestConfig(options),
+  );
 }
 
 export async function exportResults(

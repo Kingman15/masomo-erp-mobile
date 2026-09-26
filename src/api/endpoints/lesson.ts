@@ -1,6 +1,7 @@
 import { LessonFormValues } from "@/utils/schemas/lesson-schema";
 import { Lesson } from "@/utils/types/Lesson";
 import { AxiosInstance } from "axios";
+import { toRequestConfig, type WriteRequestOptions } from "../idempotency";
 import ApiResponse from "../responses/ApiResponse";
 import PaginatedApiResponse from "../responses/PaginatedApiResponse";
 
@@ -58,10 +59,12 @@ export async function show(api: AxiosInstance, id: string): Promise<Lesson> {
 export async function store(
   api: AxiosInstance,
   payload: LessonPayload,
+  options?: WriteRequestOptions,
 ): Promise<Lesson> {
   const { data } = await api.post<ApiResponse<Lesson>>(
     "/lessons",
     toRequestBody(payload),
+    toRequestConfig(options),
   );
   return data.data;
 }

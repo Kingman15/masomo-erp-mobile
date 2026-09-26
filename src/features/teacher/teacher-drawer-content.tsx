@@ -3,6 +3,7 @@ import {
   TEACHER_MENU,
   type TeacherMenuGroup,
 } from "@/features/teacher/menu-config";
+import { useOfflineQueueCounts } from "@/lib/offline/use-offline-queue";
 import { useAuthStore } from "@/stores/auth";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
@@ -80,6 +81,25 @@ function AnimatedChevron({ open }: { open: boolean }) {
   );
 }
 
+const SYNC_HREF = "/teacher/sync";
+
+// Badge de l'entrée Synchronisation : envois en attente ou refusés.
+function SyncBadge() {
+  const { pending, failed } = useOfflineQueueCounts();
+  const count = pending + failed;
+  if (count === 0) return null;
+
+  return (
+    <View
+      className={`min-w-5 h-5 px-1.5 rounded-full items-center justify-center ${
+        failed > 0 ? "bg-red-500" : "bg-gray-800"
+      }`}
+    >
+      <Text className="text-[11px] font-semibold text-white">{count}</Text>
+    </View>
+  );
+}
+
 export function TeacherDrawerContent(props: DrawerContentComponentProps) {
   const pathname = usePathname();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
@@ -126,12 +146,13 @@ export function TeacherDrawerContent(props: DrawerContentComponentProps) {
                     color={active ? "#000000" : "#374151"}
                   />
                   <Text
-                    className={`text-base ${
+                    className={`flex-1 text-base ${
                       active ? "font-semibold text-black" : "text-gray-700"
                     }`}
                   >
                     {item.label}
                   </Text>
+                  {item.href === SYNC_HREF && <SyncBadge />}
                 </Pressable>
               </Animated.View>
             );

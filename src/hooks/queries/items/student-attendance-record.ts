@@ -1,11 +1,19 @@
 import api from "@/api/client";
 import {
+  bulkStore,
+  destroy,
   index,
   show as fetchStudentAttendanceRecordById,
+  store,
   summary,
+  update,
+  type StudentAttendanceBulkRecordPayload,
+  type StudentAttendanceRecordPayload,
 } from "@/api/endpoints/studentAttendanceRecord";
+import { enrollmentKeys } from "@/utils/query-keys/enrollment";
 import { studentAttendanceRecordKeys } from "@/utils/query-keys/student-attendance-record";
 import { StudentAttendanceRecord } from "@/utils/types/StudentAttendanceRecord";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useDetailQuery } from "../use-detail-query";
 import { useListQuery } from "../use-list-query";
 import { useSingletonQuery } from "../use-singleton-query";
@@ -113,5 +121,78 @@ export function useStudentAttendanceRecordById(id: string | undefined) {
     studentAttendanceRecordIsLoading: query.isLoading,
     studentAttendanceRecordError: query.error,
     loadStudentAttendanceRecord: query.refetch,
+  };
+}
+
+// Les inscriptions sont filtrées par « non encore pointées » : on les invalide aussi.
+function useInvalidateStudentAttendanceRecords() {
+  const queryClient = useQueryClient();
+
+  return () => {
+    void queryClient.invalidateQueries({
+      queryKey: studentAttendanceRecordKeys.all,
+    });
+    void queryClient.invalidateQueries({ queryKey: enrollmentKeys.all });
+  };
+}
+
+export function useBulkCreateStudentAttendanceRecords() {
+  const invalidate = useInvalidateStudentAttendanceRecords();
+
+  const mutation = useMutation({
+    mutationFn: (payload: StudentAttendanceBulkRecordPayload) =>
+      bulkStore(api, payload),
+    onSuccess: invalidate,
+  });
+
+  return {
+    bulkCreateStudentAttendanceRecords: mutation.mutateAsync,
+    bulkCreateStudentAttendanceRecordsIsPending: mutation.isPending,
+  };
+}
+
+export function useCreateStudentAttendanceRecord() {
+  const invalidate = useInvalidateStudentAttendanceRecords();
+
+  const mutation = useMutation({
+    mutationFn: (payload: StudentAttendanceRecordPayload) =>
+      store(api, payload),
+    onSuccess: invalidate,
+  });
+
+  return {
+    createStudentAttendanceRecord: mutation.mutateAsync,
+    createStudentAttendanceRecordIsPending: mutation.isPending,
+  };
+}
+
+export function useUpdateStudentAttendanceRecord(id: string | undefined) {
+  const invalidate = useInvalidateStudentAttendanceRecords();
+
+  const mutation = useMutation({
+    mutationFn: (payload: StudentAttendanceRecordPayload) => {
+      if (!id) return Promise.reject(new Error("No record to update"));
+      return update(api, id, payload);
+    },
+    onSuccess: invalidate,
+  });
+
+  return {
+    updateStudentAttendanceRecord: mutation.mutateAsync,
+    updateStudentAttendanceRecordIsPending: mutation.isPending,
+  };
+}
+
+export function useDeleteStudentAttendanceRecord() {
+  const invalidate = useInvalidateStudentAttendanceRecords();
+
+  const mutation = useMutation({
+    mutationFn: (id: string) => destroy(api, id),
+    onSuccess: invalidate,
+  });
+
+  return {
+    deleteStudentAttendanceRecord: mutation.mutateAsync,
+    deleteStudentAttendanceRecordIsPending: mutation.isPending,
   };
 }

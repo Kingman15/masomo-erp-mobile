@@ -2,6 +2,7 @@ import "../global.css";
 
 import { checkHealth } from "@/api/endpoints/health";
 import { Toast } from "@/components/toast";
+import { startOfflinePersistence } from "@/lib/offline/persistence";
 import { queryClient } from "@/lib/queryClient";
 import { useAuthStore } from "@/stores/auth";
 import { usePortalSelectionStore } from "@/stores/portal-selection";
@@ -31,7 +32,7 @@ export default function RootLayout() {
 }
 
 function RootNavigation() {
-  const { status, user, hydrate } = useAuthStore();
+  const { status, user, school, hydrate } = useAuthStore();
   const segments = useSegments();
 
   useEffect(() => {
@@ -42,6 +43,19 @@ function RootNavigation() {
       .then(() => console.log("[health] serveur joignable"))
       .catch((err) => console.log("[health] serveur injoignable", err));
   }, []);
+
+  // Cache et file d'envois hors ligne propres au compte connecté : restaurés
+  // au démarrage (y compris sans réseau), puis sauvegardés en continu. L'arrêt
+  // (sauvegarde + vidage) est fait par signOut / changeSchool.
+  const userId = user?.id;
+  const schoolCode = school?.code;
+  useEffect(() => {
+    if (status !== "signedIn" || !userId || !schoolCode) return;
+
+    startOfflinePersistence(queryClient, { schoolCode, userId }).catch((err) =>
+      console.log("[offline] restauration impossible", err),
+    );
+  }, [status, userId, schoolCode]);
 
   if (status === "loading") return null; // splash screen ici. TODO.
 

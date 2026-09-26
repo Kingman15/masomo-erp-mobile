@@ -8,6 +8,8 @@ import {
   verifySchoolCode,
   type LoginPayload,
 } from "@/api/endpoints/auth";
+import { stopOfflinePersistence } from "@/lib/offline/persistence";
+import { queryClient } from "@/lib/queryClient";
 import { usePortalSelectionStore } from "@/stores/portal-selection";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
@@ -112,6 +114,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   changeSchool: async () => {
+    await stopOfflinePersistence(queryClient);
     await SecureStore.deleteItemAsync(SCHOOL_INFO_KEY);
     await clearSchoolCode();
     usePortalSelectionStore.getState().clearSelection();
@@ -147,6 +150,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch {
       // best-effort, on déconnecte localement même si l'appel échoue
     }
+
+    // Sauvegarde la file d'envois dans l'espace de ce compte (reprise à sa
+    // prochaine connexion) et vide le cache en mémoire avant le compte suivant.
+    await stopOfflinePersistence(queryClient);
 
     await Promise.all([
       SecureStore.deleteItemAsync(AUTH_STORAGE_KEY),

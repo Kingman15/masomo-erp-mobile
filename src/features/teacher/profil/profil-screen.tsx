@@ -1,6 +1,9 @@
 import { ChangePasswordDialog } from "@/features/portal/profil/change-password-dialog";
+import { useConfirm } from "@/hooks/use-confirm";
+import { countUnsyncedOfflineItems } from "@/lib/offline/use-offline-queue";
 import { useAuthStore } from "@/stores/auth";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useQueryClient } from "@tanstack/react-query";
 import { Drawer } from "expo-router/drawer";
 import { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
@@ -34,8 +37,28 @@ function SectionTitle({ children }: { children: string }) {
 export function ProfilScreen() {
   const user = useAuthStore((s) => s.user);
   const signOut = useAuthStore((s) => s.signOut);
+  const queryClient = useQueryClient();
+  const { confirm, ConfirmDialog } = useConfirm();
 
   const [changePasswordVisible, setChangePasswordVisible] = useState(false);
+
+  // Des envois non synchronisés restent gardés pour ce compte, mais ne
+  // partiront qu'à sa prochaine connexion : on prévient avant.
+  const handleSignOut = async () => {
+    const unsynced = countUnsyncedOfflineItems(queryClient);
+
+    if (unsynced > 0) {
+      const confirmed = await confirm({
+        title: "Envois non synchronisés",
+        description: `${unsynced} saisie(s) n'ont pas encore été acceptée(s) par le serveur. Elles restent gardées sur cet appareil et repartiront à ta prochaine connexion avec ce compte.`,
+        confirmText: "Se déconnecter",
+        variant: "destructive",
+      });
+      if (!confirmed) return;
+    }
+
+    await signOut();
+  };
 
   return (
     <>
@@ -78,7 +101,7 @@ export function ProfilScreen() {
           </Pressable>
 
           <Pressable
-            onPress={signOut}
+            onPress={handleSignOut}
             className="h-11 px-6 border border-gray-300 rounded-lg items-center justify-center mt-6"
           >
             <Text className="text-black font-medium">Se déconnecter</Text>
@@ -90,6 +113,8 @@ export function ProfilScreen() {
         visible={changePasswordVisible}
         onClose={() => setChangePasswordVisible(false)}
       />
+
+      <ConfirmDialog />
     </>
   );
 }

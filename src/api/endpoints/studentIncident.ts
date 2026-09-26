@@ -3,6 +3,7 @@ import { StudentIncident, StudentIncidentStatus } from "@/utils/types/StudentInc
 import { PortalIncidentDTO } from "@/utils/types/objects/PortalIncidentDTO";
 import { PortalIncidentSanctionDTO } from "@/utils/types/objects/PortalIncidentSanctionDTO";
 import { AxiosInstance } from "axios";
+import { toRequestConfig, type WriteRequestOptions } from "../idempotency";
 import ApiResponse from "../responses/ApiResponse";
 import PaginatedApiResponse from "../responses/PaginatedApiResponse";
 
@@ -115,10 +116,12 @@ function toRequestBody(payload: TeacherReportStudentIncidentPayload) {
 export async function teacherReport(
   api: AxiosInstance,
   payload: TeacherReportStudentIncidentPayload,
+  options?: WriteRequestOptions,
 ): Promise<StudentIncident> {
   const { data } = await api.post<ApiResponse<StudentIncident>>(
     "/student-incidents/teacher-report",
     toRequestBody(payload),
+    toRequestConfig(options),
   );
   return data.data;
 }

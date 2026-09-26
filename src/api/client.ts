@@ -126,7 +126,9 @@ api.interceptors.request.use(
     }
 
     // Code école requis par l'API sur (quasi) toute requête, même avant login
-    if (schoolCode) {
+    // On ne remplace pas un header déjà fixé explicitement par l'appelant
+    // (ex: verifySchoolCode envoie le code en cours de saisie, pas l'ancien code persisté)
+    if (schoolCode && !config.headers.has("X-School-Code")) {
       config.headers.set("X-School-Code", schoolCode);
     }
 

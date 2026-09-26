@@ -39,6 +39,12 @@ export const TEACHER_MENU: TeacherMenuItem[] = [
     href: "/teacher/evaluations",
   },
   {
+    type: "link",
+    label: "Présences",
+    icon: "checkbox-outline",
+    href: "/teacher/attendance",
+  },
+  {
     type: "group",
     label: "Discipline",
     icon: "shield-outline",
@@ -68,6 +74,12 @@ export const TEACHER_MENU: TeacherMenuItem[] = [
     label: "Messagerie",
     icon: "chatbubble-ellipses-outline",
     href: "/teacher/messaging",
+  },
+  {
+    type: "link",
+    label: "Synchronisation",
+    icon: "cloud-upload-outline",
+    href: "/teacher/sync",
   },
   {
     type: "link",

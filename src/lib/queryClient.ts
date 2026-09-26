@@ -5,6 +5,7 @@ import {
   onlineManager,
 } from "@tanstack/react-query";
 import { AppState } from "react-native";
+import { registerOfflineMutationDefaults } from "./offline/offline-mutations";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,6 +21,10 @@ export const queryClient = new QueryClient({
     },
   },
 });
+
+// Écritures rejouables hors ligne (clé d'idempotence) : elles ont leurs propres
+// règles de nouvel essai. Doit précéder toute restauration du cache persisté.
+registerOfflineMutationDefaults(queryClient);
 
 focusManager.setEventListener((handleFocus) => {
   // Seed l'état courant : sans ça, le focus dépend uniquement du prochain
