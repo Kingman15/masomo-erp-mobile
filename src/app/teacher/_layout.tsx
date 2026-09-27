@@ -1,9 +1,13 @@
 import { OfflineStatusPill } from "@/features/teacher/sync/offline-status-pill";
 import { TeacherDrawerContent } from "@/features/teacher/teacher-drawer-content";
+import { useTeacherOfflinePrefetch } from "@/features/teacher/use-teacher-offline-prefetch";
 import { Drawer } from "expo-router/drawer";
 import { View } from "react-native";
 
 export default function TeacherLayout() {
+  // Horaire, ROI et données des formulaires gardés pour le hors ligne.
+  useTeacherOfflinePrefetch();
+
   return (
     <View style={{ flex: 1 }}>
       <Drawer

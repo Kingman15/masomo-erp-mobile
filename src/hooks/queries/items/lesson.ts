@@ -2,10 +2,10 @@ import api from "@/api/client";
 import {
   show as fetchLessonById,
   index,
-  store,
   update,
   type LessonPayload,
 } from "@/api/endpoints/lesson";
+import { useOfflineMutation } from "@/lib/offline/use-offline-mutation";
 import { lessonKeys } from "@/utils/query-keys/lesson";
 import { Lesson } from "@/utils/types/Lesson";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -82,19 +82,15 @@ export function useLessonById(id: string | undefined) {
   };
 }
 
+// Création rejouable hors ligne (file offline) ; la modification reste en ligne.
 export function useCreateLesson() {
-  const queryClient = useQueryClient();
-
-  const mutation = useMutation({
-    mutationFn: (payload: LessonPayload) => store(api, payload),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: lessonKeys.all });
-    },
-  });
+  const { submit, isPending } = useOfflineMutation<"lesson.create", Lesson>(
+    "lesson.create",
+  );
 
   return {
-    createLesson: mutation.mutateAsync,
-    createLessonIsPending: mutation.isPending,
+    createLesson: submit,
+    createLessonIsPending: isPending,
   };
 }
 

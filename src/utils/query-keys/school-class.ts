@@ -9,6 +9,7 @@ export const schoolClassKeys = {
     teacherId?: string | null;
     schoolYearId?: string | null;
     studentId?: string | null;
+    homeroom?: boolean | null;
   }) => [...schoolClassKeys.all, "list", filters] as const,
   detail: (id?: string) => [...schoolClassKeys.all, "detail", id] as const,
 };

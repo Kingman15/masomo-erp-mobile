@@ -44,9 +44,8 @@ function RootNavigation() {
       .catch((err) => console.log("[health] serveur injoignable", err));
   }, []);
 
-  // Cache et file d'envois hors ligne propres au compte connecté : restaurés
-  // au démarrage (y compris sans réseau), puis sauvegardés en continu. L'arrêt
-  // (sauvegarde + vidage) est fait par signOut / changeSchool.
+  // Cache et file d'envois hors ligne propres au compte connecté : restaurés au démarrage (y compris sans réseau), puis sauvegardés en continu.
+  // L'arrêt (sauvegarde + vidage) est fait par signOut / changeSchool.
   const userId = user?.id;
   const schoolCode = school?.code;
   useEffect(() => {

@@ -6,6 +6,8 @@ import ApiResponse from "../responses/ApiResponse";
 import PaginatedApiResponse from "../responses/PaginatedApiResponse";
 
 export interface LessonPayload extends LessonFormValues {
+  // Création seulement : id généré par l'appareil, pour afficher la leçon avant sa synchronisation.
+  id?: string;
   teacherId?: string | null;
 }
 
@@ -15,6 +17,7 @@ function toApiTime(value: string): string {
 
 function toRequestBody(payload: LessonPayload) {
   return {
+    id: payload.id,
     file_no: payload.fileNo,
     subject: payload.subject,
     lesson_date: payload.lessonDate,

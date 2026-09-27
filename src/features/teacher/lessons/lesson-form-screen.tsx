@@ -14,16 +14,24 @@ import {
   useSchoolYears,
 } from "@/hooks/queries/items/school-year";
 import { useTeachingCourses } from "@/hooks/queries/items/teaching-course";
-import { useTeachingSchedulesByLessonDate } from "@/hooks/queries/items/teaching-schedule";
+import {
+  useTeachingScheduleDTOs,
+  useTeachingSchedulesByLessonDate,
+} from "@/hooks/queries/items/teaching-schedule";
+import { useActiveCourseSchedule } from "@/hooks/queries/items/course-schedule";
+import { lessonTimesFromWeeklySchedule } from "@/features/teacher/schedule/weekly-schedule";
+import { formatShortDate } from "@/lib/format";
 import { handleApiError } from "@/lib/handle-api-error";
+import { notifyQueued } from "@/lib/offline/use-offline-mutation";
 import { toastNotify } from "@/lib/toast";
 import {
   lessonSchema,
   type LessonFormValues,
 } from "@/utils/schemas/lesson-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import * as Crypto from "expo-crypto";
 import { router, Stack } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
@@ -148,18 +156,42 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
     }
   }, [teachingCourses, isEditing, dirtyFields.classroomId, setValue]);
 
+  // Hors ligne, by-lesson-date ne répond pas : les heures sont déduites de l'horaire hebdomadaire gardé sur l'appareil.
+  const { activeCourseSchedule } = useActiveCourseSchedule({ schoolYearId });
+  const { teachingScheduleDTOs } = useTeachingScheduleDTOs({
+    filters: { courseScheduleId: activeCourseSchedule?.id ?? null },
+  });
+
+  const scheduledTimes = useMemo(() => {
+    if (teachingSchedules && teachingSchedules.length > 0) {
+      const startTime = teachingSchedules[0]?.courseSchedulePeriod?.startTime;
+      const endTime =
+        teachingSchedules[teachingSchedules.length - 1]?.courseSchedulePeriod
+          ?.endTime;
+      return { startTime, endTime };
+    }
+
+    if (!teachingScheduleDTOs || !schoolClassId || !courseId || !lessonDate) {
+      return null;
+    }
+
+    return lessonTimesFromWeeklySchedule(teachingScheduleDTOs, {
+      schoolClassId,
+      courseId,
+      lessonDate,
+    });
+  }, [teachingSchedules, teachingScheduleDTOs, schoolClassId, courseId, lessonDate]);
+
   useEffect(() => {
-    if (!teachingSchedules || teachingSchedules.length === 0) return;
+    if (!scheduledTimes) return;
 
-    const first = teachingSchedules[0]?.courseSchedulePeriod?.startTime;
-    const last =
-      teachingSchedules[teachingSchedules.length - 1]?.courseSchedulePeriod
-        ?.endTime;
+    const { startTime, endTime } = scheduledTimes;
 
-    if (!dirtyFields.startTime && first)
-      setValue("startTime", first.slice(0, 5));
-    if (!dirtyFields.endTime && last) setValue("endTime", last.slice(0, 5));
-  }, [teachingSchedules, dirtyFields.startTime, dirtyFields.endTime, setValue]);
+    if (!dirtyFields.startTime && startTime)
+      setValue("startTime", startTime.slice(0, 5));
+    if (!dirtyFields.endTime && endTime)
+      setValue("endTime", endTime.slice(0, 5));
+  }, [scheduledTimes, dirtyFields.startTime, dirtyFields.endTime, setValue]);
 
   // --- Soumission ---
 
@@ -168,20 +200,35 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
 
   const isBusy = createLessonIsPending || updateLessonIsPending || isSubmitting;
 
+  const lessonLabel = (data: LessonFormValues) => {
+    const course = courses?.find((item) => item.id === data.courseId);
+    const schoolClass = schoolClasses?.find(
+      (item) => item.id === data.schoolClassId,
+    );
+    return [
+      course?.shortName ?? course?.name,
+      schoolClass?.title ?? schoolClass?.abbreviation,
+      formatShortDate(data.lessonDate),
+    ]
+      .filter(Boolean)
+      .join(" · ");
+  };
+
   const onSubmit = async (data: LessonFormValues) => {
     try {
       if (isEditing) {
         await updateLesson({ ...data, teacherId: lesson?.teacherId ?? null });
+        toastNotify("Leçon modifiée avec succès.", "success");
       } else {
-        await createLesson(data);
+        // id généré ici : la leçon s'affiche dans la liste avant sa synchronisation.
+        const result = await createLesson(
+          { ...data, id: Crypto.randomUUID() },
+          lessonLabel(data),
+        );
+        if (result.status === "queued") notifyQueued();
+        else toastNotify("Leçon ajoutée avec succès.", "success");
       }
 
-      toastNotify(
-        isEditing
-          ? "Leçon modifiée avec succès."
-          : "Leçon ajoutée avec succès.",
-        "success",
-      );
       router.back();
     } catch (error) {
       handleApiError(error, {

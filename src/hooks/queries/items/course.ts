@@ -1,5 +1,6 @@
 import api from "@/api/client";
 import { followed, index } from "@/api/endpoints/course";
+import type { QueryDefinition } from "@/lib/offline/offline-queries";
 import { courseKeys } from "@/utils/query-keys/course";
 import { Course } from "@/utils/types/Course";
 import { useListQuery } from "../use-list-query";
@@ -48,20 +49,30 @@ interface UseFollowedCoursesParams {
   teacherId?: string | null;
 }
 
+export function followedCoursesQuery({
+  schoolYearId,
+  schoolClassId,
+  teacherId,
+}: UseFollowedCoursesParams): QueryDefinition<Course[]> {
+  const filters = { schoolYearId, schoolClassId, teacherId };
+
+  return {
+    queryKey: courseKeys.followed(filters),
+    queryFn: () => followed(api, filters),
+    label: "Cours",
+  };
+}
+
 export function useFollowedCourses({
   schoolYearId,
   schoolClassId,
   teacherId,
 }: UseFollowedCoursesParams) {
-  const filters = { schoolYearId, schoolClassId, teacherId };
-
   const query = useListQuery<Course>({
-    queryKey: courseKeys.followed(filters),
-    queryFn: () => followed(api, filters),
-    label: "Cours",
+    ...followedCoursesQuery({ schoolYearId, schoolClassId, teacherId }),
     staleTime: Infinity,
-    gcTime: 1000 * 60 * 60 * 24,
     enabled: Boolean(schoolYearId) && Boolean(schoolClassId),
+    offline: true,
   });
 
   return {

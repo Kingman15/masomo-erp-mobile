@@ -1,4 +1,7 @@
-import { getFailureCode, type OfflineFailure } from "@/lib/offline/offline-error";
+import {
+  getFailureCode,
+  type OfflineFailure,
+} from "@/lib/offline/offline-error";
 import type { OfflinePayloads } from "@/lib/offline/offline-mutations";
 import type { OfflineQueueItem } from "@/lib/offline/use-offline-queue";
 
@@ -9,7 +12,10 @@ export const OFFLINE_ITEM_TYPE_LABELS: Record<keyof OfflinePayloads, string> = {
   "incident.teacherReport": "Incident",
 };
 
-export const OFFLINE_ITEM_STATE_LABELS: Record<OfflineQueueItem["state"], string> = {
+export const OFFLINE_ITEM_STATE_LABELS: Record<
+  OfflineQueueItem["state"],
+  string
+> = {
   waiting: "En attente du réseau",
   sending: "Envoi en cours",
   failed: "Refusé",
@@ -34,8 +40,7 @@ function firstValidationMessage(data: unknown): string | null {
 }
 
 /**
- * Explication lisible d'un refus, à partir du code métier renvoyé par l'API
- * (contrats 409 du backend) ou, à défaut, de son message.
+ * Explication lisible d'un refus, à partir du code métier renvoyé par l'API (contrats 409 du backend) ou, à défaut, de son message.
  */
 export function describeFailure(failure: OfflineFailure | null): string {
   if (!failure) return "Envoi refusé.";
@@ -62,7 +67,7 @@ export function describeFailure(failure: OfflineFailure | null): string {
   }
 
   if (failure.status === 403) {
-    return "Tu n'as pas les droits nécessaires pour cet envoi.";
+    return "Vous n'avez pas les droits nécessaires pour cet envoi.";
   }
 
   return firstValidationMessage(failure.data) ?? failure.message;

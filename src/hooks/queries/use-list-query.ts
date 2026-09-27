@@ -1,3 +1,8 @@
+import {
+  keepCachedDataOnError,
+  OFFLINE_QUERY_GC_TIME,
+  queryMeta,
+} from "@/lib/offline/offline-queries";
 import { QueryKey, useQuery } from "@tanstack/react-query";
 
 interface UseListQueryOptions<T, TData = T[]> {
@@ -11,6 +16,8 @@ interface UseListQueryOptions<T, TData = T[]> {
   refetchOnWindowFocus?: boolean;
   refetchOnMount?: boolean | "always";
   refetchOnReconnect?: boolean;
+  // Gardée sur l'appareil pour le hors ligne (cf. lib/offline/offline-queries).
+  offline?: boolean;
 }
 
 export function useListQuery<T, TData = T[]>({
@@ -24,17 +31,20 @@ export function useListQuery<T, TData = T[]>({
   refetchOnWindowFocus,
   refetchOnMount,
   refetchOnReconnect,
+  offline,
 }: UseListQueryOptions<T, TData>) {
-  return useQuery<T[], Error, TData>({
+  const result = useQuery<T[], Error, TData>({
     queryKey,
     queryFn,
     enabled,
     staleTime,
-    gcTime,
+    gcTime: offline ? OFFLINE_QUERY_GC_TIME : gcTime,
     select,
     refetchOnWindowFocus,
     refetchOnMount,
     refetchOnReconnect,
-    meta: { label },
+    meta: queryMeta(label, offline),
   });
+
+  return keepCachedDataOnError(result, offline);
 }

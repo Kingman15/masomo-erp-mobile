@@ -1,11 +1,17 @@
+import type { StudentAttendanceBulkRecordPayload } from "@/api/endpoints/studentAttendanceRecord";
 import { ComboBox } from "@/components/list/combo-box";
+import { describeFailure } from "@/features/teacher/sync/sync-labels";
 import { useCurrentTeacher } from "@/hooks/queries/items/employee";
 import { useEnrollments } from "@/hooks/queries/items/enrollment";
 import { useSchoolClasses } from "@/hooks/queries/items/school-class";
 import { useCurrentSchoolYear } from "@/hooks/queries/items/school-year";
 import { useStudentAttendancePointingChannels } from "@/hooks/queries/items/student-attendance-pointing-channel";
 import { useBulkCreateStudentAttendanceRecords } from "@/hooks/queries/items/student-attendance-record";
+import { useConfirm } from "@/hooks/use-confirm";
 import { handleApiError } from "@/lib/handle-api-error";
+import { getFailureCode, getOfflineFailure } from "@/lib/offline/offline-error";
+import { notifyQueued } from "@/lib/offline/use-offline-mutation";
+import { useIsOnline } from "@/lib/offline/use-offline-queue";
 import { toastNotify } from "@/lib/toast";
 import {
   studentAttendanceBulkRecordSchema,
@@ -25,8 +31,9 @@ import {
   View,
 } from "react-native";
 import { AttendanceBulkStudentRow } from "./attendance-bulk-student-row";
-import { getSchoolClassLabel } from "./attendance-labels";
+import { getSchoolClassLabel, getSessionLabel } from "./attendance-labels";
 import { AttendanceSessionPicker } from "./attendance-session-picker";
+import { classEnrollmentsFilters } from "./class-enrollments";
 import { useAttendanceRegistersSessions } from "./use-attendance-registers-sessions";
 
 export function AttendanceBulkScreen() {
@@ -78,30 +85,39 @@ export function AttendanceBulkScreen() {
 
   const { currentTeacher, currentTeacherIsLoading } = useCurrentTeacher();
 
+  // Seul le titulaire d'une classe peut la pointer (règle serveur) : on ne propose que celles-là.
   const { schoolClasses, schoolClassesIsLoading } = useSchoolClasses({
-    filters: { teacherId: currentTeacher?.id ?? null },
+    filters: { teacherId: currentTeacher?.id ?? null, homeroom: true },
     enabled: !currentTeacherIsLoading,
   });
 
   const { pointingChannels, pointingChannelsIsLoading } =
     useStudentAttendancePointingChannels();
 
+  const isOnline = useIsOnline();
+
   const {
-    enrollments,
+    enrollments: sessionEnrollments,
     enrollmentsError,
     enrollmentsIsLoading,
     enrollmentsIsFetching,
     loadEnrollments,
   } = useEnrollments({
-    filters: {
-      schoolYearId,
-      schoolClassId,
-      sortBy: "student_name",
-      sortDirection: "asc",
-      withoutAttendanceSessionId: sessionId,
-    },
+    filters: classEnrollmentsFilters(schoolYearId, schoolClassId, sessionId),
     enabled: Boolean(schoolYearId && schoolClassId && sessionId),
   });
+
+  // Hors ligne, ou serveur injoignable alors que le téléphone se croit en ligne : les élèves « pas encore pointés » de cette session ne sont en général pas en cache, on reprend tous les élèves de la classe (préchargés).
+  // Le serveur ignore un pointage identique à l'existant et signale un pointage différent (409).
+  const { enrollments: classEnrollments } = useEnrollments({
+    filters: classEnrollmentsFilters(schoolYearId, schoolClassId),
+    enabled: false,
+  });
+
+  const serverUnreachable = !isOnline || Boolean(enrollmentsError);
+  // Une liste déjà chargée reste affichée même si son rechargement échoue.
+  const enrollments =
+    sessionEnrollments ?? (serverUnreachable ? classEnrollments : undefined);
 
   // --- Auto-remplissages ---
 
@@ -180,6 +196,71 @@ export function AttendanceBulkScreen() {
 
   const isBusy = bulkCreateStudentAttendanceRecordsIsPending || isSubmitting;
 
+  const { confirm, ConfirmDialog } = useConfirm();
+
+  const attendanceLabel = (data: StudentAttendanceBulkRecordFormValues) => {
+    const session = sessions?.find((item) => item.id === data.sessionId);
+    const schoolClass = schoolClasses?.find(
+      (item) => item.id === data.schoolClassId,
+    );
+    return [
+      schoolClass ? getSchoolClassLabel(schoolClass) : null,
+      session ? getSessionLabel(session) : null,
+    ]
+      .filter(Boolean)
+      .join(" · ");
+  };
+
+  const submitRecords = async (
+    payload: StudentAttendanceBulkRecordPayload,
+    label: string,
+  ): Promise<void> => {
+    try {
+      const result = await bulkCreateStudentAttendanceRecords(payload, label);
+      if (result.status === "queued") {
+        notifyQueued();
+      } else {
+        const skipped = result.data.skipped.length;
+        toastNotify(
+          skipped > 0
+            ? `Pointages enregistrés. ${skipped} élève(s) déjà pointé(s) laissé(s) tel(s) quel(s).`
+            : "Pointages de présence enregistrés avec succès.",
+          "success",
+        );
+      }
+      router.back();
+    } catch (error) {
+      const failure = getOfflineFailure(error);
+
+      // Un autre agent a pointé certains élèves différemment : rien n'a été écrit.
+      if (
+        getFailureCode(failure) === "ATTENDANCE_CONFLICT" &&
+        payload.conflictStrategy !== "skip_existing"
+      ) {
+        const confirmed = await confirm({
+          title: "Élèves déjà pointés",
+          description: `${describeFailure(failure)}\n\nEnregistrer les autres élèves sans modifier ces pointages ?`,
+          confirmText: "Enregistrer les autres",
+          cancelText: "Annuler",
+        });
+        if (confirmed) {
+          await submitRecords(
+            { ...payload, conflictStrategy: "skip_existing" },
+            label,
+          );
+        }
+        return;
+      }
+
+      handleApiError(error, {
+        setFieldError: (field, message) =>
+          setError(field as keyof StudentAttendanceBulkRecordFormValues, {
+            message,
+          }),
+      });
+    }
+  };
+
   const onSubmit = async (data: StudentAttendanceBulkRecordFormValues) => {
     const recordItems = records
       .filter((record) => record.isChecked)
@@ -196,21 +277,7 @@ export function AttendanceBulkScreen() {
       return;
     }
 
-    try {
-      await bulkCreateStudentAttendanceRecords({
-        ...data,
-        records: recordItems,
-      });
-      toastNotify("Pointages de présence enregistrés avec succès.", "success");
-      router.back();
-    } catch (error) {
-      handleApiError(error, {
-        setFieldError: (field, message) =>
-          setError(field as keyof StudentAttendanceBulkRecordFormValues, {
-            message,
-          }),
-      });
-    }
+    await submitRecords({ ...data, records: recordItems }, attendanceLabel(data));
   };
 
   const canLoadStudents = Boolean(schoolYearId && schoolClassId && sessionId);
@@ -218,6 +285,7 @@ export function AttendanceBulkScreen() {
   return (
     <>
       <Stack.Screen options={{ title: "Pointage de présences" }} />
+      <ConfirmDialog />
 
       <ScrollView
         className="flex-1 bg-white"
@@ -274,6 +342,7 @@ export function AttendanceBulkScreen() {
                 value={value || null}
                 onChange={(id) => onChange(id ?? "")}
                 loading={schoolClassesIsLoading}
+                emptyLabel="Vous n'êtes titulaire d'aucune classe"
               />
             )}
           />
@@ -394,7 +463,7 @@ export function AttendanceBulkScreen() {
             <View className="py-10">
               <ActivityIndicator />
             </View>
-          ) : enrollmentsError ? (
+          ) : !enrollments && isOnline && enrollmentsError ? (
             <View className="items-center px-6 py-10 gap-3">
               <Text className="text-sm text-gray-500 text-center">
                 Impossible de charger les élèves.
@@ -406,6 +475,11 @@ export function AttendanceBulkScreen() {
                 <Text className="text-white font-medium">Réessayer</Text>
               </Pressable>
             </View>
+          ) : !enrollments ? (
+            <Text className="text-sm text-gray-400 text-center px-6 py-10">
+              Les élèves de cette classe n&apos;ont pas été gardés sur
+              l&apos;appareil. Reconnecte-toi pour les charger.
+            </Text>
           ) : records.length === 0 ? (
             <Text className="text-sm text-gray-400 text-center px-6 py-10">
               Tous les élèves de cette classe ont déjà été pointés pour cette

@@ -1,15 +1,15 @@
 import api from "@/api/client";
 import {
-  bulkStore,
   destroy,
   index,
   show as fetchStudentAttendanceRecordById,
   store,
   summary,
   update,
-  type StudentAttendanceBulkRecordPayload,
+  type StudentAttendanceBulkRecordResult,
   type StudentAttendanceRecordPayload,
 } from "@/api/endpoints/studentAttendanceRecord";
+import { useOfflineMutation } from "@/lib/offline/use-offline-mutation";
 import { enrollmentKeys } from "@/utils/query-keys/enrollment";
 import { studentAttendanceRecordKeys } from "@/utils/query-keys/student-attendance-record";
 import { StudentAttendanceRecord } from "@/utils/types/StudentAttendanceRecord";
@@ -136,18 +136,16 @@ function useInvalidateStudentAttendanceRecords() {
   };
 }
 
+// Pointage en lot rejouable hors ligne (file offline).
 export function useBulkCreateStudentAttendanceRecords() {
-  const invalidate = useInvalidateStudentAttendanceRecords();
-
-  const mutation = useMutation({
-    mutationFn: (payload: StudentAttendanceBulkRecordPayload) =>
-      bulkStore(api, payload),
-    onSuccess: invalidate,
-  });
+  const { submit, isPending } = useOfflineMutation<
+    "attendance.bulk",
+    StudentAttendanceBulkRecordResult
+  >("attendance.bulk");
 
   return {
-    bulkCreateStudentAttendanceRecords: mutation.mutateAsync,
-    bulkCreateStudentAttendanceRecordsIsPending: mutation.isPending,
+    bulkCreateStudentAttendanceRecords: submit,
+    bulkCreateStudentAttendanceRecordsIsPending: isPending,
   };
 }
 

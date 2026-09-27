@@ -4,6 +4,7 @@ import {
   index,
   show as fetchSchoolYearById,
 } from "@/api/endpoints/schoolYear";
+import type { QueryDefinition } from "@/lib/offline/offline-queries";
 import { schoolYearKeys } from "@/utils/query-keys/school-year";
 import { SchoolYear } from "@/utils/types/SchoolYear";
 import { useDetailQuery } from "../use-detail-query";
@@ -21,19 +22,35 @@ interface UseCurrentSchoolYearParams {
   enabled?: boolean;
 }
 
+export function schoolYearsQuery(
+  filters: UseSchoolYearsParams["filters"] = {},
+): QueryDefinition<SchoolYear[]> {
+  const normalizedFilters = { studentId: filters.studentId ?? null };
+
+  return {
+    queryKey: schoolYearKeys.list(normalizedFilters),
+    queryFn: () => index(api, normalizedFilters),
+    label: "Années scolaires",
+  };
+}
+
+export function currentSchoolYearQuery(): QueryDefinition<SchoolYear | null> {
+  return {
+    queryKey: schoolYearKeys.current(),
+    queryFn: () => current(api),
+    label: "Année scolaire en cours",
+  };
+}
+
 export function useSchoolYears({
   filters = {},
   enabled = true,
 }: UseSchoolYearsParams = {}) {
-  const normalizedFilters = { studentId: filters.studentId ?? null };
-
   const query = useListQuery<SchoolYear>({
-    queryKey: schoolYearKeys.list(normalizedFilters),
-    queryFn: () => index(api, normalizedFilters),
-    label: "Années scolaires",
+    ...schoolYearsQuery(filters),
     staleTime: Infinity,
-    gcTime: 1000 * 60 * 60 * 24,
     enabled,
+    offline: true,
   });
 
   return {
@@ -49,12 +66,10 @@ export function useCurrentSchoolYear({
   enabled = true,
 }: UseCurrentSchoolYearParams = {}) {
   const query = useSingletonQuery<SchoolYear | null>({
-    queryKey: schoolYearKeys.current(),
-    queryFn: () => current(api),
-    label: "Année scolaire en cours",
+    ...currentSchoolYearQuery(),
     staleTime: Infinity,
-    gcTime: 1000 * 60 * 60 * 24,
     enabled,
+    offline: true,
   });
 
   return {

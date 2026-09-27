@@ -1,5 +1,8 @@
 import { TeachingCourseEvaluationResultFormValues } from "@/utils/schemas/teaching-course-evaluation-result-schema";
-import { TeachingCourseEvaluationResultRosterEntry } from "@/utils/types/TeachingCourseEvaluationResult";
+import {
+  TeachingCourseEvaluationResultRosterEntry,
+  TeachingCourseEvaluationResultStatus,
+} from "@/utils/types/TeachingCourseEvaluationResult";
 import { AxiosInstance } from "axios";
 import { toRequestConfig, type WriteRequestOptions } from "../idempotency";
 import ApiResponse from "../responses/ApiResponse";
@@ -14,22 +17,47 @@ export async function getByEvaluation(
   return data.data;
 }
 
+// reject : 409 GRADES_CONFLICT et rien d'écrit si une note a changé sur le serveur ; skip_conflicts : ces notes sont laissées telles quelles, les autres enregistrées.
+export type GradesConflictStrategy = "reject" | "skip_conflicts";
+
+export interface TeachingCourseEvaluationResultPayload
+  extends TeachingCourseEvaluationResultFormValues {
+  conflictStrategy?: GradesConflictStrategy;
+}
+
+export interface TeachingCourseEvaluationResultSaveResult {
+  saved: {
+    enrollment_id: string;
+    id: string;
+    status: TeachingCourseEvaluationResultStatus | null;
+    updated_at: string | null;
+  }[];
+  // Modifiées sur le serveur depuis le chargement, laissées telles quelles (skip_conflicts).
+  skipped: { enrollment_id: string }[];
+}
+
 export async function save(
   api: AxiosInstance,
-  payload: TeachingCourseEvaluationResultFormValues,
+  payload: TeachingCourseEvaluationResultPayload,
   options?: WriteRequestOptions,
-): Promise<void> {
-  await api.post(
+): Promise<TeachingCourseEvaluationResultSaveResult> {
+  const { data } = await api.post<
+    ApiResponse<TeachingCourseEvaluationResultSaveResult>
+  >(
     "/teaching-course-evaluation-results",
     {
       evaluation_id: payload.evaluationId,
+      conflict_strategy: payload.conflictStrategy,
       results: payload.results.map((result) => ({
         enrollment_id: result.enrollmentId,
         score: result.score ?? null,
+        // undefined : clé omise, pas de contrôle ; null : « aucune note n'existait ».
+        expected_updated_at: result.expectedUpdatedAt,
       })),
     },
     toRequestConfig(options),
   );
+  return data.data;
 }
 
 export async function exportResults(

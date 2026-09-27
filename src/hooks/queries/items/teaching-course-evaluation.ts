@@ -15,6 +15,7 @@ import {
   TeachingCourseEvaluationFormValues,
   TeachingCourseEvaluationPublishFormValues,
 } from "@/utils/schemas/teaching-course-evaluation-schema";
+import type { QueryDefinition } from "@/lib/offline/offline-queries";
 import { teachingCourseEvaluationKeys } from "@/utils/query-keys/teaching-course-evaluation";
 import { TeachingCourseEvaluation } from "@/utils/types/TeachingCourseEvaluation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -39,10 +40,9 @@ interface UseTeachingCourseEvaluationsParams {
   enabled?: boolean;
 }
 
-export function useTeachingCourseEvaluations({
-  filters,
-  enabled = true,
-}: UseTeachingCourseEvaluationsParams) {
+export function teachingCourseEvaluationsQuery(
+  filters: UseTeachingCourseEvaluationsParams["filters"],
+) {
   const normalizedFilters = {
     schoolYearId: filters.schoolYearId ?? undefined,
     schoolClassId: filters.schoolClassId ?? undefined,
@@ -54,11 +54,22 @@ export function useTeachingCourseEvaluations({
     endDate: filters.endDate ?? undefined,
   };
 
-  const query = useInfiniteScrollQuery<TeachingCourseEvaluation>({
+  return {
     queryKey: teachingCourseEvaluationKeys.list(normalizedFilters),
-    queryFn: (page, perPage) => index(api, normalizedFilters, page, perPage),
+    queryFn: (page: number, perPage: number) =>
+      index(api, normalizedFilters, page, perPage),
     label: "Évaluations",
+  };
+}
+
+export function useTeachingCourseEvaluations({
+  filters,
+  enabled = true,
+}: UseTeachingCourseEvaluationsParams) {
+  const query = useInfiniteScrollQuery<TeachingCourseEvaluation>({
+    ...teachingCourseEvaluationsQuery(filters),
     enabled: Boolean(filters.schoolYearId) && enabled,
+    offline: true,
   });
 
   return {
@@ -146,8 +157,10 @@ export function usePortalTeachingCourseEvaluationById({
   };
 }
 
-export function useTeachingCourseEvaluationById(id: string | undefined) {
-  const query = useDetailQuery<TeachingCourseEvaluation>({
+export function teachingCourseEvaluationQuery(
+  id: string | undefined,
+): QueryDefinition<TeachingCourseEvaluation> {
+  return {
     queryKey: teachingCourseEvaluationKeys.detail(id),
     queryFn: () => {
       if (!id) {
@@ -156,10 +169,17 @@ export function useTeachingCourseEvaluationById(id: string | undefined) {
       return fetchTeachingCourseEvaluationById(api, id);
     },
     label: "Évaluation",
+  };
+}
+
+export function useTeachingCourseEvaluationById(id: string | undefined) {
+  const query = useDetailQuery<TeachingCourseEvaluation>({
+    ...teachingCourseEvaluationQuery(id),
     id,
     staleTime: 0,
-    gcTime: 0,
     refetchOnWindowFocus: false,
+    // Accès à la grille de notes hors ligne.
+    offline: true,
   });
 
   return {

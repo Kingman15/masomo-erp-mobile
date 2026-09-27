@@ -5,6 +5,8 @@ import {
 } from "@tanstack/react-query";
 import * as Crypto from "expo-crypto";
 import { useCallback } from "react";
+import { toastNotify } from "@/lib/toast";
+import { toLocalIsoString } from "./client-metadata";
 import {
   markQueued,
   OFFLINE_MUTATION_ROOT,
@@ -12,6 +14,14 @@ import {
   type OfflineVariables,
 } from "./offline-mutations";
 import { getOfflineOwner } from "./owner";
+
+/** Retour commun des écrans quand l'envoi part en file. */
+export function notifyQueued() {
+  toastNotify(
+    "Enregistré sur l'appareil, envoi au retour du réseau.",
+    "info",
+  );
+}
 
 export type OfflineSubmitResult<TResult> =
   // Le serveur a répondu (en ligne) : même traitement qu'avant côté écran.
@@ -22,11 +32,8 @@ export type OfflineSubmitResult<TResult> =
 /**
  * Soumission d'une écriture rejouable.
  *
- * - En ligne et serveur joignable : attend la réponse. Un refus (409, 422…)
- *   est rejeté comme OfflineMutationError ; `error.cause` porte l'AxiosError
- *   d'origine, pour handleApiError.
- * - Sinon : résout `queued` dès que l'envoi est mis en attente, pour que
- *   l'écran se ferme sans attendre le serveur.
+ * - En ligne et serveur joignable : attend la réponse. Un refus (409, 422…) est rejeté comme OfflineMutationError ; `error.cause` porte l'AxiosError d'origine, pour handleApiError.
+ * - Sinon : résout `queued` dès que l'envoi est mis en attente, pour que l'écran se ferme sans attendre le serveur.
  */
 export function useOfflineMutation<
   K extends keyof OfflinePayloads,
@@ -44,17 +51,27 @@ export function useOfflineMutation<
   const { mutateAsync } = mutation;
 
   const submit = useCallback(
-    (payload: OfflinePayloads[K], label: string): Promise<OfflineSubmitResult<TResult>> => {
+    (
+      payload: OfflinePayloads[K],
+      label: string,
+      // Renvoi d'une saisie antérieure (ex. en ignorant les conflits) : garde l'heure de la saisie d'origine.
+      recordedAt?: string,
+    ): Promise<OfflineSubmitResult<TResult>> => {
+      const now = new Date();
       const variables: OfflineVariables<OfflinePayloads[K]> = {
         // Générée ici, une seule fois : chaque nouvel essai réutilise la même clé.
         idempotencyKey: Crypto.randomUUID(),
         owner: getOfflineOwner(),
         payload,
         label,
-        queuedAt: new Date().toISOString(),
+        queuedAt: now.toISOString(),
+        // Heure de la saisie, envoyée à l'API telle que l'appareil la connaît.
+        recordedAt: recordedAt ?? toLocalIsoString(now),
       };
 
-      const queue = (resolve: (result: OfflineSubmitResult<TResult>) => void) => {
+      const queue = (
+        resolve: (result: OfflineSubmitResult<TResult>) => void,
+      ) => {
         markQueued(variables.idempotencyKey);
         resolve({ status: "queued" });
       };
@@ -65,22 +82,31 @@ export function useOfflineMutation<
           return;
         }
 
-        // En ligne selon NetInfo mais serveur injoignable : mis en file au
-        // premier échec réseau (ou à la mise en pause si la connexion tombe).
-        const unsubscribe = queryClient.getMutationCache().subscribe((event) => {
-          const state = event.mutation?.state;
-          const eventVariables = state?.variables as OfflineVariables | undefined;
-          if (!state || eventVariables?.idempotencyKey !== variables.idempotencyKey) {
-            return;
-          }
+        // En ligne selon NetInfo mais serveur injoignable : mis en file au premier échec réseau (ou à la mise en pause si la connexion tombe).
+        const unsubscribe = queryClient
+          .getMutationCache()
+          .subscribe((event) => {
+            const state = event.mutation?.state;
+            const eventVariables = state?.variables as
+              | OfflineVariables
+              | undefined;
+            if (
+              !state ||
+              eventVariables?.idempotencyKey !== variables.idempotencyKey
+            ) {
+              return;
+            }
 
-          if (state.status === "pending" && (state.isPaused || state.failureCount > 0)) {
-            unsubscribe();
-            queue(resolve);
-          } else if (state.status === "success" || state.status === "error") {
-            unsubscribe();
-          }
-        });
+            if (
+              state.status === "pending" &&
+              (state.isPaused || state.failureCount > 0)
+            ) {
+              unsubscribe();
+              queue(resolve);
+            } else if (state.status === "success" || state.status === "error") {
+              unsubscribe();
+            }
+          });
       });
 
       const done = mutateAsync(variables).then(

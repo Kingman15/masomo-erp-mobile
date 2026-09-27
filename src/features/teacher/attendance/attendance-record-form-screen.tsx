@@ -120,8 +120,9 @@ export function AttendanceRecordFormScreen({
 
   const { currentTeacher, currentTeacherIsLoading } = useCurrentTeacher();
 
+  // Seul le titulaire d'une classe peut la pointer (règle serveur) : on ne propose que celles-là.
   const { schoolClasses, schoolClassesIsLoading } = useSchoolClasses({
-    filters: { teacherId: currentTeacher?.id ?? null },
+    filters: { teacherId: currentTeacher?.id ?? null, homeroom: true },
     enabled: !isEditing && !currentTeacherIsLoading,
   });
 
@@ -303,6 +304,7 @@ export function AttendanceRecordFormScreen({
               setValue("enrollmentId", "");
             }}
             loading={schoolClassesIsLoading}
+            emptyLabel="Vous n'êtes titulaire d'aucune classe"
           />
         )}
 

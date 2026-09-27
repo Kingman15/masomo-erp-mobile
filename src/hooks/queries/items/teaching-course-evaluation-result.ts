@@ -3,19 +3,20 @@ import {
   exportResults,
   getByEvaluation,
   importResults,
-  save,
+  type TeachingCourseEvaluationResultSaveResult,
 } from "@/api/endpoints/teachingCourseEvaluationResult";
+import type { QueryDefinition } from "@/lib/offline/offline-queries";
+import { useOfflineMutation } from "@/lib/offline/use-offline-mutation";
 import { teachingCourseEvaluationKeys } from "@/utils/query-keys/teaching-course-evaluation";
 import { teachingCourseEvaluationResultKeys } from "@/utils/query-keys/teaching-course-evaluation-result";
-import { TeachingCourseEvaluationResultFormValues } from "@/utils/schemas/teaching-course-evaluation-result-schema";
 import { TeachingCourseEvaluationResultRosterEntry } from "@/utils/types/TeachingCourseEvaluationResult";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useListQuery } from "../use-list-query";
 
-export function useTeachingCourseEvaluationResultRoster(
+export function teachingCourseEvaluationResultRosterQuery(
   evaluationId: string | undefined,
-) {
-  const query = useListQuery<TeachingCourseEvaluationResultRosterEntry>({
+): QueryDefinition<TeachingCourseEvaluationResultRosterEntry[]> {
+  return {
     queryKey: teachingCourseEvaluationResultKeys.roster(evaluationId),
     queryFn: () => {
       if (!evaluationId) {
@@ -24,7 +25,16 @@ export function useTeachingCourseEvaluationResultRoster(
       return getByEvaluation(api, evaluationId);
     },
     label: "Résultats",
+  };
+}
+
+export function useTeachingCourseEvaluationResultRoster(
+  evaluationId: string | undefined,
+) {
+  const query = useListQuery<TeachingCourseEvaluationResultRosterEntry>({
+    ...teachingCourseEvaluationResultRosterQuery(evaluationId),
     enabled: Boolean(evaluationId),
+    offline: true,
   });
 
   return {
@@ -36,27 +46,16 @@ export function useTeachingCourseEvaluationResultRoster(
   };
 }
 
-export function useSaveTeachingCourseEvaluationResults(
-  evaluationId: string | undefined,
-) {
-  const queryClient = useQueryClient();
-
-  const mutation = useMutation({
-    mutationFn: (payload: TeachingCourseEvaluationResultFormValues) =>
-      save(api, payload),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: teachingCourseEvaluationResultKeys.roster(evaluationId),
-      });
-      void queryClient.invalidateQueries({
-        queryKey: teachingCourseEvaluationKeys.detail(evaluationId),
-      });
-    },
-  });
+// Saisie de notes rejouable hors ligne (file offline).
+export function useSaveTeachingCourseEvaluationResults() {
+  const { submit, isPending } = useOfflineMutation<
+    "grades.save",
+    TeachingCourseEvaluationResultSaveResult
+  >("grades.save");
 
   return {
-    saveTeachingCourseEvaluationResults: mutation.mutateAsync,
-    saveTeachingCourseEvaluationResultsIsPending: mutation.isPending,
+    saveTeachingCourseEvaluationResults: submit,
+    saveTeachingCourseEvaluationResultsIsPending: isPending,
   };
 }
 

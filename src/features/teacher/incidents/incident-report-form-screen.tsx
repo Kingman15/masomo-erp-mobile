@@ -8,7 +8,9 @@ import {
   useSchoolYears,
 } from "@/hooks/queries/items/school-year";
 import { useTeacherReportStudentIncident } from "@/hooks/queries/items/student-incident";
+import { formatShortDate } from "@/lib/format";
 import { handleApiError } from "@/lib/handle-api-error";
+import { notifyQueued } from "@/lib/offline/use-offline-mutation";
 import { toastNotify } from "@/lib/toast";
 import {
   teacherStudentIncidentSchema,
@@ -174,9 +176,21 @@ export function IncidentReportFormScreen() {
 
   const isBusy = teacherReportStudentIncidentIsPending || isSubmitting;
 
+  const incidentLabel = (data: TeacherStudentIncidentFormValues) => {
+    const incidentType = incidentTypes?.find(
+      (item) => item.id === data.incidentTypeId,
+    );
+    const students =
+      data.mainStudentLabel ??
+      `${data.students.length} élève${data.students.length > 1 ? "s" : ""}`;
+    return [incidentType?.name, students, formatShortDate(data.occurredAtDate)]
+      .filter(Boolean)
+      .join(" · ");
+  };
+
   const onSubmit = async (data: TeacherStudentIncidentFormValues) => {
     try {
-      await teacherReportStudentIncident({
+      const result = await teacherReportStudentIncident({
         schoolYearId: data.schoolYearId,
         incidentTypeId: data.incidentTypeId ?? null,
         mainStudentId: data.mainStudentId ?? null,
@@ -192,9 +206,10 @@ export function IncidentReportFormScreen() {
           role: student.role,
           notes: student.notes ?? null,
         })),
-      });
+      }, incidentLabel(data));
 
-      toastNotify("Incident signalé avec succès.", "success");
+      if (result.status === "queued") notifyQueued();
+      else toastNotify("Incident signalé avec succès.", "success");
       router.back();
     } catch (error) {
       handleApiError(error, {

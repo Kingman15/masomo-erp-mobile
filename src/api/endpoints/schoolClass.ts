@@ -11,15 +11,18 @@ interface SchoolClassFilters {
   teacherId?: string | null;
   schoolYearId?: string | null;
   studentId?: string | null;
+  // teacherId désigne alors le titulaire de la classe (pointage) plutôt qu'un enseignant de cours.
+  homeroom?: boolean | null;
 }
 
 export async function index(
   api: AxiosInstance,
-  filters: SchoolClassFilters,
+  { homeroom, ...filters }: SchoolClassFilters,
 ): Promise<SchoolClass[]> {
   const { data } = await api.get<ApiResponse<SchoolClass[]>>(
     "/school-classes",
-    { params: filters },
+    // La règle `boolean` de Laravel refuse la chaîne "true" d'un paramètre de requête.
+    { params: { ...filters, homeroom: homeroom ? 1 : undefined } },
   );
   return data.data;
 }

@@ -3,6 +3,7 @@ import {
   index,
   show as fetchTeachingCourseById,
 } from "@/api/endpoints/teachingCourse";
+import type { QueryDefinition } from "@/lib/offline/offline-queries";
 import { teachingCourseKeys } from "@/utils/query-keys/teaching-course";
 import { TeachingCourse } from "@/utils/types/TeachingCourse";
 import { useDetailQuery } from "../use-detail-query";
@@ -18,21 +19,30 @@ interface UseTeachingCoursesParams {
   enabled?: boolean;
 }
 
-export function useTeachingCourses({
-  filters = {},
-  enabled = true,
-}: UseTeachingCoursesParams = {}) {
+export function teachingCoursesQuery(
+  filters: UseTeachingCoursesParams["filters"] = {},
+): QueryDefinition<TeachingCourse[]> {
   const normalizedFilters = {
     schoolYearId: filters.schoolYearId ?? null,
     courseId: filters.courseId ?? null,
     schoolClassId: filters.schoolClassId ?? null,
   };
 
-  const query = useListQuery<TeachingCourse>({
+  return {
     queryKey: teachingCourseKeys.list(normalizedFilters),
     queryFn: () => index(api, normalizedFilters),
     label: "Enseignements de cours",
+  };
+}
+
+export function useTeachingCourses({
+  filters = {},
+  enabled = true,
+}: UseTeachingCoursesParams = {}) {
+  const query = useListQuery<TeachingCourse>({
+    ...teachingCoursesQuery(filters),
     enabled,
+    offline: true,
   });
 
   return {

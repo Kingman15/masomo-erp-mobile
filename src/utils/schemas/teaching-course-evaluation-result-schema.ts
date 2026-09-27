@@ -10,6 +10,9 @@ export const teachingCourseEvaluationResultSchema = z.object({
           .number()
           .min(0, "Le score doit être supérieur ou égal à 0")
           .nullish(),
+        // updatedAt de la ligne vu au chargement de la grille (null : aucune note n'existait).
+        // Présent, le serveur refuse la ligne si elle a changé depuis (409 GRADES_CONFLICT).
+        expectedUpdatedAt: z.string().nullish(),
       }),
     )
     .min(1, "Au moins une cotation est requise"),

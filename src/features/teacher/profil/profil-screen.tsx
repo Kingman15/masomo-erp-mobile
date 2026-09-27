@@ -42,15 +42,14 @@ export function ProfilScreen() {
 
   const [changePasswordVisible, setChangePasswordVisible] = useState(false);
 
-  // Des envois non synchronisés restent gardés pour ce compte, mais ne
-  // partiront qu'à sa prochaine connexion : on prévient avant.
+  // Des envois non synchronisés restent gardés pour ce compte, mais ne partiront qu'à sa prochaine connexion : on prévient avant.
   const handleSignOut = async () => {
     const unsynced = countUnsyncedOfflineItems(queryClient);
 
     if (unsynced > 0) {
       const confirmed = await confirm({
         title: "Envois non synchronisés",
-        description: `${unsynced} saisie(s) n'ont pas encore été acceptée(s) par le serveur. Elles restent gardées sur cet appareil et repartiront à ta prochaine connexion avec ce compte.`,
+        description: `${unsynced} saisie${unsynced > 1 ? "s" : ""} n'${unsynced > 1 ? "ont" : "a"} pas encore été accepté${unsynced > 1 ? "es" : "e"} par le serveur. Elles restent gardées sur cet appareil et repartiront à votre prochaine connexion avec ce compte.`,
         confirmText: "Se déconnecter",
         variant: "destructive",
       });
@@ -76,8 +75,14 @@ export function ProfilScreen() {
               </Text>
               {user?.role?.name && (
                 <View className="flex-row items-center gap-1.5">
-                  <Ionicons name="shield-checkmark-outline" size={14} color="#6B7280" />
-                  <Text className="text-sm text-gray-500">{user.role.name}</Text>
+                  <Ionicons
+                    name="shield-checkmark-outline"
+                    size={14}
+                    color="#6B7280"
+                  />
+                  <Text className="text-sm text-gray-500">
+                    {user.role.name}
+                  </Text>
                 </View>
               )}
             </View>
@@ -85,9 +90,17 @@ export function ProfilScreen() {
 
           <SectionTitle>Informations personnelles</SectionTitle>
           <View className="border-t border-gray-100 pt-1">
-            <InfoRow icon="finger-print-outline" label="Utilisateur" value={user?.username} />
+            <InfoRow
+              icon="finger-print-outline"
+              label="Utilisateur"
+              value={user?.username}
+            />
             <InfoRow icon="mail-outline" label="Email" value={user?.email} />
-            <InfoRow icon="business-outline" label="Rôle" value={user?.role?.name} />
+            <InfoRow
+              icon="business-outline"
+              label="Rôle"
+              value={user?.role?.name}
+            />
           </View>
 
           <SectionTitle>Sécurité</SectionTitle>
@@ -96,7 +109,9 @@ export function ProfilScreen() {
             className="flex-row items-center gap-3 py-2.5"
           >
             <Ionicons name="key-outline" size={16} color="#6B7280" />
-            <Text className="flex-1 text-sm text-black">Changer le mot de passe</Text>
+            <Text className="flex-1 text-sm text-black">
+              Changer le mot de passe
+            </Text>
             <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
           </Pressable>
 

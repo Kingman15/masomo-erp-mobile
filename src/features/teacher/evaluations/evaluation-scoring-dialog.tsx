@@ -1,4 +1,6 @@
+import type { TeachingCourseEvaluationResultPayload } from "@/api/endpoints/teachingCourseEvaluationResult";
 import { Toast } from "@/components/toast";
+import { describeFailure } from "@/features/teacher/sync/sync-labels";
 import { useConfirm } from "@/hooks/use-confirm";
 import {
   useExportTeachingCourseEvaluationResults,
@@ -7,11 +9,18 @@ import {
   useTeachingCourseEvaluationResultRoster,
 } from "@/hooks/queries/items/teaching-course-evaluation-result";
 import { handleApiError } from "@/lib/handle-api-error";
+import { getFailureCode, getOfflineFailure } from "@/lib/offline/offline-error";
+import { notifyQueued } from "@/lib/offline/use-offline-mutation";
 import { toastNotify } from "@/lib/toast";
+import { teachingCourseEvaluationResultKeys } from "@/utils/query-keys/teaching-course-evaluation-result";
 import { teachingCourseEvaluationResultSchema } from "@/utils/schemas/teaching-course-evaluation-result-schema";
 import type { TeachingCourseEvaluation } from "@/utils/types/TeachingCourseEvaluation";
-import type { TeachingCourseEvaluationResultRosterEntry } from "@/utils/types/TeachingCourseEvaluationResult";
+import type {
+  TeachingCourseEvaluationResultRosterEntry,
+  TeachingCourseEvaluationResultStatus,
+} from "@/utils/types/TeachingCourseEvaluationResult";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useQueryClient } from "@tanstack/react-query";
 import * as DocumentPicker from "expo-document-picker";
 import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
@@ -43,15 +52,27 @@ type ScoringRow = {
   score: number | null;
   draft: string;
   error: string | null;
+
+  // État chargé : sert à n'envoyer que les lignes modifiées, avec la version vue (contrôle de conflit).
+  originalScore: number | null;
+  status: TeachingCourseEvaluationResultStatus | null;
+  updatedAt: string | null;
 };
+
+// Une note soumise ou approuvée modifiée repasse en brouillon (règle serveur).
+const VALIDATED_STATUSES: (TeachingCourseEvaluationResultStatus | null)[] = [
+  "submitted",
+  "approved",
+];
 
 function toScoringRow(
   entry: TeachingCourseEvaluationResultRosterEntry,
 ): ScoringRow {
-  const score =
+  const parsed =
     entry.score !== null && entry.score !== undefined
       ? Number(entry.score)
       : null;
+  const score = parsed !== null && !Number.isNaN(parsed) ? parsed : null;
   const studentLabel =
     entry.enrollment.student?.fullDesignation ??
     entry.enrollment.student?.fullName ??
@@ -60,10 +81,18 @@ function toScoringRow(
   return {
     enrollmentId: entry.enrollment.id,
     studentLabel,
-    score: score !== null && !Number.isNaN(score) ? score : null,
-    draft: score !== null && !Number.isNaN(score) ? String(score) : "",
+    score,
+    draft: score !== null ? String(score) : "",
     error: null,
+    originalScore: score,
+    status: entry.status ?? null,
+    updatedAt: entry.updatedAt ?? null,
   };
+}
+
+function draftDiffersFromOriginal(row: ScoringRow) {
+  const original = row.originalScore !== null ? String(row.originalScore) : "";
+  return row.draft.trim() !== original;
 }
 
 type EvaluationScoringDialogProps = {
@@ -87,7 +116,9 @@ export function EvaluationScoringDialog({
   const {
     saveTeachingCourseEvaluationResults,
     saveTeachingCourseEvaluationResultsIsPending,
-  } = useSaveTeachingCourseEvaluationResults(evaluationId);
+  } = useSaveTeachingCourseEvaluationResults();
+
+  const queryClient = useQueryClient();
 
   const {
     exportTeachingCourseEvaluationResults,
@@ -110,12 +141,8 @@ export function EvaluationScoringDialog({
     if (!teachingCourseEvaluationResultRoster) return;
     if (hasUnsavedChangesRef.current) return;
 
-    const sorted = [...teachingCourseEvaluationResultRoster].sort((a, b) =>
-      (a.enrollment.student?.fullDesignation ?? "").localeCompare(
-        b.enrollment.student?.fullDesignation ?? "",
-      ),
-    );
-    setRows(sorted.map(toScoringRow));
+    // Ordre du serveur (nom de l'élève), le même qu'au pointage : pas de tri local sur fullDesignation, qui commence par le matricule.
+    setRows(teachingCourseEvaluationResultRoster.map(toScoringRow));
   }, [teachingCourseEvaluationResultRoster]);
 
   const maxScore = evaluation.maxScore ?? 0;
@@ -243,11 +270,35 @@ export function EvaluationScoringDialog({
       return;
     }
 
+    // Seules les lignes modifiées partent : une ligne inchangée ne peut pas écraser une note modifiée ailleurs entre-temps.
+    const changedRows = parsedRows.filter(
+      (row) => row.score !== row.originalScore,
+    );
+    if (changedRows.length === 0) {
+      setRows(parsedRows);
+      toastNotify("Aucune modification à enregistrer.", "info");
+      return;
+    }
+
+    const revertedCount = changedRows.filter((row) =>
+      VALIDATED_STATUSES.includes(row.status),
+    ).length;
+    if (revertedCount > 0) {
+      const confirmed = await confirm({
+        title: "Notes déjà validées",
+        description: `${revertedCount} note(s) déjà soumise(s) ou approuvée(s) repasseront en brouillon. Continuer ?`,
+        confirmText: "Enregistrer",
+        cancelText: "Annuler",
+      });
+      if (!confirmed) return;
+    }
+
     const payload = {
       evaluationId,
-      results: parsedRows.map((row) => ({
+      results: changedRows.map((row) => ({
         enrollmentId: row.enrollmentId,
         score: row.score,
+        expectedUpdatedAt: row.updatedAt,
       })),
     };
 
@@ -257,12 +308,94 @@ export function EvaluationScoringDialog({
       return;
     }
 
+    await submitGrades(parsed.data, parsedRows);
+  };
+
+  // Les notes mises en file restent affichées à la réouverture de la grille.
+  // updatedAt n'est pas touché : c'est la version de base, rebasée par la file une fois l'envoi accepté.
+  const keepQueuedScores = (payload: TeachingCourseEvaluationResultPayload) => {
+    const queuedScores = new Map(
+      payload.results.map((row) => [row.enrollmentId, row.score ?? null]),
+    );
+
+    queryClient.setQueryData<TeachingCourseEvaluationResultRosterEntry[]>(
+      teachingCourseEvaluationResultKeys.roster(evaluationId),
+      (entries) =>
+        entries?.map((entry) => {
+          if (!queuedScores.has(entry.enrollment.id)) return entry;
+          const score = queuedScores.get(entry.enrollment.id);
+          return {
+            ...entry,
+            score: score !== null && score !== undefined ? String(score) : null,
+          };
+        }),
+    );
+  };
+
+  const submitGrades = async (
+    payload: TeachingCourseEvaluationResultPayload,
+    parsedRows: ScoringRow[],
+  ): Promise<void> => {
+    const label = `${evaluation.wording ?? "Évaluation"} · ${payload.results.length} note(s)`;
+
     try {
-      await saveTeachingCourseEvaluationResults(parsed.data);
-      setRows(parsedRows);
+      const result = await saveTeachingCourseEvaluationResults(payload, label);
       hasUnsavedChangesRef.current = false;
-      toastNotify("Notes enregistrées avec succès.", "success");
+
+      if (result.status === "queued") {
+        keepQueuedScores(payload);
+        notifyQueued();
+        onClose();
+        return;
+      }
+
+      const saved = new Map(
+        result.data.saved.map((row) => [row.enrollment_id, row]),
+      );
+      setRows(
+        parsedRows.map((row) => {
+          const written = saved.get(row.enrollmentId);
+          return written
+            ? {
+                ...row,
+                originalScore: row.score,
+                status: written.status,
+                updatedAt: written.updated_at,
+              }
+            : row;
+        }),
+      );
+
+      const skippedCount = result.data.skipped.length;
+      toastNotify(
+        skippedCount > 0
+          ? `Notes enregistrées. ${skippedCount} note(s) modifiée(s) entre-temps laissée(s) telle(s) quelle(s).`
+          : "Notes enregistrées avec succès.",
+        "success",
+      );
     } catch (error) {
+      const failure = getOfflineFailure(error);
+
+      // Des notes ont changé sur le serveur depuis le chargement : rien n'a été écrit.
+      if (
+        getFailureCode(failure) === "GRADES_CONFLICT" &&
+        payload.conflictStrategy !== "skip_conflicts"
+      ) {
+        const confirmed = await confirm({
+          title: "Notes modifiées entre-temps",
+          description: `${describeFailure(failure)}\n\nEnregistrer les autres notes sans toucher à celles-ci ?`,
+          confirmText: "Enregistrer les autres",
+          cancelText: "Annuler",
+        });
+        if (confirmed) {
+          await submitGrades(
+            { ...payload, conflictStrategy: "skip_conflicts" },
+            parsedRows,
+          );
+        }
+        return;
+      }
+
       handleApiError(error);
     }
   };
@@ -355,6 +488,12 @@ export function EvaluationScoringDialog({
                 maxScore={maxScore}
                 draft={item.draft}
                 error={item.error}
+                warning={
+                  VALIDATED_STATUSES.includes(item.status) &&
+                  draftDiffersFromOriginal(item)
+                    ? "Repassera en brouillon"
+                    : null
+                }
                 onChangeText={(text) => handleChangeText(index, text)}
                 onBlur={() => handleBlur(index)}
               />

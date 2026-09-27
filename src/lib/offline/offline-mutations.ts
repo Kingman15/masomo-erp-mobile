@@ -1,5 +1,9 @@
 import api from "@/api/client";
-import { store as storeLesson, type LessonPayload } from "@/api/endpoints/lesson";
+import type { WriteRequestOptions } from "@/api/idempotency";
+import {
+  store as storeLesson,
+  type LessonPayload,
+} from "@/api/endpoints/lesson";
 import {
   bulkStore as bulkStoreAttendance,
   type StudentAttendanceBulkRecordPayload,
@@ -8,7 +12,11 @@ import {
   teacherReport,
   type TeacherReportStudentIncidentPayload,
 } from "@/api/endpoints/studentIncident";
-import { save as saveEvaluationResults } from "@/api/endpoints/teachingCourseEvaluationResult";
+import {
+  save as saveEvaluationResults,
+  type TeachingCourseEvaluationResultPayload,
+  type TeachingCourseEvaluationResultSaveResult,
+} from "@/api/endpoints/teachingCourseEvaluationResult";
 import { toastNotify } from "@/lib/toast";
 import { enrollmentKeys } from "@/utils/query-keys/enrollment";
 import { lessonKeys } from "@/utils/query-keys/lesson";
@@ -16,23 +24,21 @@ import { studentAttendanceRecordKeys } from "@/utils/query-keys/student-attendan
 import { studentIncidentKeys } from "@/utils/query-keys/student-incident";
 import { teachingCourseEvaluationKeys } from "@/utils/query-keys/teaching-course-evaluation";
 import { teachingCourseEvaluationResultKeys } from "@/utils/query-keys/teaching-course-evaluation-result";
-import type { TeachingCourseEvaluationResultFormValues } from "@/utils/schemas/teaching-course-evaluation-result-schema";
 import type { Mutation, MutationKey, QueryClient } from "@tanstack/react-query";
 import {
+  getFailureCode,
   getOfflineFailure,
   isRetryableFailure,
   OfflineMutationError,
+  type OfflineFailure,
   toOfflineMutationError,
 } from "./offline-error";
+import { buildClientMetadata } from "./client-metadata";
 import { getOfflineOwner } from "./owner";
 
 /**
  * File d'envois hors ligne du poste enseignant.
- *
- * Chaque écriture rejouable a une mutationKey dont les defaults (mutationFn,
- * retry, invalidations) sont enregistrés une fois pour toutes : une mutation
- * restaurée depuis le stockage n'a que sa clé et ses variables, jamais de
- * fonction (non sérialisable).
+ * Chaque écriture rejouable a une mutationKey dont les defaults (mutationFn, retry, invalidations) sont enregistrés une fois pour toutes : une mutation restaurée depuis le stockage n'a que sa clé et ses variables, jamais de fonction (non sérialisable).
  */
 
 export const OFFLINE_MUTATION_ROOT = "offline";
@@ -50,14 +56,13 @@ export type OfflineMutationKey =
 export interface OfflinePayloads {
   "lesson.create": LessonPayload;
   "attendance.bulk": StudentAttendanceBulkRecordPayload;
-  "grades.save": TeachingCourseEvaluationResultFormValues;
+  "grades.save": TeachingCourseEvaluationResultPayload;
   "incident.teacherReport": TeacherReportStudentIncidentPayload;
 }
 
 /**
- * Variables persistées avec la mutation. La clé d'idempotence est générée une
- * seule fois à la soumission : elle est réutilisée à chaque nouvel essai, y
- * compris après un redémarrage de l'app.
+ * Variables persistées avec la mutation.
+ * La clé d'idempotence est générée une seule fois à la soumission : elle est réutilisée à chaque nouvel essai, y compris après un redémarrage de l'app.
  */
 export interface OfflineVariables<TPayload = unknown> {
   idempotencyKey: string;
@@ -67,6 +72,9 @@ export interface OfflineVariables<TPayload = unknown> {
   // Libellé lisible dans l'écran Synchronisation (ex. « Leçon · Maths 6e A · 12/09 »).
   label: string;
   queuedAt: string;
+  // Heure de la saisie sur l'appareil, avec son décalage local (envoyée à l'API, cf. client-metadata.ts).
+  // Absente des envois enregistrés avant son ajout : queuedAt (UTC) sert alors.
+  recordedAt?: string;
 }
 
 export function isOfflineMutationKey(key: MutationKey | undefined): boolean {
@@ -74,9 +82,8 @@ export function isOfflineMutationKey(key: MutationKey | undefined): boolean {
 }
 
 // --- Envois mis en file (hors ligne, ou réseau en échec à la soumission) ---
-// L'écran d'origine est déjà fermé pour eux : le résultat final est annoncé
-// par un toast global. Un envoi direct réussi ou refusé en ligne est traité par
-// l'écran lui-même et ne passe pas par là.
+// L'écran d'origine est déjà fermé pour eux : le résultat final est annoncé par un toast global.
+// Un envoi direct réussi ou refusé en ligne est traité par l'écran lui-même et ne passe pas par là.
 
 const queuedKeys = new Set<string>();
 
@@ -113,49 +120,108 @@ function offlineRetryDelay(attempt: number): number {
   return Math.min(1_000 * 2 ** attempt, MAX_RETRY_DELAY_MS);
 }
 
-type Invalidate<TPayload> = (queryClient: QueryClient, payload: TPayload) => void;
+type Invalidate<TPayload> = (
+  queryClient: QueryClient,
+  payload: TPayload,
+) => void;
 
 interface OfflineMutationDefinition<TPayload> {
-  send: (payload: TPayload, idempotencyKey: string) => Promise<unknown>;
+  send: (payload: TPayload, options: WriteRequestOptions) => Promise<unknown>;
   invalidate: Invalidate<TPayload>;
+  // Ajuste les envois suivants de la file après une réussite.
+  afterSuccess?: (
+    queryClient: QueryClient,
+    variables: OfflineVariables<TPayload>,
+    data: unknown,
+  ) => void;
   successMessage: string;
+}
+
+/**
+ * Une note enregistrée change d'updated_at sur le serveur. Un envoi suivant de la file, saisi sur l'ancienne version de cette même note, serait refusé comme conflit contre notre propre écriture : on le rebase sur la nouvelle version.
+ * Le scope séquentiel garantit que ces envois ne sont pas encore partis. Leurs variables sont modifiées en place, car c'est cet objet que reçoit mutationFn à l'essai suivant.
+ */
+function rebaseQueuedGrades(
+  queryClient: QueryClient,
+  variables: OfflineVariables<TeachingCourseEvaluationResultPayload>,
+  data: unknown,
+) {
+  const result = data as TeachingCourseEvaluationResultSaveResult | undefined;
+  if (!result?.saved?.length) return;
+
+  const { payload } = variables;
+  const sentVersions = new Map(
+    payload.results.map((row) => [row.enrollmentId, row.expectedUpdatedAt]),
+  );
+  const newVersions = new Map(
+    result.saved.map((row) => [row.enrollment_id, row.updated_at]),
+  );
+
+  queryClient
+    .getMutationCache()
+    .findAll({ mutationKey: offlineMutationKeys.gradesSave, status: "pending" })
+    .forEach((mutation) => {
+      const queued = mutation.state.variables as
+        | OfflineVariables<TeachingCourseEvaluationResultPayload>
+        | undefined;
+      if (
+        !queued ||
+        queued.idempotencyKey === variables.idempotencyKey ||
+        queued.payload.evaluationId !== payload.evaluationId
+      ) {
+        return;
+      }
+
+      queued.payload.results.forEach((row) => {
+        if (
+          newVersions.has(row.enrollmentId) &&
+          row.expectedUpdatedAt !== undefined &&
+          row.expectedUpdatedAt === sentVersions.get(row.enrollmentId)
+        ) {
+          row.expectedUpdatedAt = newVersions.get(row.enrollmentId) ?? null;
+        }
+      });
+    });
 }
 
 const definitions: {
   [K in keyof OfflinePayloads]: OfflineMutationDefinition<OfflinePayloads[K]>;
 } = {
   "lesson.create": {
-    send: (payload, idempotencyKey) => storeLesson(api, payload, { idempotencyKey }),
+    send: (payload, options) => storeLesson(api, payload, options),
     invalidate: (queryClient) => {
       void queryClient.invalidateQueries({ queryKey: lessonKeys.all });
     },
     successMessage: "Leçon envoyée",
   },
   "attendance.bulk": {
-    send: (payload, idempotencyKey) =>
-      bulkStoreAttendance(api, payload, { idempotencyKey }),
+    send: (payload, options) => bulkStoreAttendance(api, payload, options),
     // Les inscriptions sont filtrées par « non encore pointées » : on les invalide aussi.
     invalidate: (queryClient) => {
-      void queryClient.invalidateQueries({ queryKey: studentAttendanceRecordKeys.all });
+      void queryClient.invalidateQueries({
+        queryKey: studentAttendanceRecordKeys.all,
+      });
       void queryClient.invalidateQueries({ queryKey: enrollmentKeys.all });
     },
     successMessage: "Pointage envoyé",
   },
   "grades.save": {
-    send: (payload, idempotencyKey) =>
-      saveEvaluationResults(api, payload, { idempotencyKey }),
+    send: (payload, options) => saveEvaluationResults(api, payload, options),
     invalidate: (queryClient, payload) => {
       void queryClient.invalidateQueries({
-        queryKey: teachingCourseEvaluationResultKeys.roster(payload.evaluationId),
+        queryKey: teachingCourseEvaluationResultKeys.roster(
+          payload.evaluationId,
+        ),
       });
       void queryClient.invalidateQueries({
         queryKey: teachingCourseEvaluationKeys.detail(payload.evaluationId),
       });
     },
+    afterSuccess: rebaseQueuedGrades,
     successMessage: "Notes envoyées",
   },
   "incident.teacherReport": {
-    send: (payload, idempotencyKey) => teacherReport(api, payload, { idempotencyKey }),
+    send: (payload, options) => teacherReport(api, payload, options),
     invalidate: (queryClient) => {
       void queryClient.invalidateQueries({ queryKey: studentIncidentKeys.all });
     },
@@ -188,7 +254,13 @@ function register<K extends keyof OfflinePayloads>(
       }
 
       try {
-        return await definition.send(variables.payload, variables.idempotencyKey);
+        return await definition.send(variables.payload, {
+          idempotencyKey: variables.idempotencyKey,
+          client: buildClientMetadata(
+            variables.recordedAt ?? variables.queuedAt,
+            isQueued(variables.idempotencyKey),
+          ),
+        });
       } catch (error) {
         throw toOfflineMutationError(error);
       }
@@ -202,11 +274,15 @@ function register<K extends keyof OfflinePayloads>(
     // Un envoi en échec reste visible (écran Synchronisation) jusqu'à ce que
     // l'utilisateur l'ignore ; les réussites sont retirées par le cache (cf. plus bas).
     gcTime: Infinity,
-    onSuccess: (_data, variables) => {
+    onSuccess: (data, variables) => {
+      definition.afterSuccess?.(queryClient, variables, data);
       definition.invalidate(queryClient, variables.payload);
 
       if (isQueued(variables.idempotencyKey)) {
-        toastNotify(`${definition.successMessage} : ${variables.label}`, "success");
+        toastNotify(
+          `${definition.successMessage} : ${variables.label}`,
+          "success",
+        );
         forget(variables.idempotencyKey);
       }
     },
@@ -235,12 +311,16 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
   // l'a déjà affiché) aussi. Seuls les refus d'envois mis en file restent.
   mutationCache.subscribe((event) => {
     if (event.type !== "updated") return;
-    const mutation = event.mutation as Mutation<unknown, unknown, OfflineVariables> | undefined;
-    if (!mutation || !isOfflineMutationKey(mutation.options.mutationKey)) return;
+    const mutation = event.mutation as
+      | Mutation<unknown, unknown, OfflineVariables>
+      | undefined;
+    if (!mutation || !isOfflineMutationKey(mutation.options.mutationKey))
+      return;
 
     const { status, variables } = mutation.state;
     const shouldRemove =
-      status === "success" || (status === "error" && !isQueued(variables?.idempotencyKey));
+      status === "success" ||
+      (status === "error" && !isQueued(variables?.idempotencyKey));
 
     if (shouldRemove) {
       // Différé : laisse les callbacks et l'appelant de mutateAsync terminer.
@@ -252,12 +332,9 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
 /**
  * Relance les envois restaurés depuis le stockage.
  *
- * resumePausedMutations() seul ne suffit pas : une mutation sauvegardée en
- * plein essai n'est pas marquée « en pause » et serait ignorée. On relance donc
- * chaque envoi en attente ; le scope `teacher-offline` garantit qu'ils partent
- * un par un, dans l'ordre. Relancer chacun (plutôt que le premier seulement,
- * le scope enchaînant les suivants) attache un .catch à chaque promesse :
- * sinon un refus d'un envoi repris par le scope sort en rejet non géré.
+ * resumePausedMutations() seul ne suffit pas : une mutation sauvegardée en plein essai n'est pas marquée « en pause » et serait ignorée.
+ * On relance donc chaque envoi en attente ; le scope `teacher-offline` garantit qu'ils partent un par un, dans l'ordre.
+ * Relancer chacun (plutôt que le premier seulement, le scope enchaînant les suivants) attache un .catch à chaque promesse : sinon un refus d'un envoi repris par le scope sort en rejet non géré.
  * Vérifié sur query-core 5.104 : chaque envoi part exactement une fois.
  */
 export async function resumeOfflineQueue(queryClient: QueryClient) {
@@ -275,7 +352,51 @@ export async function resumeOfflineQueue(queryClient: QueryClient) {
     if (variables) markQueued(variables.idempotencyKey);
   });
 
-  await Promise.all(pending.map((mutation) => mutation.continue().catch(() => undefined)));
+  await Promise.all(
+    pending.map((mutation) => mutation.continue().catch(() => undefined)),
+  );
+}
+
+/**
+ * Payload à renvoyer pour appliquer le reste d'un envoi refusé pour conflit (409), sans toucher aux lignes en conflit.
+ * null si le refus n'est pas un conflit qui le permet.
+ * C'est une nouvelle intention : elle part avec une nouvelle clé d'idempotence.
+ */
+export function payloadIgnoringConflicts<K extends keyof OfflinePayloads>(
+  name: K,
+  payload: OfflinePayloads[K],
+  failure: OfflineFailure | null,
+): OfflinePayloads[K] | null {
+  const code = getFailureCode(failure);
+
+  if (name === "attendance.bulk" && code === "ATTENDANCE_CONFLICT") {
+    return { ...payload, conflictStrategy: "skip_existing" };
+  }
+  if (name === "grades.save" && code === "GRADES_CONFLICT") {
+    return { ...payload, conflictStrategy: "skip_conflicts" };
+  }
+  return null;
+}
+
+/**
+ * Une même saisie (même clé d'idempotence) ne doit figurer qu'une fois dans la file : on garde la plus ancienne, déjà engagée dans le scope.
+ */
+export function removeDuplicateOfflineMutations(queryClient: QueryClient) {
+  const mutationCache = queryClient.getMutationCache();
+  const seen = new Set<string>();
+
+  mutationCache.getAll().forEach((mutation) => {
+    const variables = mutation.state.variables as OfflineVariables | undefined;
+    if (!variables || !isOfflineMutationKey(mutation.options.mutationKey)) {
+      return;
+    }
+
+    if (seen.has(variables.idempotencyKey)) {
+      mutationCache.remove(mutation);
+    } else {
+      seen.add(variables.idempotencyKey);
+    }
+  });
 }
 
 /**
@@ -286,7 +407,9 @@ export function markRestoredFailuresAsQueued(queryClient: QueryClient) {
     .getMutationCache()
     .getAll()
     .forEach((mutation) => {
-      const variables = mutation.state.variables as OfflineVariables | undefined;
+      const variables = mutation.state.variables as
+        | OfflineVariables
+        | undefined;
       if (
         variables &&
         isOfflineMutationKey(mutation.options.mutationKey) &&

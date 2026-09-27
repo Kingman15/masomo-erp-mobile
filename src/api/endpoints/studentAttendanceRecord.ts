@@ -34,9 +34,21 @@ export interface StudentAttendanceBulkRecordItem {
   justificationNote: string | null;
 }
 
+// reject : 409 ATTENDANCE_CONFLICT et rien d'écrit si un élève est déjà pointé différemment ; skip_existing : ces élèves sont laissés tels quels, les autres enregistrés.
+export type AttendanceConflictStrategy = "reject" | "skip_existing";
+
 export interface StudentAttendanceBulkRecordPayload
   extends StudentAttendanceBulkRecordFormValues {
   records: StudentAttendanceBulkRecordItem[];
+  conflictStrategy?: AttendanceConflictStrategy;
+}
+
+export interface StudentAttendanceBulkRecordResult {
+  created: { enrollment_id: string; id: string }[];
+  // Déjà pointés à l'identique.
+  unchanged: { enrollment_id: string }[];
+  // Déjà pointés différemment, laissés tels quels (skip_existing).
+  skipped: { enrollment_id: string }[];
 }
 
 function toRequestBody(payload: StudentAttendanceRecordPayload) {
@@ -67,6 +79,7 @@ function toBulkRequestBody(payload: StudentAttendanceBulkRecordPayload) {
     pointed_by_id: payload.pointedById ?? null,
     pointing_channel_id: payload.pointingChannelId ?? null,
     location: payload.location ?? null,
+    conflict_strategy: payload.conflictStrategy,
     records: payload.records.map((record) => ({
       enrollment_id: record.enrollmentId,
       is_present: record.isPresent,
@@ -140,10 +153,13 @@ export async function bulkStore(
   api: AxiosInstance,
   payload: StudentAttendanceBulkRecordPayload,
   options?: WriteRequestOptions,
-): Promise<void> {
-  await api.post(
+): Promise<StudentAttendanceBulkRecordResult> {
+  const { data } = await api.post<
+    ApiResponse<StudentAttendanceBulkRecordResult>
+  >(
     "/student-attendance-records/bulk",
     toBulkRequestBody(payload),
     toRequestConfig(options),
   );
+  return data.data;
 }

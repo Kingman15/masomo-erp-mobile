@@ -1,5 +1,6 @@
 import api from "@/api/client";
 import { byLessonDate, getSchedules } from "@/api/endpoints/teachingSchedule";
+import type { QueryDefinition } from "@/lib/offline/offline-queries";
 import { teachingScheduleKeys } from "@/utils/query-keys/teaching-schedule";
 import { TeachingSchedule } from "@/utils/types/TeachingSchedule";
 import { TeachingScheduleDTO } from "@/utils/types/TeachingScheduleDTO";
@@ -57,21 +58,30 @@ interface UseTeachingScheduleDTOsParams {
   enabled?: boolean;
 }
 
-export function useTeachingScheduleDTOs({
-  filters,
-  enabled,
-}: UseTeachingScheduleDTOsParams) {
+export function teachingScheduleDTOsQuery(
+  filters: UseTeachingScheduleDTOsParams["filters"],
+): QueryDefinition<TeachingScheduleDTO[]> {
   const normalizedFilters = {
     courseScheduleId: filters.courseScheduleId ?? null,
     schoolClassId: filters.schoolClassId ?? null,
     courseId: filters.courseId ?? null,
   };
 
-  const query = useListQuery<TeachingScheduleDTO>({
+  return {
     queryKey: teachingScheduleKeys.schedules(normalizedFilters),
     queryFn: () => getSchedules(api, normalizedFilters),
     label: "Horaire d'enseignement",
-    enabled: enabled ?? Boolean(normalizedFilters.courseScheduleId),
+  };
+}
+
+export function useTeachingScheduleDTOs({
+  filters,
+  enabled,
+}: UseTeachingScheduleDTOsParams) {
+  const query = useListQuery<TeachingScheduleDTO>({
+    ...teachingScheduleDTOsQuery(filters),
+    enabled: enabled ?? Boolean(filters.courseScheduleId),
+    offline: true,
   });
 
   return {

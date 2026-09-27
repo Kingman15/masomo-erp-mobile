@@ -1,5 +1,6 @@
 import api from "@/api/client";
 import { active } from "@/api/endpoints/courseSchedule";
+import type { QueryDefinition } from "@/lib/offline/offline-queries";
 import { courseScheduleKeys } from "@/utils/query-keys/course-schedule";
 import { CourseSchedule } from "@/utils/types/CourseSchedule";
 import { useSingletonQuery } from "../use-singleton-query";
@@ -9,17 +10,25 @@ interface UseActiveCourseScheduleParams {
   enabled?: boolean;
 }
 
+export function activeCourseScheduleQuery(
+  schoolYearId?: string | null,
+): QueryDefinition<CourseSchedule | null> {
+  return {
+    queryKey: courseScheduleKeys.active(schoolYearId),
+    queryFn: () => active(api, schoolYearId),
+    label: "Horaire actif",
+  };
+}
+
 export function useActiveCourseSchedule({
   schoolYearId,
   enabled,
 }: UseActiveCourseScheduleParams = {}) {
   const query = useSingletonQuery<CourseSchedule | null>({
-    queryKey: courseScheduleKeys.active(schoolYearId),
-    queryFn: () => active(api, schoolYearId),
-    label: "Horaire actif",
+    ...activeCourseScheduleQuery(schoolYearId),
     staleTime: Infinity,
-    gcTime: 1000 * 60 * 60 * 24,
     enabled: enabled ?? Boolean(schoolYearId),
+    offline: true,
   });
 
   return {

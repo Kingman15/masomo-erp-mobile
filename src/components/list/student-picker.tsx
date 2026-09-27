@@ -1,15 +1,11 @@
 import { useStudents } from "@/hooks/queries/items/student";
+import { useCachedStudents } from "@/lib/offline/cached-students";
+import { useIsOnline } from "@/lib/offline/use-offline-queue";
 import type { Student } from "@/utils/types/Student";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { FlashList } from "@shopify/flash-list";
 import { useState } from "react";
-import {
-  ActivityIndicator,
-  Modal,
-  Pressable,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, Modal, Pressable, Text, View } from "react-native";
 import { SearchBar } from "./search-bar";
 
 export type PickedStudent = Pick<Student, "id" | "fullDesignation">;
@@ -49,6 +45,18 @@ export function StudentPicker({
     enabled: open && Boolean(schoolYearId),
   });
 
+  // Hors ligne, serveur injoignable (erreur) ou pas encore de réponse : recherche locale parmi les élèves gardés sur l'appareil.
+  // La réponse du serveur prend la place dès qu'elle arrive.
+  const isOnline = useIsOnline();
+  const serverAnswered = isOnline && !studentsIsLoading && !studentsError;
+  const cachedStudents = useCachedStudents({
+    schoolYearId,
+    searchTerm,
+    enabled: open && !serverAnswered,
+  });
+  const listedStudents = serverAnswered ? students : cachedStudents;
+  const serverUnreachable = isOnline && Boolean(studentsError);
+
   const handleClose = () => {
     setOpen(false);
     setSearchTerm("");
@@ -67,7 +75,9 @@ export function StudentPicker({
         <Pressable
           onPress={() => !isDisabled && setOpen(true)}
           className={`flex-1 flex-row items-center justify-between h-11 border rounded-lg px-3 ${
-            isDisabled ? "bg-gray-50 border-gray-200" : "bg-white border-gray-300"
+            isDisabled
+              ? "bg-gray-50 border-gray-200"
+              : "bg-white border-gray-300"
           }`}
         >
           <Text
@@ -90,11 +100,7 @@ export function StudentPicker({
         )}
       </View>
 
-      <Modal
-        visible={open}
-        animationType="slide"
-        onRequestClose={handleClose}
-      >
+      <Modal visible={open} animationType="slide" onRequestClose={handleClose}>
         <View className="flex-1 bg-white">
           <View className="flex-row items-center justify-between px-4 pt-14 pb-3 border-b border-gray-100">
             <Text className="text-base font-semibold">{label}</Text>
@@ -110,25 +116,26 @@ export function StudentPicker({
             />
           </View>
 
-          {studentsIsLoading ? (
+          {serverUnreachable && (
+            <View className="flex-row items-center justify-between gap-3 mx-4 mb-2 px-3 py-2 rounded-lg bg-amber-50">
+              <Text className="flex-1 text-xs text-amber-700">
+                Serveur injoignable : recherche parmi les élèves de vos classes.
+              </Text>
+              <Pressable onPress={() => loadStudents()} hitSlop={8}>
+                <Text className="text-xs font-medium text-amber-800">
+                  Réessayer
+                </Text>
+              </Pressable>
+            </View>
+          )}
+
+          {studentsIsLoading && listedStudents.length === 0 ? (
             <View className="flex-1 items-center justify-center">
               <ActivityIndicator />
             </View>
-          ) : studentsError ? (
-            <View className="flex-1 items-center justify-center px-6 gap-3">
-              <Text className="text-sm text-gray-500 text-center">
-                Impossible de charger les élèves.
-              </Text>
-              <Pressable
-                onPress={() => loadStudents()}
-                className="h-10 px-4 rounded-lg bg-black items-center justify-center"
-              >
-                <Text className="text-white font-medium">Réessayer</Text>
-              </Pressable>
-            </View>
           ) : (
             <FlashList
-              data={students}
+              data={listedStudents}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <Pressable
@@ -153,7 +160,9 @@ export function StudentPicker({
               ListEmptyComponent={
                 <View className="items-center justify-center px-6 py-16">
                   <Text className="text-sm text-gray-400 text-center">
-                    Aucun élève trouvé.
+                    {serverAnswered
+                      ? "Aucun élève trouvé."
+                      : "Aucun élève de vos classes gardé sur l'appareil ne correspond."}
                   </Text>
                 </View>
               }
@@ -165,7 +174,11 @@ export function StudentPicker({
                 ) : null
               }
               onEndReached={() => {
-                if (studentsHasNextPage && !studentsIsFetchingNextPage) {
+                if (
+                  serverAnswered &&
+                  studentsHasNextPage &&
+                  !studentsIsFetchingNextPage
+                ) {
                   fetchNextStudents();
                 }
               }}

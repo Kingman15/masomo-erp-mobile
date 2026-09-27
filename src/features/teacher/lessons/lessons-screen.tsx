@@ -2,6 +2,7 @@ import { FilterButton } from "@/components/list/filter-button";
 import { SearchBar } from "@/components/list/search-bar";
 import { DrawerMenuButton } from "@/features/teacher/drawer-menu-button";
 import { useLessons } from "@/hooks/queries/items/lesson";
+import { useOfflineQueue } from "@/lib/offline/use-offline-queue";
 import type { Lesson } from "@/utils/types/Lesson";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { FlashList } from "@shopify/flash-list";
@@ -11,6 +12,7 @@ import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { LessonFilterPanel } from "./lesson-filter-panel";
 import { emptyLessonFilters, type LessonFiltersForm } from "./lesson-filters";
 import { LessonRow } from "./lesson-row";
+import { PendingLessonRow } from "./pending-lesson-row";
 
 export function LessonsScreen() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -45,6 +47,11 @@ export function LessonsScreen() {
   } = useLessons({
     filters: { ...filters, searchTerm },
   });
+
+  // Les refus restent dans l'écran Synchronisation.
+  const pendingLessons = useOfflineQueue().filter(
+    (item) => item.name === "lesson.create" && item.state !== "failed",
+  );
 
   useEffect(() => {
     if (lessonsError) {
@@ -114,11 +121,16 @@ export function LessonsScreen() {
             renderItem={renderLesson}
             contentContainerStyle={{ paddingBottom: 12 }}
             ListHeaderComponent={
-              lessonsMeta ? (
-                <Text className="px-4 py-2 text-xs text-gray-400">
-                  {lessonsMeta.total} leçon{lessonsMeta.total > 1 ? "s" : ""}
-                </Text>
-              ) : null
+              <>
+                {pendingLessons.map((item) => (
+                  <PendingLessonRow key={item.mutationId} item={item} />
+                ))}
+                {lessonsMeta ? (
+                  <Text className="px-4 py-2 text-xs text-gray-400">
+                    {lessonsMeta.total} leçon{lessonsMeta.total > 1 ? "s" : ""}
+                  </Text>
+                ) : null}
+              </>
             }
             ListEmptyComponent={
               <View className="items-center justify-center px-6 py-16">

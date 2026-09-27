@@ -1,5 +1,6 @@
 import api from "@/api/client";
 import { index } from "@/api/endpoints/schoolSpace";
+import type { QueryDefinition } from "@/lib/offline/offline-queries";
 import { schoolSpaceKeys } from "@/utils/query-keys/school-space";
 import { SchoolSpace } from "@/utils/types/SchoolSpace";
 import { useListQuery } from "../use-list-query";
@@ -11,21 +12,29 @@ interface UseSchoolSpacesParams {
   enabled?: boolean;
 }
 
-export function useSchoolSpaces({
-  filters = {},
-  enabled = true,
-}: UseSchoolSpacesParams = {}) {
+export function schoolSpacesQuery(
+  filters: UseSchoolSpacesParams["filters"] = {},
+): QueryDefinition<SchoolSpace[]> {
   const normalizedFilters = {
     schoolBuildingId: filters.schoolBuildingId ?? null,
   };
 
-  const query = useListQuery<SchoolSpace>({
+  return {
     queryKey: schoolSpaceKeys.list(normalizedFilters),
     queryFn: () => index(api, normalizedFilters),
     label: "Espaces d'enseignement",
+  };
+}
+
+export function useSchoolSpaces({
+  filters = {},
+  enabled = true,
+}: UseSchoolSpacesParams = {}) {
+  const query = useListQuery<SchoolSpace>({
+    ...schoolSpacesQuery(filters),
     staleTime: Infinity,
-    gcTime: 1000 * 60 * 60 * 24,
     enabled,
+    offline: true,
   });
 
   return {

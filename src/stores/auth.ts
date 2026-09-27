@@ -31,6 +31,7 @@ interface User {
   isSuperAdmin: boolean | null;
 
   role: {
+    // TODO: le backend permet la creation des roles, meme si ceux enumérés ici sont des roles systeme
     code: "admin" | "teacher" | "guardian" | "teacher";
     name: string | null;
     roleCategory: "backoffice" | "teacher" | "portal";
@@ -151,8 +152,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       // best-effort, on déconnecte localement même si l'appel échoue
     }
 
-    // Sauvegarde la file d'envois dans l'espace de ce compte (reprise à sa
-    // prochaine connexion) et vide le cache en mémoire avant le compte suivant.
+    // Sauvegarde la file d'envois dans l'espace de ce compte (reprise à sa prochaine connexion) et vide le cache en mémoire avant le compte suivant.
     await stopOfflinePersistence(queryClient);
 
     await Promise.all([

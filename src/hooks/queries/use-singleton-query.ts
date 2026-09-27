@@ -1,3 +1,4 @@
+import { keepCachedDataOnError, OFFLINE_QUERY_GC_TIME, queryMeta } from '@/lib/offline/offline-queries';
 import { QueryKey, useQuery } from '@tanstack/react-query';
 
 interface UseSingletonQueryOptions<T> {
@@ -10,6 +11,7 @@ interface UseSingletonQueryOptions<T> {
   retry?: boolean | number | ((failureCount: number, error: unknown) => boolean);
   refetchInterval?: number;
   refetchOnWindowFocus?: boolean;
+  offline?: boolean;
 }
 
 export function useSingletonQuery<T>({
@@ -22,16 +24,19 @@ export function useSingletonQuery<T>({
   retry,
   refetchInterval,
   refetchOnWindowFocus,
+  offline,
 }: UseSingletonQueryOptions<T>) {
-  return useQuery<T>({
+  const result = useQuery<T>({
     queryKey,
     queryFn,
     staleTime,
-    gcTime,
-    meta: { label },
+    gcTime: offline ? OFFLINE_QUERY_GC_TIME : gcTime,
+    meta: queryMeta(label, offline),
     enabled,
     retry,
     refetchInterval,
     refetchOnWindowFocus,
   });
+
+  return keepCachedDataOnError(result, offline);
 }

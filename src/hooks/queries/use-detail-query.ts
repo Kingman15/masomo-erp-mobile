@@ -1,3 +1,4 @@
+import { keepCachedDataOnError, OFFLINE_QUERY_GC_TIME, queryMeta } from '@/lib/offline/offline-queries';
 import { QueryKey, useQuery } from '@tanstack/react-query';
 
 interface UseDetailQueryOptions<T> {
@@ -8,10 +9,11 @@ interface UseDetailQueryOptions<T> {
   staleTime?: number;
   gcTime?: number;
   refetchOnWindowFocus?: boolean;
+  offline?: boolean;
 }
 
-export function useDetailQuery<T>({ queryKey, queryFn, label, id, staleTime, gcTime, refetchOnWindowFocus }: UseDetailQueryOptions<T>) {
-  return useQuery<T>({
+export function useDetailQuery<T>({ queryKey, queryFn, label, id, staleTime, gcTime, refetchOnWindowFocus, offline }: UseDetailQueryOptions<T>) {
+  const result = useQuery<T>({
     queryKey,
     queryFn: () => {
       if (!id) return Promise.reject(new Error('No id provided'));
@@ -19,8 +21,10 @@ export function useDetailQuery<T>({ queryKey, queryFn, label, id, staleTime, gcT
     },
     enabled: !!id,
     staleTime,
-    gcTime,
+    gcTime: offline ? OFFLINE_QUERY_GC_TIME : gcTime,
     refetchOnWindowFocus,
-    meta: { label },
+    meta: queryMeta(label, offline),
   });
+
+  return keepCachedDataOnError(result, offline);
 }

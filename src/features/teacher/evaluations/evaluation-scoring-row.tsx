@@ -5,6 +5,8 @@ type EvaluationScoringRowProps = {
   maxScore: number;
   draft: string;
   error: string | null;
+  // Avertissement non bloquant (ex. note validée qui repassera en brouillon).
+  warning?: string | null;
   onChangeText: (text: string) => void;
   onBlur: () => void;
 };
@@ -14,6 +16,7 @@ export function EvaluationScoringRow({
   maxScore,
   draft,
   error,
+  warning,
   onChangeText,
   onBlur,
 }: EvaluationScoringRowProps) {
@@ -39,9 +42,11 @@ export function EvaluationScoringRow({
           />
           <Text className="text-xs text-gray-400">/ {maxScore}</Text>
         </View>
-        {error && (
+        {error ? (
           <Text className="text-[10px] text-red-500 mt-0.5">{error}</Text>
-        )}
+        ) : warning ? (
+          <Text className="text-[10px] text-amber-600 mt-0.5">{warning}</Text>
+        ) : null}
       </View>
     </View>
   );

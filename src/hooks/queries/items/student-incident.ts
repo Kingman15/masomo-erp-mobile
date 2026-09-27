@@ -4,14 +4,12 @@ import {
   portalIndex,
   portalShow,
   show as fetchStudentIncidentById,
-  teacherReport,
   type PortalIncidentDetailDTO,
-  type TeacherReportStudentIncidentPayload,
 } from "@/api/endpoints/studentIncident";
+import { useOfflineMutation } from "@/lib/offline/use-offline-mutation";
 import { studentIncidentKeys } from "@/utils/query-keys/student-incident";
 import { portalIncidentKeys } from "@/utils/query-keys/portal-incident";
 import { StudentIncident, StudentIncidentStatus } from "@/utils/types/StudentIncident";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useDetailQuery } from "../use-detail-query";
 import { useInfiniteScrollQuery } from "../use-infinite-scroll-query";
 import { useListQuery } from "../use-list-query";
@@ -153,19 +151,12 @@ export function usePortalIncident({
   };
 }
 
+// Signalement rejouable hors ligne (file offline).
 export function useTeacherReportStudentIncident() {
-  const queryClient = useQueryClient();
-
-  const mutation = useMutation({
-    mutationFn: (payload: TeacherReportStudentIncidentPayload) =>
-      teacherReport(api, payload),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: studentIncidentKeys.all });
-    },
-  });
+  const { submit, isPending } = useOfflineMutation("incident.teacherReport");
 
   return {
-    teacherReportStudentIncident: mutation.mutateAsync,
-    teacherReportStudentIncidentIsPending: mutation.isPending,
+    teacherReportStudentIncident: submit,
+    teacherReportStudentIncidentIsPending: isPending,
   };
 }

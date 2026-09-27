@@ -33,9 +33,15 @@ function extractMessage(data: unknown, defaultMsg: string): string {
 }
 
 export function handleApiError(
-  error: unknown,
+  rawError: unknown,
   options: HandleApiErrorOptions = {},
 ) {
+  // Envoi de la file offline refusé en direct : l'AxiosError d'origine est dans `cause` (cf. OfflineMutationError).
+  const error =
+    rawError instanceof Error && isAxiosError(rawError.cause)
+      ? rawError.cause
+      : rawError;
+
   const {
     setFieldError,
     onUnauthorized,

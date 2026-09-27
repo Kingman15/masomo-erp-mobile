@@ -7,6 +7,7 @@ import {
 import { useSyncExternalStore } from "react";
 import { getOfflineFailure, type OfflineFailure } from "./offline-error";
 import {
+  isQueued,
   OFFLINE_MUTATION_ROOT,
   type OfflinePayloads,
   type OfflineVariables,
@@ -17,6 +18,10 @@ export interface OfflineQueueItem {
   name: keyof OfflinePayloads;
   label: string;
   queuedAt: string;
+  // Heure de la saisie envoyée à l'API (cf. OfflineVariables.recordedAt).
+  recordedAt: string;
+  // Données saisies (type selon `name`, cf. OfflinePayloads).
+  payload: unknown;
   // waiting : en attente du réseau ; sending : essai en cours ; failed : refusé (à traiter)
   state: "waiting" | "sending" | "failed";
   failureCount: number;
@@ -29,11 +34,17 @@ function toQueueItem(mutation: Mutation<unknown, Error, unknown, unknown>): Offl
 
   if (!variables || (status !== "pending" && status !== "error")) return null;
 
+  // Envoi direct en cours (en ligne, l'écran qui l'a lancé attend la réponse) : pas encore dans la file.
+  // Il y entre s'il échoue sur le réseau ou se met en pause (markQueued).
+  if (status === "pending" && !isQueued(variables.idempotencyKey)) return null;
+
   return {
     mutationId: mutation.mutationId,
     name: (mutation.options.mutationKey?.[1] ?? "") as keyof OfflinePayloads,
     label: variables.label,
     queuedAt: variables.queuedAt,
+    recordedAt: variables.recordedAt ?? variables.queuedAt,
+    payload: variables.payload,
     state: status === "error" ? "failed" : isPaused ? "waiting" : "sending",
     failureCount,
     failure: status === "error" ? getOfflineFailure(error) : null,

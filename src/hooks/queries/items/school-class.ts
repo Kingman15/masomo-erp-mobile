@@ -3,6 +3,7 @@ import {
   index,
   show as fetchSchoolClassById,
 } from "@/api/endpoints/schoolClass";
+import type { QueryDefinition } from "@/lib/offline/offline-queries";
 import { schoolClassKeys } from "@/utils/query-keys/school-class";
 import { SchoolClass } from "@/utils/types/SchoolClass";
 import { useDetailQuery } from "../use-detail-query";
@@ -18,14 +19,15 @@ interface UseSchoolClassesParams {
     teacherId?: string | null;
     schoolYearId?: string | null;
     studentId?: string | null;
+    // teacherId désigne alors le titulaire de la classe (pointage).
+    homeroom?: boolean | null;
   };
   enabled?: boolean;
 }
 
-export function useSchoolClasses({
-  filters = {},
-  enabled,
-}: UseSchoolClassesParams = {}) {
+export function schoolClassesQuery(
+  filters: UseSchoolClassesParams["filters"] = {},
+): QueryDefinition<SchoolClass[]> {
   const normalizedFilters = {
     sectionId: filters.sectionId ?? null,
     optionId: filters.optionId ?? null,
@@ -36,15 +38,25 @@ export function useSchoolClasses({
     teacherId: filters.teacherId ?? null,
     schoolYearId: filters.schoolYearId ?? null,
     studentId: filters.studentId ?? null,
+    homeroom: filters.homeroom ?? null,
   };
 
-  const query = useListQuery<SchoolClass>({
+  return {
     queryKey: schoolClassKeys.list(normalizedFilters),
     queryFn: () => index(api, normalizedFilters),
     label: "Classes scolaires",
+  };
+}
+
+export function useSchoolClasses({
+  filters = {},
+  enabled,
+}: UseSchoolClassesParams = {}) {
+  const query = useListQuery<SchoolClass>({
+    ...schoolClassesQuery(filters),
     staleTime: Infinity,
-    gcTime: 1000 * 60 * 60 * 24,
     enabled,
+    offline: true,
   });
 
   return {
