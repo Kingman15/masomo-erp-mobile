@@ -15,23 +15,23 @@ function TransportScheduleRowComponent({ schedule }: TransportScheduleRowProps) 
   const hasValidityRange = Boolean(schedule.validFrom || schedule.validUntil);
 
   return (
-    <View className="mx-4 mt-3 px-4 py-3 rounded-xl border border-gray-200 bg-white">
+    <View className="mx-4 mt-3 px-4 py-3 rounded-xl border border-border bg-card">
       <View className="flex-row items-center justify-between gap-2">
-        <View className="px-2 py-0.5 rounded-full bg-gray-100">
-          <Text className="text-[10px] font-medium text-gray-600">
+        <View className="px-2 py-0.5 rounded-full bg-muted">
+          <Text className="text-[10px] font-medium text-gray-600 dark:text-zinc-400">
             {schedule.directionLabel ?? "—"}
           </Text>
         </View>
-        <Text className="text-sm font-semibold text-black">{schedule.time ?? "—"}</Text>
+        <Text className="text-sm font-semibold text-foreground">{schedule.time ?? "—"}</Text>
       </View>
 
       <View className="flex-row items-center justify-between mt-1.5">
-        <Text className="text-xs text-gray-400">{schedule.operatingDaysLabel ?? "—"}</Text>
-        <Text className="text-xs text-gray-400">{periodTypeLabel}</Text>
+        <Text className="text-xs text-faint">{schedule.operatingDaysLabel ?? "—"}</Text>
+        <Text className="text-xs text-faint">{periodTypeLabel}</Text>
       </View>
 
       {hasValidityRange && (
-        <Text className="text-xs text-gray-400 mt-1">
+        <Text className="text-xs text-faint mt-1">
           {formatShortDate(schedule.validFrom)} → {formatShortDate(schedule.validUntil)}
         </Text>
       )}

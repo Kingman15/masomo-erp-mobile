@@ -11,3 +11,36 @@
   --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
   --font-serif: Georgia, 'Times New Roman', serif;
 }
+
+/* Couleurs du thème (canaux RGB), mappées dans tailwind.config.js. Garder synchronisé avec src/constants/colors.ts. */
+@layer base {
+  :root {
+    --background: 255 255 255; /* white */
+    --card: 255 255 255; /* white */
+    --foreground: 0 0 0; /* black */
+    --foreground-secondary: 55 65 81; /* gray-700 */
+    --muted-foreground: 107 114 128; /* gray-500 */
+    --faint: 156 163 175; /* gray-400 */
+    --muted: 243 244 246; /* gray-100 */
+    --subtle: 249 250 251; /* gray-50 */
+    --divider: 243 244 246; /* gray-100 */
+    --border: 229 231 235; /* gray-200 */
+    --input: 209 213 219; /* gray-300 */
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: 9 9 11; /* zinc-950 */
+      --card: 24 24 27; /* zinc-900 */
+      --foreground: 250 250 250; /* zinc-50 */
+      --foreground-secondary: 212 212 216; /* zinc-300 */
+      --muted-foreground: 161 161 170; /* zinc-400 */
+      --faint: 113 113 122; /* zinc-500 */
+      --muted: 39 39 42; /* zinc-800 */
+      --subtle: 9 9 11; /* zinc-950 */
+      --divider: 39 39 42; /* zinc-800 */
+      --border: 39 39 42; /* zinc-800 */
+      --input: 63 63 70; /* zinc-700 */
+    }
+  }
+}

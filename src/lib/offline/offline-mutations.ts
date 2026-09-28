@@ -28,6 +28,7 @@ import type { Mutation, MutationKey, QueryClient } from "@tanstack/react-query";
 import {
   getFailureCode,
   getOfflineFailure,
+  isIdempotencyInProgress,
   isRetryableFailure,
   OfflineMutationError,
   type OfflineFailure,
@@ -110,7 +111,10 @@ function offlineRetry(failureCount: number, error: unknown): boolean {
 
   // Réseau et session : illimité (la coupure peut durer des jours).
   if (!failure || failure.kind !== "http") return true;
-  if (failure.status !== null && failure.status >= 500) {
+  if (
+    (failure.status !== null && failure.status >= 500) ||
+    isIdempotencyInProgress(failure)
+  ) {
     return failureCount < MAX_SERVER_ERROR_RETRIES;
   }
   return true;

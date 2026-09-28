@@ -1,6 +1,7 @@
 import { useCreateDeskConversation } from "@/hooks/queries/items/conversation";
 import { useServiceDesksMine } from "@/hooks/queries/items/service-desk";
 import { useCurrentSchoolYear } from "@/hooks/queries/items/school-year";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { handleApiError } from "@/lib/handle-api-error";
 import { toastNotify } from "@/lib/toast";
 import type { MessageDocumentDraft } from "@/utils/types/MessageDocument";
@@ -17,6 +18,7 @@ import { MessageComposer } from "./message-composer";
 import { PartyPicker, type SelectedParty } from "./party-picker";
 
 export function NewConversationScreen() {
+  const colors = useThemeColors();
   const { deskId } = useLocalSearchParams<{ deskId: string }>();
 
   const [party, setParty] = useState<SelectedParty | null>(null);
@@ -65,14 +67,14 @@ export function NewConversationScreen() {
         }}
       />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         {serviceDesksIsLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />
           </View>
         ) : !serviceDesk ? (
           <View className="flex-1 items-center justify-center px-6">
-            <Text className="text-sm text-gray-500 text-center">
+            <Text className="text-sm text-muted-foreground text-center">
               Guichet introuvable.
             </Text>
           </View>
@@ -104,14 +106,14 @@ export function NewConversationScreen() {
                 onPress={() => void handleSubmit()}
                 disabled={!canSubmit}
                 className={`h-11 rounded-lg items-center justify-center ${
-                  canSubmit ? "bg-black" : "bg-gray-200"
+                  canSubmit ? "bg-foreground" : "bg-border"
                 }`}
               >
                 {createDeskConversationIsPending ? (
-                  <ActivityIndicator color="#ffffff" />
+                  <ActivityIndicator color={colors.background} />
                 ) : (
                   <Text
-                    className={`font-medium ${canSubmit ? "text-white" : "text-gray-400"}`}
+                    className={`font-medium ${canSubmit ? "text-background" : "text-faint"}`}
                   >
                     Envoyer
                   </Text>

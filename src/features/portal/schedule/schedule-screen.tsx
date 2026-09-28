@@ -99,13 +99,13 @@ export function ScheduleScreen() {
     <>
       <Stack.Screen options={{ headerShown: true, title: "Emploi du temps" }} />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         {!filtersAreComplete ? (
           <View className="flex-1 items-center justify-center px-6 gap-1">
-            <Text className="text-sm font-medium text-gray-700 text-center">
+            <Text className="text-sm font-medium text-foreground-secondary text-center">
               Aucun élève sélectionné
             </Text>
-            <Text className="text-sm text-gray-400 text-center">
+            <Text className="text-sm text-faint text-center">
               Sélectionnez un élève pour afficher son emploi du temps.
             </Text>
           </View>
@@ -115,31 +115,31 @@ export function ScheduleScreen() {
           </View>
         ) : error ? (
           <View className="flex-1 items-center justify-center px-6 gap-3">
-            <Text className="text-sm text-gray-500 text-center">
+            <Text className="text-sm text-muted-foreground text-center">
               Impossible de charger l'emploi du temps.
             </Text>
             <Pressable
               onPress={handleRefresh}
-              className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+              className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
             >
-              <Text className="text-white font-medium">Réessayer</Text>
+              <Text className="text-background font-medium">Réessayer</Text>
             </Pressable>
           </View>
         ) : !activeCourseSchedule ? (
           <View className="flex-1 items-center justify-center px-6 gap-1">
-            <Text className="text-sm font-medium text-gray-700 text-center">
+            <Text className="text-sm font-medium text-foreground-secondary text-center">
               Aucun horaire actif
             </Text>
-            <Text className="text-sm text-gray-400 text-center">
+            <Text className="text-sm text-faint text-center">
               Aucun horaire de cours n'est actif pour cette année scolaire.
             </Text>
           </View>
         ) : teachingScheduleDTOs.length === 0 ? (
           <View className="flex-1 items-center justify-center px-6 gap-1">
-            <Text className="text-sm font-medium text-gray-700 text-center">
+            <Text className="text-sm font-medium text-foreground-secondary text-center">
               Emploi du temps indisponible
             </Text>
-            <Text className="text-sm text-gray-400 text-center">
+            <Text className="text-sm text-faint text-center">
               L'emploi du temps n'a pas encore été publié pour cette classe.
             </Text>
           </View>
@@ -174,14 +174,14 @@ export function ScheduleScreen() {
 
             {rowsForActiveDay.length === 0 ? (
               <View className="items-center justify-center px-6 py-16">
-                <Text className="text-sm text-gray-400 text-center">
+                <Text className="text-sm text-faint text-center">
                   {selectedCourseId
                     ? "Aucun cours ne correspond à ce filtre."
                     : "Aucun cours ce jour-là."}
                 </Text>
               </View>
             ) : (
-              <View className="border-t border-gray-100 mt-1">
+              <View className="border-t border-divider mt-1">
                 {rowsForActiveDay.map((row, index) => (
                   <ScheduleSlotRow key={row.id} item={row} isFirst={index === 0} />
                 ))}

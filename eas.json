@@ -22,14 +22,14 @@
       },
       "env": {
         "APP_VARIANT": "preview",
-        "EXPO_PUBLIC_API_BASE_URL": "https://api-staging.masomo.app"
+        "EXPO_PUBLIC_API_BASE_URL": "https://api-staging.masomo.app/api"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
         "APP_VARIANT": "production",
-        "EXPO_PUBLIC_API_BASE_URL": "https://api.masomo.app"
+        "EXPO_PUBLIC_API_BASE_URL": "https://api.masomo.app/api"
       }
     }
   },

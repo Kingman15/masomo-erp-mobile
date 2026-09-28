@@ -1,3 +1,4 @@
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { formatShortDate } from "@/lib/format";
 import type { PortalAnnouncementDTO } from "@/utils/types/objects/PortalAnnouncementDTO";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -19,10 +20,11 @@ export function AnnouncementRow({
   isMarkingAsRead = false,
   isFirst,
 }: AnnouncementRowProps) {
+  const colors = useThemeColors();
   return (
     <Pressable
       onPress={() => onPress(item)}
-      className={`px-4 py-4 ${isFirst ? "" : "border-t border-gray-100"}`}
+      className={`px-4 py-4 ${isFirst ? "" : "border-t border-divider"}`}
     >
       <View className="flex-row items-start gap-3">
         <View className="w-2 pt-1.5 items-center">
@@ -35,10 +37,10 @@ export function AnnouncementRow({
           <View className="flex-row items-start justify-between gap-2">
             <View className="flex-1 flex-row items-center gap-1.5 flex-wrap">
               {item.isPinned && (
-                <Ionicons name="pin" size={13} color="#6B7280" />
+                <Ionicons name="pin" size={13} color={colors.mutedForeground} />
               )}
               <Text
-                className="text-base font-bold text-black flex-shrink"
+                className="text-base font-bold text-foreground flex-shrink"
                 numberOfLines={2}
               >
                 {item.title}
@@ -46,8 +48,8 @@ export function AnnouncementRow({
             </View>
 
             {item.category && (
-              <View className="px-2 py-0.5 rounded-full bg-gray-100 shrink-0">
-                <Text className="text-xs font-medium text-gray-600">
+              <View className="px-2 py-0.5 rounded-full bg-muted shrink-0">
+                <Text className="text-xs font-medium text-gray-600 dark:text-zinc-400">
                   {ANNOUNCEMENT_CATEGORY_LABEL_MAP[item.category]}
                 </Text>
               </View>
@@ -55,13 +57,13 @@ export function AnnouncementRow({
           </View>
 
           {item.body && (
-            <Text className="text-sm text-gray-500 mt-0.5" numberOfLines={2}>
+            <Text className="text-sm text-muted-foreground mt-0.5" numberOfLines={2}>
               {item.body}
             </Text>
           )}
 
           <View className="flex-row items-center justify-between mt-2">
-            <Text className="text-xs text-gray-400">
+            <Text className="text-xs text-faint">
               Publié le {formatShortDate(item.publishedAt)}
             </Text>
 

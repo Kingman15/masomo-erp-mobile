@@ -1,3 +1,4 @@
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { StudentAttendanceRecordDTO } from "@/utils/types/objects/StudentAttendanceRecordDTO";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { memo, useState } from "react";
@@ -24,11 +25,11 @@ function ToggleChip({ label, active, disabled, onPress }: ToggleChipProps) {
     <Pressable
       onPress={() => !disabled && onPress()}
       className={`px-2.5 py-1 rounded-full border ${
-        active ? "bg-black border-black" : "bg-white border-gray-300"
+        active ? "bg-foreground border-foreground" : "bg-card border-input"
       } ${disabled ? "opacity-40" : ""}`}
     >
       <Text
-        className={`text-xs font-medium ${active ? "text-white" : "text-gray-600"}`}
+        className={`text-xs font-medium ${active ? "text-background" : "text-gray-600 dark:text-zinc-400"}`}
       >
         {label}
       </Text>
@@ -40,14 +41,15 @@ function AttendanceBulkStudentRowComponent({
   record,
   onChange,
 }: AttendanceBulkStudentRowProps) {
+  const colors = useThemeColors();
   const [noteOpen, setNoteOpen] = useState(Boolean(record.justificationNote));
   const enrollmentId = record.enrollment.id;
   const disabled = !record.isChecked;
 
   return (
     <View
-      className={`px-4 py-3 border-b border-gray-100 ${
-        disabled ? "bg-gray-50" : "bg-white"
+      className={`px-4 py-3 border-b border-divider ${
+        disabled ? "bg-subtle" : "bg-card"
       }`}
     >
       <View className="flex-row items-center gap-3">
@@ -58,13 +60,13 @@ function AttendanceBulkStudentRowComponent({
           <Ionicons
             name={record.isChecked ? "checkbox" : "square-outline"}
             size={22}
-            color={record.isChecked ? "#000000" : "#9CA3AF"}
+            color={record.isChecked ? colors.foreground : colors.faint}
           />
         </Pressable>
 
         <Text
           className={`flex-1 text-sm font-medium ${
-            disabled ? "text-gray-400" : "text-black"
+            disabled ? "text-faint" : "text-foreground"
           }`}
           numberOfLines={1}
         >
@@ -72,18 +74,18 @@ function AttendanceBulkStudentRowComponent({
         </Text>
 
         <View
-          className={`flex-row rounded-lg border border-gray-200 overflow-hidden ${
+          className={`flex-row rounded-lg border border-border overflow-hidden ${
             disabled ? "opacity-40" : ""
           }`}
         >
           <Pressable
             disabled={disabled}
             onPress={() => onChange(enrollmentId, { isPresent: true })}
-            className={`px-3 py-1.5 ${record.isPresent ? "bg-green-600" : "bg-white"}`}
+            className={`px-3 py-1.5 ${record.isPresent ? "bg-green-600" : "bg-card"}`}
           >
             <Text
               className={`text-xs font-semibold ${
-                record.isPresent ? "text-white" : "text-gray-500"
+                record.isPresent ? "text-white" : "text-muted-foreground"
               }`}
             >
               Présent
@@ -98,11 +100,11 @@ function AttendanceBulkStudentRowComponent({
                 isPartial: false,
               })
             }
-            className={`px-3 py-1.5 ${!record.isPresent ? "bg-red-600" : "bg-white"}`}
+            className={`px-3 py-1.5 ${!record.isPresent ? "bg-red-600" : "bg-card"}`}
           >
             <Text
               className={`text-xs font-semibold ${
-                !record.isPresent ? "text-white" : "text-gray-500"
+                !record.isPresent ? "text-white" : "text-muted-foreground"
               }`}
             >
               Absent
@@ -139,9 +141,9 @@ function AttendanceBulkStudentRowComponent({
             onChange(enrollmentId, { justificationNote: text || null })
           }
           placeholder="Note de justification"
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={colors.faint}
           maxLength={255}
-          className="h-10 border border-gray-300 rounded-lg px-3 mt-2 ml-9 bg-white text-sm"
+          className="h-10 border border-input rounded-lg px-3 mt-2 ml-9 bg-card text-sm text-foreground"
         />
       )}
     </View>

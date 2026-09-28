@@ -1,15 +1,18 @@
+import { BRAND_PRIMARY } from "@/constants/theme";
+import type { RoutePath } from "@/features/teacher/menu-config";
 import { buildGreeting } from "@/lib/greeting";
 import { useAuthStore } from "@/stores/auth";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Link } from "expo-router";
 import { Drawer } from "expo-router/drawer";
+import { useColorScheme } from "nativewind";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
 type QuickAccessItem = {
   label: string;
   description: string;
   icon: keyof typeof Ionicons.glyphMap;
-  href: string;
+  href: RoutePath;
 };
 
 const QUICK_ACCESS: QuickAccessItem[] = [
@@ -65,6 +68,7 @@ const QUICK_ACCESS: QuickAccessItem[] = [
 
 export default function TeacherHomeScreen() {
   const user = useAuthStore((s) => s.user);
+  const isDark = useColorScheme().colorScheme === "dark";
 
   const greeting = user
     ? buildGreeting(user.name ?? user.username ?? "enseignant", user.id)
@@ -75,14 +79,14 @@ export default function TeacherHomeScreen() {
       <Drawer.Screen options={{ title: "Accueil" }} />
 
       <ScrollView
-        className="flex-1 bg-white"
+        className="flex-1 bg-background"
         contentContainerStyle={{ padding: 16 }}
       >
-        <View className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-          <Text className="text-lg font-semibold text-gray-900">
+        <View className="bg-card rounded-2xl p-4 shadow-sm border border-divider">
+          <Text className="text-lg font-semibold text-foreground">
             Tableau de bord
           </Text>
-          <Text className="text-sm text-gray-500 mt-1">{greeting}</Text>
+          <Text className="text-sm text-muted-foreground mt-1">{greeting}</Text>
         </View>
 
         <View className="flex-row flex-wrap gap-3 mt-3">
@@ -91,15 +95,15 @@ export default function TeacherHomeScreen() {
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={item.label}
-                className="w-[47%] p-4 border border-gray-200 rounded-2xl gap-2 active:bg-gray-50"
+                className="w-[47%] p-4 border border-border rounded-2xl gap-2 dark:bg-card active:bg-subtle dark:active:bg-muted"
               >
-                <View className="w-10 h-10 rounded-full bg-gray-50 items-center justify-center">
-                  <Ionicons name={item.icon} size={20} color="#7351E8" />
+                <View className="w-10 h-10 rounded-full bg-subtle dark:bg-primary/30 items-center justify-center">
+                  <Ionicons name={item.icon} size={20} color={isDark ? "#FFFFFF" : BRAND_PRIMARY} />
                 </View>
-                <Text className="text-sm font-semibold text-gray-900">
+                <Text className="text-sm font-semibold text-foreground">
                   {item.label}
                 </Text>
-                <Text className="text-xs text-gray-500" numberOfLines={2}>
+                <Text className="text-xs text-muted-foreground" numberOfLines={2}>
                   {item.description}
                 </Text>
               </Pressable>

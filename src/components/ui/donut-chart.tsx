@@ -1,3 +1,4 @@
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { Text, View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 
@@ -19,16 +20,28 @@ export function DonutChart({
   segments,
   size = 88,
   strokeWidth = 10,
-  trackColor = "#F3F4F6",
+  trackColor,
   centerLabel,
   centerSubLabel,
 }: DonutChartProps) {
+  const colors = useThemeColors();
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const center = size / 2;
   const total = segments.reduce((sum, segment) => sum + segment.value, 0) || 1;
 
-  let cumulative = 0;
+  // Chaque arc démarre là où s'arrêtent les précédents.
+  const visibleSegments = segments.filter((segment) => segment.value > 0);
+  const arcs = visibleSegments.map((segment, index) => {
+    const before = visibleSegments
+      .slice(0, index)
+      .reduce((sum, previous) => sum + previous.value, 0);
+    return {
+      color: segment.color,
+      dashLength: (segment.value / total) * circumference,
+      dashOffset: -((before / total) * circumference),
+    };
+  });
 
   return (
     <View style={{ width: size, height: size }}>
@@ -37,35 +50,26 @@ export function DonutChart({
           cx={center}
           cy={center}
           r={radius}
-          stroke={trackColor}
+          stroke={trackColor ?? colors.muted}
           strokeWidth={strokeWidth}
           fill="none"
         />
-        {segments
-          .filter((segment) => segment.value > 0)
-          .map((segment, index) => {
-            const fraction = segment.value / total;
-            const dashLength = fraction * circumference;
-            const dashOffset = -((cumulative / total) * circumference);
-            cumulative += segment.value;
-
-            return (
-              <Circle
-                key={index}
-                cx={center}
-                cy={center}
-                r={radius}
-                stroke={segment.color}
-                strokeWidth={strokeWidth}
-                strokeDasharray={`${dashLength} ${circumference - dashLength}`}
-                strokeDashoffset={dashOffset}
-                strokeLinecap="butt"
-                fill="none"
-                rotation={-90}
-                origin={`${center}, ${center}`}
-              />
-            );
-          })}
+        {arcs.map((arc, index) => (
+          <Circle
+            key={index}
+            cx={center}
+            cy={center}
+            r={radius}
+            stroke={arc.color}
+            strokeWidth={strokeWidth}
+            strokeDasharray={`${arc.dashLength} ${circumference - arc.dashLength}`}
+            strokeDashoffset={arc.dashOffset}
+            strokeLinecap="butt"
+            fill="none"
+            rotation={-90}
+            origin={`${center}, ${center}`}
+          />
+        ))}
       </Svg>
       {(centerLabel || centerSubLabel) && (
         <View
@@ -79,10 +83,10 @@ export function DonutChart({
           }}
         >
           {!!centerLabel && (
-            <Text className="text-sm font-semibold text-black">{centerLabel}</Text>
+            <Text className="text-sm font-semibold text-foreground">{centerLabel}</Text>
           )}
           {!!centerSubLabel && (
-            <Text className="text-[10px] text-gray-400">{centerSubLabel}</Text>
+            <Text className="text-[10px] text-faint">{centerSubLabel}</Text>
           )}
         </View>
       )}

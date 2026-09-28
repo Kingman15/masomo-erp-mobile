@@ -12,12 +12,12 @@ export function StatBox({ label, value, tone = "default", align = "left" }: Stat
     <View className={`flex-1 ${align === "right" ? "items-end" : "items-start"}`}>
       <Text
         className={`text-lg font-semibold ${
-          tone === "warning" ? "text-red-600" : "text-black"
+          tone === "warning" ? "text-red-600" : "text-foreground"
         }`}
       >
         {value}
       </Text>
-      <Text className="text-xs text-gray-400">{label}</Text>
+      <Text className="text-xs text-faint">{label}</Text>
     </View>
   );
 }

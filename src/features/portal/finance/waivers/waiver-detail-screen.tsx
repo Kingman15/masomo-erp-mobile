@@ -1,4 +1,5 @@
 import { usePortalFeePaymentDerogation } from "@/hooks/queries/items/fee-payment-derogation";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { formatShortDate } from "@/lib/format";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Stack, useLocalSearchParams } from "expo-router";
@@ -17,20 +18,21 @@ type InfoRowProps = {
 };
 
 function InfoRow({ icon, label, value }: InfoRowProps) {
+  const colors = useThemeColors();
   if (!value) return null;
 
   return (
     <View className="flex-row items-center gap-3 py-2.5">
-      <Ionicons name={icon} size={16} color="#6B7280" />
-      <Text className="text-xs text-gray-500 w-32">{label}</Text>
-      <Text className="flex-1 text-sm text-black">{value}</Text>
+      <Ionicons name={icon} size={16} color={colors.mutedForeground} />
+      <Text className="text-xs text-muted-foreground w-32">{label}</Text>
+      <Text className="flex-1 text-sm text-foreground">{value}</Text>
     </View>
   );
 }
 
 function SectionTitle({ children }: { children: string }) {
   return (
-    <Text className="text-xs font-semibold text-gray-500 uppercase mb-1 mt-4">
+    <Text className="text-xs font-semibold text-muted-foreground uppercase mb-1 mt-4">
       {children}
     </Text>
   );
@@ -51,27 +53,27 @@ export function WaiverDetailScreen() {
     <>
       <Stack.Screen options={{ headerShown: true, title: "Détail de la dérogation" }} />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         {portalFeePaymentDerogationIsLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />
           </View>
         ) : portalFeePaymentDerogationError || !feePaymentDerogation ? (
           <View className="flex-1 items-center justify-center px-6 gap-3">
-            <Text className="text-sm text-gray-500 text-center">
+            <Text className="text-sm text-muted-foreground text-center">
               Cette dérogation n&apos;est pas accessible.
             </Text>
             <Pressable
               onPress={() => loadPortalFeePaymentDerogation()}
-              className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+              className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
             >
-              <Text className="text-white font-medium">Réessayer</Text>
+              <Text className="text-background font-medium">Réessayer</Text>
             </Pressable>
           </View>
         ) : (
           <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
             <View className="flex-row items-start justify-between gap-3">
-              <Text className="flex-1 text-xl font-semibold text-black" numberOfLines={2}>
+              <Text className="flex-1 text-xl font-semibold text-foreground" numberOfLines={2}>
                 {getFeePaymentDerogationDesignation(feePaymentDerogation)}
               </Text>
               <FeePaymentDerogationStatusPill
@@ -81,13 +83,13 @@ export function WaiverDetailScreen() {
             </View>
 
             {getFeePaymentDerogationInstallmentLabel(feePaymentDerogation) && (
-              <Text className="text-sm text-gray-400 mt-1">
+              <Text className="text-sm text-faint mt-1">
                 {getFeePaymentDerogationInstallmentLabel(feePaymentDerogation)}
               </Text>
             )}
 
             <SectionTitle>Informations</SectionTitle>
-            <View className="border-t border-gray-100 pt-1">
+            <View className="border-t border-divider pt-1">
               <InfoRow icon="barcode-outline" label="Code" value={feePaymentDerogation.code} />
               <InfoRow
                 icon="calendar-outline"
@@ -114,14 +116,14 @@ export function WaiverDetailScreen() {
             {feePaymentDerogation.reason && (
               <>
                 <SectionTitle>Motif</SectionTitle>
-                <Text className="text-sm text-black">{feePaymentDerogation.reason}</Text>
+                <Text className="text-sm text-foreground">{feePaymentDerogation.reason}</Text>
               </>
             )}
 
             {feePaymentDerogation.comments && (
               <>
                 <SectionTitle>Commentaires</SectionTitle>
-                <Text className="text-sm text-black">{feePaymentDerogation.comments}</Text>
+                <Text className="text-sm text-foreground">{feePaymentDerogation.comments}</Text>
               </>
             )}
           </ScrollView>

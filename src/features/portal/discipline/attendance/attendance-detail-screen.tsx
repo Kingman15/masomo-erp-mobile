@@ -1,5 +1,6 @@
 import { formatDateTime } from "@/lib/format";
 import { useStudentAttendanceRecordById } from "@/hooks/queries/items/student-attendance-record";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
@@ -11,20 +12,21 @@ type InfoRowProps = {
 };
 
 function InfoRow({ icon, label, value }: InfoRowProps) {
+  const colors = useThemeColors();
   if (!value) return null;
 
   return (
     <View className="flex-row items-center gap-3 py-2.5">
-      <Ionicons name={icon} size={16} color="#6B7280" />
-      <Text className="text-xs text-gray-500 w-32">{label}</Text>
-      <Text className="flex-1 text-sm text-black">{value}</Text>
+      <Ionicons name={icon} size={16} color={colors.mutedForeground} />
+      <Text className="text-xs text-muted-foreground w-32">{label}</Text>
+      <Text className="flex-1 text-sm text-foreground">{value}</Text>
     </View>
   );
 }
 
 function SectionTitle({ children }: { children: string }) {
   return (
-    <Text className="text-xs font-semibold text-gray-500 uppercase mb-1 mt-4">
+    <Text className="text-xs font-semibold text-muted-foreground uppercase mb-1 mt-4">
       {children}
     </Text>
   );
@@ -44,12 +46,12 @@ function Pill({
   return (
     <View
       className={`rounded-full px-2.5 py-1 ${
-        active ? "bg-red-50" : "bg-gray-100"
+        active ? "bg-red-50 dark:bg-red-950" : "bg-muted"
       }`}
     >
       <Text
         className={`text-xs font-medium ${
-          active ? "text-red-700" : "text-gray-600"
+          active ? "text-red-700 dark:text-red-300" : "text-gray-600 dark:text-zinc-400"
         }`}
       >
         {active ? activeLabel : inactiveLabel}
@@ -83,21 +85,21 @@ export function AttendanceDetailScreen() {
         options={{ headerShown: true, title: "Détail du pointage" }}
       />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         {studentAttendanceRecordIsLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />
           </View>
         ) : studentAttendanceRecordError ? (
           <View className="flex-1 items-center justify-center px-6 gap-3">
-            <Text className="text-sm text-gray-500 text-center">
+            <Text className="text-sm text-muted-foreground text-center">
               Ce pointage n&apos;est pas accessible.
             </Text>
             <Pressable
               onPress={() => loadStudentAttendanceRecord()}
-              className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+              className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
             >
-              <Text className="text-white font-medium">Réessayer</Text>
+              <Text className="text-background font-medium">Réessayer</Text>
             </Pressable>
           </View>
         ) : record ? (
@@ -116,7 +118,7 @@ export function AttendanceDetailScreen() {
             </View>
 
             <SectionTitle>Informations principales</SectionTitle>
-            <View className="border-t border-gray-100 pt-1">
+            <View className="border-t border-divider pt-1">
               <InfoRow icon="calendar-outline" label="Année scolaire" value={register?.schoolYear?.title} />
               <InfoRow icon="book-outline" label="Registre" value={register?.title} />
               <InfoRow icon="today-outline" label="Session" value={session?.title} />
@@ -134,12 +136,12 @@ export function AttendanceDetailScreen() {
             {hasJustificationInfo && (
               <>
                 <SectionTitle>Justification</SectionTitle>
-                <View className="border-t border-gray-100 pt-1">
+                <View className="border-t border-divider pt-1">
                   <InfoRow icon="shield-checkmark-outline" label="Statut" value={record.justificationStatus?.label} />
                   <InfoRow icon="calendar-outline" label="Date" value={formatDateTime(record.justificationDate as string | null)} />
                 </View>
                 {record.justificationNote && (
-                  <Text className="text-sm text-black mt-2">
+                  <Text className="text-sm text-foreground mt-2">
                     {record.justificationNote}
                   </Text>
                 )}
@@ -149,7 +151,7 @@ export function AttendanceDetailScreen() {
             {hasOtherInfo && (
               <>
                 <SectionTitle>Autres</SectionTitle>
-                <Text className="text-sm text-black">{record.note}</Text>
+                <Text className="text-sm text-foreground">{record.note}</Text>
               </>
             )}
           </ScrollView>

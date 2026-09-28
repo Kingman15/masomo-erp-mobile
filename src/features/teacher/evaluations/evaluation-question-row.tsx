@@ -1,3 +1,4 @@
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { TeachingCourseEvaluationQuestionFormValues } from "@/utils/schemas/teaching-course-evaluation-schema";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Pressable, Text, View } from "react-native";
@@ -21,34 +22,35 @@ export function EvaluationQuestionRow({
   onDelete,
   onRestore,
 }: EvaluationQuestionRowProps) {
+  const colors = useThemeColors();
   const isDeleted = Boolean(question.isDeleted);
 
   return (
     <Pressable
       onPress={isDeleted ? undefined : onPress}
       className={`flex-row items-center gap-3 px-3 py-3 border rounded-lg mb-2 ${
-        isDeleted ? "border-gray-100 bg-gray-50" : "border-gray-200 bg-white"
+        isDeleted ? "border-divider bg-subtle" : "border-border bg-card"
       }`}
     >
       <View
         className={`items-center justify-center w-8 h-8 rounded-full ${
-          isDeleted ? "bg-gray-200" : "bg-gray-100"
+          isDeleted ? "bg-border" : "bg-muted"
         }`}
       >
-        <Text className="text-xs font-semibold text-gray-500">
+        <Text className="text-xs font-semibold text-muted-foreground">
           {question.questionNo}
         </Text>
       </View>
 
       <View className="flex-1">
-        <Text className="text-xs text-gray-400 mb-0.5">
+        <Text className="text-xs text-faint mb-0.5">
           {QUESTION_TYPE_LABELS[question.questionType] ?? question.questionType}
           {" · "}
           {question.weight} pt{question.weight > 1 ? "s" : ""}
         </Text>
         <Text
           className={`text-sm ${
-            isDeleted ? "text-gray-400 line-through" : "text-black"
+            isDeleted ? "text-faint line-through" : "text-foreground"
           }`}
           numberOfLines={2}
         >
@@ -61,7 +63,7 @@ export function EvaluationQuestionRow({
 
       {isDeleted ? (
         <Pressable onPress={onRestore} hitSlop={8} className="p-1">
-          <Ionicons name="arrow-undo-outline" size={18} color="#6B7280" />
+          <Ionicons name="arrow-undo-outline" size={18} color={colors.mutedForeground} />
         </Pressable>
       ) : (
         <Pressable onPress={onDelete} hitSlop={8} className="p-1">

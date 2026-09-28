@@ -34,8 +34,8 @@ export function DashboardDisciplineSection({
         />
       </View>
 
-      <View className="border-t border-gray-100 pt-2">
-        <Text className="text-xs text-gray-500">
+      <View className="border-t border-divider pt-2">
+        <Text className="text-xs text-muted-foreground">
           Ce mois ({monthly.period}) : {monthly.incidents} incident(s),{" "}
           {monthly.sanctions} sanction(s)
           {monthly.delta.incidents !== 0 && (

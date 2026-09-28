@@ -1,5 +1,6 @@
 import { ChangePasswordDialog } from "@/features/portal/profil/change-password-dialog";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { countUnsyncedOfflineItems } from "@/lib/offline/use-offline-queue";
 import { useAuthStore } from "@/stores/auth";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -15,26 +16,28 @@ type InfoRowProps = {
 };
 
 function InfoRow({ icon, label, value }: InfoRowProps) {
+  const colors = useThemeColors();
   if (!value) return null;
 
   return (
     <View className="flex-row items-center gap-3 py-2.5">
-      <Ionicons name={icon} size={16} color="#6B7280" />
-      <Text className="text-xs text-gray-500 w-32">{label}</Text>
-      <Text className="flex-1 text-sm text-black">{value}</Text>
+      <Ionicons name={icon} size={16} color={colors.mutedForeground} />
+      <Text className="text-xs text-muted-foreground w-32">{label}</Text>
+      <Text className="flex-1 text-sm text-foreground">{value}</Text>
     </View>
   );
 }
 
 function SectionTitle({ children }: { children: string }) {
   return (
-    <Text className="text-xs font-semibold text-gray-500 uppercase mb-1 mt-4">
+    <Text className="text-xs font-semibold text-muted-foreground uppercase mb-1 mt-4">
       {children}
     </Text>
   );
 }
 
 export function ProfilScreen() {
+  const colors = useThemeColors();
   const user = useAuthStore((s) => s.user);
   const signOut = useAuthStore((s) => s.signOut);
   const queryClient = useQueryClient();
@@ -63,14 +66,14 @@ export function ProfilScreen() {
     <>
       <Drawer.Screen options={{ title: "Profil" }} />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
           <View className="flex-row items-center gap-3">
-            <View className="w-14 h-14 rounded-full border-2 border-green-500 items-center justify-center bg-white">
-              <Ionicons name="person-outline" size={26} color="#6B7280" />
+            <View className="w-14 h-14 rounded-full border-2 border-green-500 items-center justify-center bg-card">
+              <Ionicons name="person-outline" size={26} color={colors.mutedForeground} />
             </View>
             <View>
-              <Text className="text-lg font-semibold text-black">
+              <Text className="text-lg font-semibold text-foreground">
                 {user?.name ?? user?.username ?? "Utilisateur"}
               </Text>
               {user?.role?.name && (
@@ -78,9 +81,9 @@ export function ProfilScreen() {
                   <Ionicons
                     name="shield-checkmark-outline"
                     size={14}
-                    color="#6B7280"
+                    color={colors.mutedForeground}
                   />
-                  <Text className="text-sm text-gray-500">
+                  <Text className="text-sm text-muted-foreground">
                     {user.role.name}
                   </Text>
                 </View>
@@ -89,7 +92,7 @@ export function ProfilScreen() {
           </View>
 
           <SectionTitle>Informations personnelles</SectionTitle>
-          <View className="border-t border-gray-100 pt-1">
+          <View className="border-t border-divider pt-1">
             <InfoRow
               icon="finger-print-outline"
               label="Utilisateur"
@@ -108,18 +111,18 @@ export function ProfilScreen() {
             onPress={() => setChangePasswordVisible(true)}
             className="flex-row items-center gap-3 py-2.5"
           >
-            <Ionicons name="key-outline" size={16} color="#6B7280" />
-            <Text className="flex-1 text-sm text-black">
+            <Ionicons name="key-outline" size={16} color={colors.mutedForeground} />
+            <Text className="flex-1 text-sm text-foreground">
               Changer le mot de passe
             </Text>
-            <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
+            <Ionicons name="chevron-forward" size={16} color={colors.faint} />
           </Pressable>
 
           <Pressable
             onPress={handleSignOut}
-            className="h-11 px-6 border border-gray-300 rounded-lg items-center justify-center mt-6"
+            className="h-11 px-6 border border-input rounded-lg items-center justify-center mt-6"
           >
-            <Text className="text-black font-medium">Se déconnecter</Text>
+            <Text className="text-foreground font-medium">Se déconnecter</Text>
           </Pressable>
         </ScrollView>
       </View>

@@ -15,17 +15,17 @@ function SubscriptionFeeRowComponent({ fee }: SubscriptionFeeRowProps) {
     : null;
 
   return (
-    <View className="mx-4 mt-3 px-4 py-3 rounded-xl border border-gray-200 bg-white">
+    <View className="mx-4 mt-3 px-4 py-3 rounded-xl border border-border bg-card">
       <View className="flex-row items-center justify-between gap-3">
-        <Text className="text-sm font-medium text-black">
+        <Text className="text-sm font-medium text-foreground">
           {formatShortDate(fee.periodStart)} → {formatShortDate(fee.periodEnd)}
         </Text>
         <InvoicePaymentStatusPill status={fee.invoicePaymentStatus} />
       </View>
 
       <View className="flex-row items-center justify-between mt-1.5">
-        <Text className="text-xs text-gray-400">{billingPeriodLabel ?? "—"}</Text>
-        <Text className="text-sm font-semibold text-black">
+        <Text className="text-xs text-faint">{billingPeriodLabel ?? "—"}</Text>
+        <Text className="text-sm font-semibold text-foreground">
           {formatCurrency(fee.amountNet, fee.currency ?? "USD")}
         </Text>
       </View>

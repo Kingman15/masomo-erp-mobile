@@ -1,5 +1,6 @@
 import { formatDateTime } from "@/lib/format";
 import { useStudentIncidentSanctionById } from "@/hooks/queries/items/student-incident-sanction";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { StudentIncidentStatus } from "@/utils/types/StudentIncident";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Stack, useLocalSearchParams } from "expo-router";
@@ -32,18 +33,19 @@ type InfoRowProps = {
 };
 
 function InfoRow({ icon, label, value }: InfoRowProps) {
+  const colors = useThemeColors();
   return (
     <View className="flex-row items-center gap-3 py-2.5">
-      <Ionicons name={icon} size={16} color="#6B7280" />
-      <Text className="text-xs text-gray-500 w-32">{label}</Text>
-      <Text className="flex-1 text-sm text-black">{value}</Text>
+      <Ionicons name={icon} size={16} color={colors.mutedForeground} />
+      <Text className="text-xs text-muted-foreground w-32">{label}</Text>
+      <Text className="flex-1 text-sm text-foreground">{value}</Text>
     </View>
   );
 }
 
 function SectionTitle({ children }: { children: string }) {
   return (
-    <Text className="text-xs font-semibold text-gray-500 uppercase mb-1 mt-4">
+    <Text className="text-xs font-semibold text-muted-foreground uppercase mb-1 mt-4">
       {children}
     </Text>
   );
@@ -65,21 +67,21 @@ export function SanctionDetailScreen() {
     <>
       <Stack.Screen options={{ title: "Détail de la sanction" }} />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         {studentIncidentSanctionIsLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />
           </View>
         ) : studentIncidentSanctionError ? (
           <View className="flex-1 items-center justify-center px-6 gap-3">
-            <Text className="text-sm text-gray-500 text-center">
+            <Text className="text-sm text-muted-foreground text-center">
               Impossible de charger la sanction.
             </Text>
             <Pressable
               onPress={() => loadStudentIncidentSanction()}
-              className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+              className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
             >
-              <Text className="text-white font-medium">Réessayer</Text>
+              <Text className="text-background font-medium">Réessayer</Text>
             </Pressable>
           </View>
         ) : sanction ? (
@@ -89,21 +91,21 @@ export function SanctionDetailScreen() {
           >
             <View className="flex-row items-center justify-between">
               <Text
-                className="flex-1 text-xl font-semibold text-black"
+                className="flex-1 text-xl font-semibold text-foreground"
                 numberOfLines={1}
               >
                 {sanction.student?.fullDesignation ?? "Élève"}
               </Text>
               <SanctionStatusPill status={sanction.status} />
             </View>
-            <Text className="text-sm text-gray-500 mt-0.5">
+            <Text className="text-sm text-muted-foreground mt-0.5">
               {sanction.sanctionType?.name ?? "—"}
             </Text>
 
             {incident && (
               <>
                 <SectionTitle>Incident lié</SectionTitle>
-                <View className="border-t border-gray-100 pt-1">
+                <View className="border-t border-divider pt-1">
                   <InfoRow
                     icon="pricetag-outline"
                     label="Code"
@@ -132,10 +134,10 @@ export function SanctionDetailScreen() {
                 </View>
                 {incident.description && (
                   <View className="mt-2">
-                    <Text className="text-xs text-gray-500 mb-1">
+                    <Text className="text-xs text-muted-foreground mb-1">
                       Description
                     </Text>
-                    <Text className="text-sm text-black">
+                    <Text className="text-sm text-foreground">
                       {incident.description}
                     </Text>
                   </View>
@@ -144,7 +146,7 @@ export function SanctionDetailScreen() {
             )}
 
             <SectionTitle>Informations principales</SectionTitle>
-            <View className="border-t border-gray-100 pt-1">
+            <View className="border-t border-divider pt-1">
               <InfoRow
                 icon="person-outline"
                 label="Élève concerné"
@@ -187,18 +189,18 @@ export function SanctionDetailScreen() {
                 <SectionTitle>Détails</SectionTitle>
                 {sanction.justification && (
                   <View className="mb-3">
-                    <Text className="text-xs text-gray-500 mb-1">
+                    <Text className="text-xs text-muted-foreground mb-1">
                       Justification
                     </Text>
-                    <Text className="text-sm text-black">
+                    <Text className="text-sm text-foreground">
                       {sanction.justification}
                     </Text>
                   </View>
                 )}
                 {sanction.notes && (
                   <View>
-                    <Text className="text-xs text-gray-500 mb-1">Notes</Text>
-                    <Text className="text-sm text-black">
+                    <Text className="text-xs text-muted-foreground mb-1">Notes</Text>
+                    <Text className="text-sm text-foreground">
                       {sanction.notes}
                     </Text>
                   </View>
@@ -207,7 +209,7 @@ export function SanctionDetailScreen() {
             )}
 
             <SectionTitle>Appel</SectionTitle>
-            <View className="border-t border-gray-100 pt-1">
+            <View className="border-t border-divider pt-1">
               <InfoRow
                 icon="git-branch-outline"
                 label="Appel"
@@ -223,17 +225,17 @@ export function SanctionDetailScreen() {
             </View>
             {sanction.isAppealed && sanction.appealNotes && (
               <View className="mt-2">
-                <Text className="text-xs text-gray-500 mb-1">
+                <Text className="text-xs text-muted-foreground mb-1">
                   Notes d&apos;appel
                 </Text>
-                <Text className="text-sm text-black">
+                <Text className="text-sm text-foreground">
                   {sanction.appealNotes}
                 </Text>
               </View>
             )}
 
             <SectionTitle>Notification des parents</SectionTitle>
-            <View className="border-t border-gray-100 pt-1">
+            <View className="border-t border-divider pt-1">
               <InfoRow
                 icon="notifications-outline"
                 label="Parents notifiés"

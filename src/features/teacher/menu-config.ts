@@ -1,17 +1,21 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
+import type { Href } from "expo-router";
+
+// Routes sous forme de chemin (pas d'objet { pathname }) : aussi utilisées comme clés React et comparées à usePathname().
+export type RoutePath = Extract<Href, string>;
 
 export type TeacherMenuLink = {
   type: "link";
   label: string;
   icon: keyof typeof Ionicons.glyphMap;
-  href: string;
+  href: RoutePath;
 };
 
 export type TeacherMenuGroup = {
   type: "group";
   label: string;
   icon: keyof typeof Ionicons.glyphMap;
-  children: { label: string; href: string }[];
+  children: { label: string; href: RoutePath }[];
 };
 
 export type TeacherMenuItem = TeacherMenuLink | TeacherMenuGroup;

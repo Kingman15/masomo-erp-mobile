@@ -8,6 +8,7 @@ import {
   useSchoolYears,
 } from "@/hooks/queries/items/school-year";
 import { useTeacherReportStudentIncident } from "@/hooks/queries/items/student-incident";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { formatShortDate } from "@/lib/format";
 import { handleApiError } from "@/lib/handle-api-error";
 import { notifyQueued } from "@/lib/offline/use-offline-mutation";
@@ -58,6 +59,7 @@ function emptyIncidentStudent(): IncidentStudentFormValues {
 }
 
 export function IncidentReportFormScreen() {
+  const colors = useThemeColors();
   const {
     control,
     handleSubmit,
@@ -226,7 +228,7 @@ export function IncidentReportFormScreen() {
       <Stack.Screen options={{ title: "Signaler un incident" }} />
 
       <ScrollView
-        className="flex-1 bg-white"
+        className="flex-1 bg-background"
         contentContainerStyle={{ padding: 16 }}
       >
         <Controller
@@ -296,7 +298,7 @@ export function IncidentReportFormScreen() {
           </Text>
         )}
 
-        <Text className="text-sm font-medium text-gray-700 mb-2">
+        <Text className="text-sm font-medium text-foreground-secondary mb-2">
           Gravité (1 à 5)
         </Text>
         <Controller
@@ -308,8 +310,8 @@ export function IncidentReportFormScreen() {
               onChangeText={(text) => onChange(text ? (text as unknown as number) : null)}
               keyboardType="number-pad"
               placeholder="Optionnel"
-              placeholderTextColor="#9CA3AF"
-              className="h-11 border border-gray-300 rounded-lg px-3 mb-1 bg-white"
+              placeholderTextColor={colors.faint}
+              className="h-11 border border-input rounded-lg px-3 mb-1 bg-card text-foreground"
             />
           )}
         />
@@ -319,7 +321,7 @@ export function IncidentReportFormScreen() {
           </Text>
         )}
 
-        <Text className="text-sm font-medium text-gray-700 mb-2">Lieu</Text>
+        <Text className="text-sm font-medium text-foreground-secondary mb-2">Lieu</Text>
         <Controller
           control={control}
           name="location"
@@ -328,8 +330,8 @@ export function IncidentReportFormScreen() {
               value={value ?? ""}
               onChangeText={(text) => onChange(text || null)}
               placeholder="Lieu de l'incident (optionnel)"
-              placeholderTextColor="#9CA3AF"
-              className="h-11 border border-gray-300 rounded-lg px-3 mb-1 bg-white"
+              placeholderTextColor={colors.faint}
+              className="h-11 border border-input rounded-lg px-3 mb-1 bg-card text-foreground"
             />
           )}
         />
@@ -360,7 +362,7 @@ export function IncidentReportFormScreen() {
           />
         </View>
 
-        <Text className="text-sm font-medium text-gray-700 mb-2 mt-4">
+        <Text className="text-sm font-medium text-foreground-secondary mb-2 mt-4">
           Description
         </Text>
         <Controller
@@ -373,8 +375,8 @@ export function IncidentReportFormScreen() {
               multiline
               textAlignVertical="top"
               placeholder="Description de l'incident (optionnel)"
-              placeholderTextColor="#9CA3AF"
-              className="min-h-[80px] border border-gray-300 rounded-lg px-3 py-2 mb-1 bg-white"
+              placeholderTextColor={colors.faint}
+              className="min-h-[80px] border border-input rounded-lg px-3 py-2 mb-1 bg-card text-foreground"
             />
           )}
         />
@@ -395,7 +397,7 @@ export function IncidentReportFormScreen() {
           schoolYearId={schoolYearId}
         />
 
-        <Text className="text-base font-semibold text-black mt-2 mb-3">
+        <Text className="text-base font-semibold text-foreground mt-2 mb-3">
           Élèves concernés
         </Text>
 
@@ -416,9 +418,9 @@ export function IncidentReportFormScreen() {
 
         <Pressable
           onPress={openAddStudent}
-          className="h-11 rounded-lg border border-dashed border-gray-300 items-center justify-center mb-6"
+          className="h-11 rounded-lg border border-dashed border-input items-center justify-center mb-6"
         >
-          <Text className="text-sm font-medium text-gray-600">
+          <Text className="text-sm font-medium text-gray-600 dark:text-zinc-400">
             + Ajouter un élève
           </Text>
         </Pressable>
@@ -427,13 +429,13 @@ export function IncidentReportFormScreen() {
           onPress={() => void handleSubmit(onSubmit)()}
           disabled={isBusy}
           className={`h-12 rounded-lg items-center justify-center ${
-            isBusy ? "bg-gray-300" : "bg-black"
+            isBusy ? "bg-gray-300 dark:bg-zinc-700" : "bg-foreground"
           }`}
         >
           {isBusy ? (
-            <ActivityIndicator color="#ffffff" />
+            <ActivityIndicator color={colors.background} />
           ) : (
-            <Text className="text-white font-medium">Signaler l&apos;incident</Text>
+            <Text className="text-background font-medium">Signaler l&apos;incident</Text>
           )}
         </Pressable>
       </ScrollView>

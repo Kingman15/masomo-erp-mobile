@@ -1,3 +1,4 @@
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { Text, TextInput, View } from "react-native";
 
 type EvaluationScoringRowProps = {
@@ -20,9 +21,10 @@ export function EvaluationScoringRow({
   onChangeText,
   onBlur,
 }: EvaluationScoringRowProps) {
+  const colors = useThemeColors();
   return (
-    <View className="flex-row items-center gap-3 px-4 py-2.5 border-b border-gray-100">
-      <Text className="flex-1 text-sm text-black" numberOfLines={1}>
+    <View className="flex-row items-center gap-3 px-4 py-2.5 border-b border-divider">
+      <Text className="flex-1 text-sm text-foreground" numberOfLines={1}>
         {studentLabel}
       </Text>
 
@@ -34,13 +36,13 @@ export function EvaluationScoringRow({
             onBlur={onBlur}
             keyboardType="decimal-pad"
             placeholder="—"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.faint}
             style={{ textAlignVertical: "center", includeFontPadding: false }}
-            className={`w-20 h-11 border rounded-lg px-2 text-base leading-tight text-center ${
-              error ? "border-red-400" : "border-gray-300"
+            className={`text-foreground w-20 h-11 border rounded-lg px-2 text-base leading-tight text-center ${
+              error ? "border-red-400" : "border-input"
             }`}
           />
-          <Text className="text-xs text-gray-400">/ {maxScore}</Text>
+          <Text className="text-xs text-faint">/ {maxScore}</Text>
         </View>
         {error ? (
           <Text className="text-[10px] text-red-500 mt-0.5">{error}</Text>

@@ -23,6 +23,19 @@ const AUTH_EXCLUDED_PATHS = ["/login", "/auth/refresh"];
 
 const logOperations = Boolean(__DEV__) && false;
 
+// Au-delà, la requête échoue comme une coupure réseau : la file offline la réessaie (clé d'idempotence), au lieu de rester bloquée « en cours ».
+const READ_TIMEOUT_MS = 20_000;
+const WRITE_TIMEOUT_MS = 45_000;
+const UPLOAD_TIMEOUT_MS = 120_000;
+
+function defaultTimeout(config: InternalAxiosRequestConfig): number {
+  if (config.data instanceof FormData) return UPLOAD_TIMEOUT_MS;
+  const method = (config.method ?? "get").toLowerCase();
+  return method === "get" || method === "head"
+    ? READ_TIMEOUT_MS
+    : WRITE_TIMEOUT_MS;
+}
+
 interface AuthData {
   access_token: string;
   refresh_token: string;
@@ -95,7 +108,10 @@ async function refreshToken(): Promise<string> {
     {
       refreshToken: refresh_token,
     },
-    { headers: schoolCode ? { "X-School-Code": schoolCode } : {} },
+    {
+      headers: schoolCode ? { "X-School-Code": schoolCode } : {},
+      timeout: READ_TIMEOUT_MS,
+    },
   );
 
   const newAccessToken = response.data.access_token;
@@ -142,6 +158,11 @@ api.interceptors.request.use(
         },
       );
     }
+
+    // Un appelant peut fixer sa propre durée
+    if (!config.timeout) config.timeout = defaultTimeout(config);
+    // Persisté dans l'échec de l'envoi et affiché dans l'écran Synchronisation
+    config.timeoutErrorMessage ??= "Le serveur ne répond pas.";
 
     // Add other headers or correlation ids here
     return config;

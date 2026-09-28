@@ -1,5 +1,6 @@
 import { formatDateTime, formatShortDate } from "@/lib/format";
 import { useStudentIncidentById } from "@/hooks/queries/items/student-incident";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { INCIDENT_STUDENT_ROLE_LABELS } from "@/utils/types/IncidentStudent";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, Stack, useLocalSearchParams } from "expo-router";
@@ -20,18 +21,19 @@ type InfoRowProps = {
 };
 
 function InfoRow({ icon, label, value }: InfoRowProps) {
+  const colors = useThemeColors();
   return (
     <View className="flex-row items-center gap-3 py-2.5">
-      <Ionicons name={icon} size={16} color="#6B7280" />
-      <Text className="text-xs text-gray-500 w-32">{label}</Text>
-      <Text className="flex-1 text-sm text-black">{value}</Text>
+      <Ionicons name={icon} size={16} color={colors.mutedForeground} />
+      <Text className="text-xs text-muted-foreground w-32">{label}</Text>
+      <Text className="flex-1 text-sm text-foreground">{value}</Text>
     </View>
   );
 }
 
 function SectionTitle({ children }: { children: string }) {
   return (
-    <Text className="text-xs font-semibold text-gray-500 uppercase mb-1 mt-4">
+    <Text className="text-xs font-semibold text-muted-foreground uppercase mb-1 mt-4">
       {children}
     </Text>
   );
@@ -42,6 +44,7 @@ function yesNo(value: boolean | null | undefined): string {
 }
 
 export function IncidentDetailScreen() {
+  const colors = useThemeColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const {
     studentIncident,
@@ -67,21 +70,21 @@ export function IncidentDetailScreen() {
     <>
       <Stack.Screen options={{ title: "Détail de l'incident" }} />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         {studentIncidentIsLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />
           </View>
         ) : studentIncidentError ? (
           <View className="flex-1 items-center justify-center px-6 gap-3">
-            <Text className="text-sm text-gray-500 text-center">
+            <Text className="text-sm text-muted-foreground text-center">
               Impossible de charger l&apos;incident.
             </Text>
             <Pressable
               onPress={() => loadStudentIncident()}
-              className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+              className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
             >
-              <Text className="text-white font-medium">Réessayer</Text>
+              <Text className="text-background font-medium">Réessayer</Text>
             </Pressable>
           </View>
         ) : incident ? (
@@ -91,19 +94,19 @@ export function IncidentDetailScreen() {
           >
             <View className="flex-row items-center justify-between">
               <Text
-                className="flex-1 text-xl font-semibold text-black"
+                className="flex-1 text-xl font-semibold text-foreground"
                 numberOfLines={1}
               >
                 {involvedStudentsLabel}
               </Text>
               <IncidentStatusPill status={incident.status} />
             </View>
-            <Text className="text-sm text-gray-500 mt-0.5">
+            <Text className="text-sm text-muted-foreground mt-0.5">
               {incident.incidentType?.name ?? "—"}
             </Text>
 
             <SectionTitle>Informations principales</SectionTitle>
-            <View className="border-t border-gray-100 pt-1">
+            <View className="border-t border-divider pt-1">
               <InfoRow
                 icon="pricetag-outline"
                 label="Code"
@@ -142,8 +145,8 @@ export function IncidentDetailScreen() {
 
             {incident.description && (
               <View className="mt-2">
-                <Text className="text-xs text-gray-500 mb-1">Description</Text>
-                <Text className="text-sm text-black">
+                <Text className="text-xs text-muted-foreground mb-1">Description</Text>
+                <Text className="text-sm text-foreground">
                   {incident.description}
                 </Text>
               </View>
@@ -152,7 +155,7 @@ export function IncidentDetailScreen() {
             {incident.mainStudent && (
               <>
                 <SectionTitle>Élève principal</SectionTitle>
-                <View className="border-t border-gray-100 pt-1">
+                <View className="border-t border-divider pt-1">
                   <InfoRow
                     icon="person-outline"
                     label="Élève"
@@ -165,7 +168,7 @@ export function IncidentDetailScreen() {
             {incidentStudents.length > 0 && (
               <>
                 <SectionTitle>Élèves concernés</SectionTitle>
-                <View className="border-t border-gray-100 pt-1">
+                <View className="border-t border-divider pt-1">
                   {incidentStudents.map((incidentStudent) => (
                     <InfoRow
                       key={incidentStudent.id}
@@ -188,7 +191,7 @@ export function IncidentDetailScreen() {
             )}
 
             <SectionTitle>Suivi</SectionTitle>
-            <View className="border-t border-gray-100 pt-1">
+            <View className="border-t border-divider pt-1">
               <InfoRow
                 icon="person-circle-outline"
                 label="Pris en charge par"
@@ -217,7 +220,7 @@ export function IncidentDetailScreen() {
             </View>
 
             <SectionTitle>Soutien psychologique</SectionTitle>
-            <View className="border-t border-gray-100 pt-1">
+            <View className="border-t border-divider pt-1">
               <InfoRow
                 icon="heart-outline"
                 label="Requis"
@@ -234,7 +237,7 @@ export function IncidentDetailScreen() {
             </View>
 
             <SectionTitle>Notification des parents</SectionTitle>
-            <View className="border-t border-gray-100 pt-1">
+            <View className="border-t border-divider pt-1">
               <InfoRow
                 icon="notifications-outline"
                 label="Parents notifiés"
@@ -261,12 +264,12 @@ export function IncidentDetailScreen() {
             {sanctions.length > 0 && (
               <>
                 <View className="flex-row items-center gap-1.5 mt-4 mb-1.5">
-                  <Ionicons name="warning-outline" size={14} color="#B45309" />
-                  <Text className="text-xs font-semibold text-amber-700 uppercase">
+                  <Ionicons name="warning-outline" size={14} color={colors.warning} />
+                  <Text className="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase">
                     Sanctions liées
                   </Text>
                 </View>
-                <View className="rounded-xl border border-amber-200 bg-amber-50 overflow-hidden">
+                <View className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 overflow-hidden">
                   {sanctions.map((sanction, index) => (
                     <Pressable
                       key={sanction.id}
@@ -274,12 +277,12 @@ export function IncidentDetailScreen() {
                         router.push(`/teacher/incidents/sanction/${sanction.id}`)
                       }
                       className={`px-4 py-3 ${
-                        index > 0 ? "border-t border-amber-200" : ""
+                        index > 0 ? "border-t border-amber-200 dark:border-amber-800" : ""
                       }`}
                     >
                       <View className="flex-row items-center justify-between">
                         <Text
-                          className="flex-1 text-base font-semibold text-black"
+                          className="flex-1 text-base font-semibold text-foreground"
                           numberOfLines={1}
                         >
                           {sanction.sanctionType?.name ?? "—"}
@@ -288,7 +291,7 @@ export function IncidentDetailScreen() {
                       </View>
                       {sanction.regulationArticle?.title && (
                         <Text
-                          className="text-xs text-gray-600 mt-0.5"
+                          className="text-xs text-gray-600 dark:text-zinc-400 mt-0.5"
                           numberOfLines={1}
                         >
                           {sanction.regulationArticle.title}
@@ -299,9 +302,9 @@ export function IncidentDetailScreen() {
                           <Ionicons
                             name="calendar-outline"
                             size={13}
-                            color="#92400E"
+                            color={colors.warningStrong}
                           />
-                          <Text className="text-xs text-amber-800">
+                          <Text className="text-xs text-amber-800 dark:text-amber-200">
                             {formatShortDate(sanction.startsAt)}
                             {" - "}
                             {formatShortDate(sanction.endsAt)}
@@ -316,10 +319,10 @@ export function IncidentDetailScreen() {
 
             {incident.internalNotes && (
               <View className="mt-4">
-                <Text className="text-xs text-gray-500 mb-1">
+                <Text className="text-xs text-muted-foreground mb-1">
                   Notes internes
                 </Text>
-                <Text className="text-sm text-black">
+                <Text className="text-sm text-foreground">
                   {incident.internalNotes}
                 </Text>
               </View>

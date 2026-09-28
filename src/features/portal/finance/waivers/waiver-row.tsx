@@ -19,10 +19,10 @@ function WaiverRowComponent({ feePaymentDerogation, onPress }: WaiverRowProps) {
   return (
     <Pressable
       onPress={() => onPress?.(feePaymentDerogation)}
-      className="mx-4 mt-3 px-4 py-3 rounded-xl border border-gray-200 bg-white"
+      className="mx-4 mt-3 px-4 py-3 rounded-xl border border-border bg-card"
     >
       <View className="flex-row items-center justify-between gap-3">
-        <Text className="flex-1 text-sm font-medium text-black" numberOfLines={2}>
+        <Text className="flex-1 text-sm font-medium text-foreground" numberOfLines={2}>
           {getFeePaymentDerogationDesignation(feePaymentDerogation)}
         </Text>
         <FeePaymentDerogationStatusPill
@@ -32,16 +32,16 @@ function WaiverRowComponent({ feePaymentDerogation, onPress }: WaiverRowProps) {
       </View>
 
       {installmentLabel && (
-        <Text className="text-xs text-gray-400 mt-0.5">{installmentLabel}</Text>
+        <Text className="text-xs text-faint mt-0.5">{installmentLabel}</Text>
       )}
 
       {feePaymentDerogation.reason && (
-        <Text className="text-sm text-gray-600 mt-2" numberOfLines={2}>
+        <Text className="text-sm text-gray-600 dark:text-zinc-400 mt-2" numberOfLines={2}>
           {feePaymentDerogation.reason}
         </Text>
       )}
 
-      <Text className="text-xs text-gray-400 mt-2">
+      <Text className="text-xs text-faint mt-2">
         Demandée le : {formatShortDate(feePaymentDerogation.requestDate)}
         {feePaymentDerogation.expirationDate
           ? ` · Expire le ${formatShortDate(feePaymentDerogation.expirationDate)}`

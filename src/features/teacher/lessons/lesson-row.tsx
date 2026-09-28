@@ -1,3 +1,4 @@
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { Lesson } from "@/utils/types/Lesson";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { memo } from "react";
@@ -19,6 +20,7 @@ type LessonRowProps = {
 };
 
 function LessonRowComponent({ lesson, onPress }: LessonRowProps) {
+  const colors = useThemeColors();
   const course = lesson.teachingCourse?.followCourse?.course;
   const schoolClass = lesson.teachingCourse?.schoolClass;
   const className = schoolClass?.title ?? schoolClass?.abbreviation ?? null;
@@ -26,17 +28,17 @@ function LessonRowComponent({ lesson, onPress }: LessonRowProps) {
   return (
     <Pressable
       onPress={() => onPress?.(lesson)}
-      className="px-4 py-3 border-b border-gray-100 bg-white"
+      className="px-4 py-3 border-b border-divider bg-card"
     >
       <View className="flex-row items-center justify-between">
-        <Text className="text-xs font-medium text-gray-500 capitalize">
+        <Text className="text-xs font-medium text-muted-foreground capitalize">
           {formatLessonDate(lesson.lessonDate)}
         </Text>
-        <Text className="text-xs text-gray-400">{lesson.timeStr}</Text>
+        <Text className="text-xs text-faint">{lesson.timeStr}</Text>
       </View>
 
       <Text
-        className="text-base font-semibold text-black mt-1"
+        className="text-base font-semibold text-foreground mt-1"
         numberOfLines={1}
       >
         {lesson.subject}
@@ -45,20 +47,20 @@ function LessonRowComponent({ lesson, onPress }: LessonRowProps) {
       <View className="flex-row flex-wrap items-center gap-x-3 gap-y-1 mt-1">
         {course && (
           <View className="flex-row items-center gap-1">
-            <Ionicons name="book-outline" size={13} color="#6B7280" />
-            <Text className="text-xs text-gray-500">{course.name}</Text>
+            <Ionicons name="book-outline" size={13} color={colors.mutedForeground} />
+            <Text className="text-xs text-muted-foreground">{course.name}</Text>
           </View>
         )}
         {className && (
           <View className="flex-row items-center gap-1">
-            <Ionicons name="people-outline" size={13} color="#6B7280" />
-            <Text className="text-xs text-gray-500">{className}</Text>
+            <Ionicons name="people-outline" size={13} color={colors.mutedForeground} />
+            <Text className="text-xs text-muted-foreground">{className}</Text>
           </View>
         )}
         {lesson.classroom && (
           <View className="flex-row items-center gap-1">
-            <Ionicons name="location-outline" size={13} color="#6B7280" />
-            <Text className="text-xs text-gray-500">
+            <Ionicons name="location-outline" size={13} color={colors.mutedForeground} />
+            <Text className="text-xs text-muted-foreground">
               {lesson.classroom.designation}
             </Text>
           </View>

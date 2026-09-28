@@ -23,14 +23,14 @@ function NotificationRowComponent({
   return (
     <Pressable
       onPress={() => onPress(notification)}
-      className="px-4 py-3 border-b border-gray-100 bg-white"
+      className="px-4 py-3 border-b border-divider bg-card"
     >
       <View className="flex-row items-start gap-2">
         {!notification.isRead && (
           <View className="h-2 w-2 rounded-full bg-blue-600 mt-1.5" />
         )}
         <Text
-          className="flex-1 text-sm font-medium text-black"
+          className="flex-1 text-sm font-medium text-foreground"
           numberOfLines={1}
         >
           {notification.title}
@@ -38,7 +38,7 @@ function NotificationRowComponent({
       </View>
 
       {notification.body && (
-        <Text className="text-xs text-gray-500 mt-1" numberOfLines={2}>
+        <Text className="text-xs text-muted-foreground mt-1" numberOfLines={2}>
           {notification.body}
         </Text>
       )}
@@ -51,13 +51,13 @@ function NotificationRowComponent({
           </Text>
         </View>
 
-        <Text className="text-xs text-gray-400">
+        <Text className="text-xs text-faint">
           {formatDateTime(notification.occurredAt)}
         </Text>
 
         {notification.student && (
           <Text
-            className="text-xs text-gray-400"
+            className="text-xs text-faint"
             numberOfLines={1}
           >
             {notification.student.fullName}

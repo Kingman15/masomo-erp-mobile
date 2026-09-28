@@ -18,7 +18,7 @@ function AttendanceRecordRowComponent({
   return (
     <Pressable
       onPress={() => onPress?.(record)}
-      className="flex-row items-center gap-3 px-4 py-3 border-b border-gray-100 bg-white"
+      className="flex-row items-center gap-3 px-4 py-3 border-b border-divider bg-card"
     >
       <View
         className="h-2 w-2 rounded-full shrink-0"
@@ -26,7 +26,7 @@ function AttendanceRecordRowComponent({
       />
 
       <View className="flex-1">
-        <Text className="text-sm font-medium text-black">
+        <Text className="text-sm font-medium text-foreground">
           {isAbsent
             ? badge.label
             : `${record.entryTime ?? "—"}${
@@ -34,7 +34,7 @@ function AttendanceRecordRowComponent({
               }`}
         </Text>
         {record.pointingType?.label && (
-          <Text className="text-xs text-gray-400 mt-0.5">
+          <Text className="text-xs text-faint mt-0.5">
             {record.pointingType.label}
           </Text>
         )}

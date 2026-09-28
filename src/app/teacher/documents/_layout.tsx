@@ -1,12 +1,7 @@
+import { useStackScreenOptions } from "@/components/navigation/stack-screen-options";
 import { Stack } from "expo-router";
 
 export default function TeacherDocumentsLayout() {
-  return (
-    <Stack
-      screenOptions={{
-        headerTintColor: "#000000",
-        headerTitleStyle: { fontWeight: "600" },
-      }}
-    />
-  );
+  const screenOptions = useStackScreenOptions();
+  return <Stack screenOptions={screenOptions} />;
 }

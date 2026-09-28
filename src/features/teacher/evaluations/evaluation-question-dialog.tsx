@@ -1,4 +1,5 @@
 import { Toast } from "@/components/toast";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import {
   teachingCourseEvaluationQuestionSchema,
   type TeachingCourseEvaluationQuestionFormValues,
@@ -33,6 +34,7 @@ export function EvaluationQuestionDialog({
   onSave,
   onDelete,
 }: EvaluationQuestionDialogProps) {
+  const colors = useThemeColors();
   const {
     control,
     handleSubmit,
@@ -76,18 +78,18 @@ export function EvaluationQuestionDialog({
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 bg-white">
-        <View className="flex-row items-center justify-between px-4 pt-14 pb-3 border-b border-gray-100">
-          <Text className="text-base font-semibold">
+      <View className="flex-1 bg-background">
+        <View className="flex-row items-center justify-between px-4 pt-14 pb-3 border-b border-divider">
+          <Text className="text-base font-semibold text-foreground">
             {isEditing ? "Modifier la question" : "Ajouter une question"}
           </Text>
           <Pressable onPress={onClose} hitSlop={8}>
-            <Ionicons name="close" size={22} color="#374151" />
+            <Ionicons name="close" size={22} color={colors.foregroundSecondary} />
           </Pressable>
         </View>
 
         <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
-          <Text className="text-sm font-medium text-gray-700 mb-2">
+          <Text className="text-sm font-medium text-foreground-secondary mb-2">
             N° de question
           </Text>
           <Controller
@@ -99,8 +101,8 @@ export function EvaluationQuestionDialog({
                 onChangeText={(text) => onChange(text as unknown as number)}
                 keyboardType="number-pad"
                 placeholder="1"
-                placeholderTextColor="#9CA3AF"
-                className="h-11 border border-gray-300 rounded-lg px-3 mb-1 bg-white"
+                placeholderTextColor={colors.faint}
+                className="h-11 border border-input rounded-lg px-3 mb-1 bg-card text-foreground"
               />
             )}
           />
@@ -110,7 +112,7 @@ export function EvaluationQuestionDialog({
             </Text>
           )}
 
-          <Text className="text-sm font-medium text-gray-700 mb-2">Points</Text>
+          <Text className="text-sm font-medium text-foreground-secondary mb-2">Points</Text>
           <Controller
             control={control}
             name="weight"
@@ -120,8 +122,8 @@ export function EvaluationQuestionDialog({
                 onChangeText={(text) => onChange(text as unknown as number)}
                 keyboardType="decimal-pad"
                 placeholder="0"
-                placeholderTextColor="#9CA3AF"
-                className="h-11 border border-gray-300 rounded-lg px-3 mb-1 bg-white"
+                placeholderTextColor={colors.faint}
+                className="h-11 border border-input rounded-lg px-3 mb-1 bg-card text-foreground"
               />
             )}
           />
@@ -131,7 +133,7 @@ export function EvaluationQuestionDialog({
             </Text>
           )}
 
-          <Text className="text-sm font-medium text-gray-700 mb-2">
+          <Text className="text-sm font-medium text-foreground-secondary mb-2">
             Texte de la question
           </Text>
           <Controller
@@ -143,7 +145,7 @@ export function EvaluationQuestionDialog({
                 onChangeText={onChange}
                 multiline
                 textAlignVertical="top"
-                className="min-h-[80px] border border-gray-300 rounded-lg px-3 py-2 mb-1 bg-white"
+                className="min-h-[80px] border border-input rounded-lg px-3 py-2 mb-1 bg-card text-foreground"
               />
             )}
           />
@@ -153,7 +155,7 @@ export function EvaluationQuestionDialog({
             </Text>
           )}
 
-          <Text className="text-sm font-medium text-gray-700 mb-2">
+          <Text className="text-sm font-medium text-foreground-secondary mb-2">
             Bonne réponse
           </Text>
           <Controller
@@ -166,13 +168,13 @@ export function EvaluationQuestionDialog({
                 multiline
                 textAlignVertical="top"
                 placeholder="Réponse attendue (optionnel)"
-                placeholderTextColor="#9CA3AF"
-                className="min-h-[60px] border border-gray-300 rounded-lg px-3 py-2 mb-3 bg-white"
+                placeholderTextColor={colors.faint}
+                className="min-h-[60px] border border-input rounded-lg px-3 py-2 mb-3 bg-card text-foreground"
               />
             )}
           />
 
-          <Text className="text-sm font-medium text-gray-700 mb-2">
+          <Text className="text-sm font-medium text-foreground-secondary mb-2">
             Mots-clés
           </Text>
           <View className="flex-row gap-2 mb-2">
@@ -181,14 +183,14 @@ export function EvaluationQuestionDialog({
               onChangeText={setKeywordDraft}
               onSubmitEditing={addKeyword}
               placeholder="Ajouter un mot-clé"
-              placeholderTextColor="#9CA3AF"
-              className="flex-1 h-11 border border-gray-300 rounded-lg px-3 bg-white"
+              placeholderTextColor={colors.faint}
+              className="flex-1 h-11 border border-input rounded-lg px-3 bg-card text-foreground"
             />
             <Pressable
               onPress={addKeyword}
-              className="h-11 px-4 rounded-lg bg-black items-center justify-center"
+              className="h-11 px-4 rounded-lg bg-foreground items-center justify-center"
             >
-              <Text className="text-white font-medium">Ajouter</Text>
+              <Text className="text-background font-medium">Ajouter</Text>
             </Pressable>
           </View>
           {keywords.length > 0 && (
@@ -196,18 +198,18 @@ export function EvaluationQuestionDialog({
               {keywords.map((keyword, index) => (
                 <View
                   key={`${keyword}-${index}`}
-                  className="flex-row items-center gap-1 px-3 h-8 rounded-full bg-gray-100"
+                  className="flex-row items-center gap-1 px-3 h-8 rounded-full bg-muted"
                 >
-                  <Text className="text-sm text-gray-700">{keyword}</Text>
+                  <Text className="text-sm text-foreground-secondary">{keyword}</Text>
                   <Pressable onPress={() => removeKeyword(index)} hitSlop={6}>
-                    <Ionicons name="close" size={14} color="#6B7280" />
+                    <Ionicons name="close" size={14} color={colors.mutedForeground} />
                   </Pressable>
                 </View>
               ))}
             </View>
           )}
 
-          <Text className="text-sm font-medium text-gray-700 mb-2">
+          <Text className="text-sm font-medium text-foreground-secondary mb-2">
             Commentaires
           </Text>
           <Controller
@@ -219,7 +221,7 @@ export function EvaluationQuestionDialog({
                 onChangeText={(text) => onChange(text || null)}
                 multiline
                 textAlignVertical="top"
-                className="min-h-[60px] border border-gray-300 rounded-lg px-3 py-2 mb-1 bg-white"
+                className="min-h-[60px] border border-input rounded-lg px-3 py-2 mb-1 bg-card text-foreground"
               />
             )}
           />
@@ -233,16 +235,16 @@ export function EvaluationQuestionDialog({
             {isEditing && onDelete && (
               <Pressable
                 onPress={onDelete}
-                className="h-12 px-5 rounded-lg items-center justify-center border border-red-300"
+                className="h-12 px-5 rounded-lg items-center justify-center border border-red-300 dark:border-red-700"
               >
                 <Text className="text-red-500 font-medium">Supprimer</Text>
               </Pressable>
             )}
             <Pressable
               onPress={() => void handleSubmit(onSubmit)()}
-              className="flex-1 h-12 rounded-lg items-center justify-center bg-black"
+              className="flex-1 h-12 rounded-lg items-center justify-center bg-foreground"
             >
-              <Text className="text-white font-medium">Enregistrer</Text>
+              <Text className="text-background font-medium">Enregistrer</Text>
             </Pressable>
           </View>
         </ScrollView>

@@ -7,10 +7,10 @@ import {
   persistQueryClientRestore,
   persistQueryClientSave,
   persistQueryClientSubscribe,
-  removeOldestQuery,
 } from "@tanstack/react-query-persist-client";
 import type { DehydrateOptions, QueryClient } from "@tanstack/react-query";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { fileStorage } from "./file-storage";
 import {
   isOfflineMutationKey,
   markRestoredFailuresAsQueued,
@@ -48,34 +48,69 @@ export const offlineDehydrateOptions: DehydrateOptions = {
     Date.now() - query.state.dataUpdatedAt < OFFLINE_QUERY_MAX_AGE_MS,
 };
 
-// Tout le cache tient dans une seule entrée AsyncStorage, file d'envois comprise : au-delà de cette taille, l'écriture ou la relecture peut échouer sur Android et emporter la file avec elle.
-const MAX_SERIALIZED_LENGTH = 1_500_000;
+// Le cache change en rafale pendant le préchargement : inutile de resérialiser plusieurs Mo chaque seconde. La file garde le délai par défaut (1 s).
+const CACHE_THROTTLE_MS = 5_000;
 
-/**
- * Sérialise en écartant si besoin les lectures les plus anciennes ; la file d'envois n'est jamais écartée.
- */
-function serializeWithinLimit(client: PersistedClient): string {
-  const serialized = JSON.stringify(client);
-  if (serialized.length <= MAX_SERIALIZED_LENGTH) return serialized;
-
-  const newestFirst = client.clientState.queries
-    .map((query) => ({ query, length: JSON.stringify(query).length }))
-    .sort((a, b) => b.query.state.dataUpdatedAt - a.query.state.dataUpdatedAt);
-
-  let length = serialized.length;
-  while (length > MAX_SERIALIZED_LENGTH) {
-    const oldest = newestFirst.pop();
-    if (!oldest) break;
-    length -= oldest.length;
-  }
-
-  return JSON.stringify({
+function withOnly(
+  client: PersistedClient,
+  part: "mutations" | "queries",
+): PersistedClient {
+  return {
     ...client,
     clientState: {
-      ...client.clientState,
-      queries: newestFirst.map(({ query }) => query),
+      mutations: part === "mutations" ? client.clientState.mutations : [],
+      queries: part === "queries" ? client.clientState.queries : [],
     },
+  };
+}
+
+/**
+ * File d'envois et cache de lecture sauvegardés séparément.
+ * - La file, petite, reste dans AsyncStorage : sur Android, une valeur de plus de ~2 Mo s'y écrit mais ne se relit plus (limite CursorWindow).
+ * - Le cache, sans limite de taille, va dans un fichier. Illisible, il est simplement perdu (il se recharge au retour du réseau) ; la file n'est jamais touchée.
+ */
+function createOfflinePersister(key: string): Persister {
+  const queue = createAsyncStoragePersister({
+    storage: AsyncStorage,
+    key,
+    serialize: (client) => JSON.stringify(withOnly(client, "mutations")),
   });
+  const cache = createAsyncStoragePersister({
+    storage: fileStorage,
+    key,
+    throttleTime: CACHE_THROTTLE_MS,
+    serialize: (client) => JSON.stringify(withOnly(client, "queries")),
+  });
+
+  return {
+    persistClient: async (client) => {
+      await Promise.all([
+        queue.persistClient(client),
+        cache.persistClient(client),
+      ]);
+    },
+    restoreClient: async () => {
+      const saved = await queue.restoreClient();
+      const cached = await Promise.resolve(cache.restoreClient()).catch(
+        () => undefined,
+      );
+      if (!saved) return cached;
+
+      // Ancien format (tout dans une seule valeur, pas encore de fichier) : les lectures sont encore dans la clé de la file.
+      const queries =
+        cached?.buster === saved.buster
+          ? cached.clientState.queries
+          : saved.clientState.queries;
+
+      return { ...saved, clientState: { ...saved.clientState, queries } };
+    },
+    removeClient: async () => {
+      await Promise.all([
+        queue.removeClient(),
+        Promise.resolve(cache.removeClient()).catch(() => undefined),
+      ]);
+    },
+  };
 }
 
 export function offlineStorageKey(schoolCode: string, userId: string) {
@@ -110,13 +145,7 @@ export async function startOfflinePersistence(
   // Avant la restauration : un envoi soumis pendant celle-ci appartient déjà au bon compte.
   setOfflineOwner(toOfflineOwner(scope.schoolCode, scope.userId));
 
-  const persister = createAsyncStoragePersister({
-    storage: AsyncStorage,
-    key,
-    serialize: serializeWithinLimit,
-    // Écriture refusée malgré tout : on retente sans la lecture la plus ancienne.
-    retry: removeOldestQuery,
-  });
+  const persister = createOfflinePersister(key);
 
   try {
     await persistQueryClientRestore({

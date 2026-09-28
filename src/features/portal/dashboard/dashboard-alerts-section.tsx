@@ -1,3 +1,4 @@
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { AlertsSummary } from "@/utils/types/PortalStudentDashboard";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { ActivityIndicator, Text, View } from "react-native";
@@ -56,6 +57,7 @@ type DashboardAlertsSectionProps = {
 };
 
 export function DashboardAlertsSection({ alerts, loading }: DashboardAlertsSectionProps) {
+  const colors = useThemeColors();
   if (loading || !alerts) {
     return (
       <View className="py-4">
@@ -69,20 +71,20 @@ export function DashboardAlertsSection({ alerts, loading }: DashboardAlertsSecti
 
   return (
     <>
-      <Text className="text-xs font-semibold text-gray-500 uppercase mb-1 mt-4">
+      <Text className="text-xs font-semibold text-muted-foreground uppercase mb-1 mt-4">
         Alertes
       </Text>
-      <View className="border-t border-gray-100 pt-2 flex-row flex-wrap gap-x-4 gap-y-2">
+      <View className="border-t border-divider pt-2 flex-row flex-wrap gap-x-4 gap-y-2">
         {items.map((item, index) => (
           <View key={index} className="flex-row items-center gap-1.5">
             <Ionicons
               name={item.icon}
               size={14}
-              color={item.tone === "warning" ? "#dc2626" : "#6B7280"}
+              color={item.tone === "warning" ? "#dc2626" : colors.mutedForeground}
             />
             <Text
               className={`text-xs ${
-                item.tone === "warning" ? "text-red-600" : "text-gray-500"
+                item.tone === "warning" ? "text-red-600" : "text-muted-foreground"
               }`}
             >
               {item.text}

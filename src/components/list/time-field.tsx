@@ -1,3 +1,4 @@
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import DateTimePicker, {
   type DateTimePickerEvent,
@@ -32,6 +33,7 @@ export function TimeField({
   value,
   onChange,
 }: TimeFieldProps) {
+  const colors = useThemeColors();
   const [open, setOpen] = useState(false);
   const timeValue = toDate(value);
 
@@ -48,19 +50,19 @@ export function TimeField({
 
   return (
     <View className="flex-1">
-      <Text className="text-sm font-medium text-gray-700 mb-2">{label}</Text>
+      <Text className="text-sm font-medium text-foreground-secondary mb-2">{label}</Text>
 
       <Pressable
         onPress={() => setOpen(true)}
-        className="flex-row items-center justify-between h-11 border border-gray-300 rounded-lg px-3 bg-white"
+        className="flex-row items-center justify-between h-11 border border-input rounded-lg px-3 bg-card"
       >
         <Text
-          className={`text-base ${value ? "text-black" : "text-gray-400"}`}
+          className={`text-base ${value ? "text-foreground" : "text-faint"}`}
           numberOfLines={1}
         >
           {value ? value : placeholder}
         </Text>
-        <Ionicons name="time-outline" size={18} color="#9CA3AF" />
+        <Ionicons name="time-outline" size={18} color={colors.faint} />
       </Pressable>
 
       {open && Platform.OS === "android" && (
@@ -83,10 +85,10 @@ export function TimeField({
             className="flex-1 bg-black/40 justify-end"
             onPress={() => setOpen(false)}
           >
-            <Pressable className="bg-white rounded-t-xl pb-6">
+            <Pressable className="bg-card rounded-t-xl pb-6">
               <View className="flex-row justify-end px-4 py-3">
                 <Pressable onPress={() => setOpen(false)}>
-                  <Text className="text-base font-semibold text-black">
+                  <Text className="text-base font-semibold text-foreground">
                     Terminé
                   </Text>
                 </Pressable>

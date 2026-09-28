@@ -1,4 +1,5 @@
 import { DrawerMenuButton } from "@/features/teacher/drawer-menu-button";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { formatDateTime } from "@/lib/format";
 import { getOfflineFailure } from "@/lib/offline/offline-error";
 import {
@@ -52,6 +53,7 @@ function ResendIgnoringConflictsButton({
   item: OfflineQueueItem;
   payload: OfflinePayloads[keyof OfflinePayloads];
 }) {
+  const colors = useThemeColors();
   const queryClient = useQueryClient();
   const { submit, isPending } = useOfflineMutation(item.name);
 
@@ -72,13 +74,13 @@ function ResendIgnoringConflictsButton({
       onPress={() => void resend()}
       disabled={isPending}
       className={`h-9 px-4 rounded-lg items-center justify-center ${
-        isPending ? "bg-gray-300" : "bg-black"
+        isPending ? "bg-gray-300 dark:bg-zinc-700" : "bg-foreground"
       }`}
     >
       {isPending ? (
-        <ActivityIndicator color="#ffffff" />
+        <ActivityIndicator color={colors.background} />
       ) : (
-        <Text className="text-sm font-medium text-white">
+        <Text className="text-sm font-medium text-background">
           Renvoyer en ignorant les conflits
         </Text>
       )}
@@ -104,14 +106,14 @@ function SyncItemRow({
       : null;
 
   return (
-    <View className="px-4 py-3 border-b border-gray-100">
+    <View className="px-4 py-3 border-b border-divider">
       <View className="flex-row items-start gap-3">
         <Ionicons name={style.icon} size={20} color={style.color} />
         <View className="flex-1">
-          <Text className="text-xs font-semibold text-gray-500 uppercase">
+          <Text className="text-xs font-semibold text-muted-foreground uppercase">
             {OFFLINE_ITEM_TYPE_LABELS[item.name] ?? item.name}
           </Text>
-          <Text className="text-sm text-black" numberOfLines={2}>
+          <Text className="text-sm text-foreground" numberOfLines={2}>
             {item.label}
           </Text>
           <Text className="text-xs mt-0.5" style={{ color: style.color }}>
@@ -120,13 +122,13 @@ function SyncItemRow({
               ? ` · essai ${item.failureCount + 1}`
               : ""}
           </Text>
-          <Text className="text-xs text-gray-400 mt-0.5">
+          <Text className="text-xs text-faint mt-0.5">
             Saisi le {formatDateTime(item.queuedAt)}
           </Text>
 
           {item.state === "failed" && (
-            <View className="mt-2 p-2.5 rounded-lg bg-red-50">
-              <Text className="text-xs text-red-700">
+            <View className="mt-2 p-2.5 rounded-lg bg-red-50 dark:bg-red-950">
+              <Text className="text-xs text-red-700 dark:text-red-300">
                 {describeFailure(item.failure)}
               </Text>
             </View>
@@ -144,9 +146,9 @@ function SyncItemRow({
           )}
           <Pressable
             onPress={onDismiss}
-            className="h-9 px-4 rounded-lg border border-gray-300 items-center justify-center"
+            className="h-9 px-4 rounded-lg border border-input items-center justify-center"
           >
-            <Text className="text-sm font-medium text-gray-700">Ignorer</Text>
+            <Text className="text-sm font-medium text-foreground-secondary">Ignorer</Text>
           </Pressable>
         </View>
       )}
@@ -155,6 +157,7 @@ function SyncItemRow({
 }
 
 export function SyncScreen() {
+  const colors = useThemeColors();
   const queryClient = useQueryClient();
   const isOnline = useIsOnline();
   const items = useOfflineQueue();
@@ -168,17 +171,17 @@ export function SyncScreen() {
         }}
       />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         <View
-          className={`flex-row items-center gap-2 px-4 py-2.5 ${isOnline ? "bg-green-50" : "bg-amber-50"}`}
+          className={`flex-row items-center gap-2 px-4 py-2.5 ${isOnline ? "bg-green-50 dark:bg-green-950" : "bg-amber-50 dark:bg-amber-950"}`}
         >
           <Ionicons
             name={isOnline ? "cloud-done-outline" : "cloud-offline-outline"}
             size={16}
-            color={isOnline ? "#15803D" : "#B45309"}
+            color={isOnline ? colors.success : colors.warning}
           />
           <Text
-            className={`text-sm ${isOnline ? "text-green-700" : "text-amber-700"}`}
+            className={`text-sm ${isOnline ? "text-green-700 dark:text-green-300" : "text-amber-700 dark:text-amber-300"}`}
           >
             {isOnline
               ? "En ligne : les envois en attente partent automatiquement."
@@ -200,9 +203,9 @@ export function SyncScreen() {
               <Ionicons
                 name="checkmark-circle-outline"
                 size={40}
-                color="#9CA3AF"
+                color={colors.faint}
               />
-              <Text className="text-sm text-gray-500 text-center mt-3">
+              <Text className="text-sm text-muted-foreground text-center mt-3">
                 Tout est synchronisé.
               </Text>
             </View>

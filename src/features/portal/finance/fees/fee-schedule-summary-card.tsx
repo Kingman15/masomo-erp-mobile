@@ -10,7 +10,7 @@ type FeeScheduleSummaryCardProps = {
 export function FeeScheduleSummaryCard({ summary, isLoading }: FeeScheduleSummaryCardProps) {
   if (isLoading) {
     return (
-      <View className="mx-4 mt-3 h-20 rounded-xl border border-gray-200 bg-white items-center justify-center">
+      <View className="mx-4 mt-3 h-20 rounded-xl border border-border bg-card items-center justify-center">
         <ActivityIndicator />
       </View>
     );
@@ -19,9 +19,9 @@ export function FeeScheduleSummaryCard({ summary, isLoading }: FeeScheduleSummar
   if (!summary) return null;
 
   return (
-    <View className="mx-4 mt-3 px-4 py-1 rounded-xl border border-gray-200 bg-white">
-      <View className="flex-row items-center justify-between py-2.5 border-b border-gray-100">
-        <Text className="text-sm font-medium text-gray-700">Statut</Text>
+    <View className="mx-4 mt-3 px-4 py-1 rounded-xl border border-border bg-card">
+      <View className="flex-row items-center justify-between py-2.5 border-b border-divider">
+        <Text className="text-sm font-medium text-foreground-secondary">Statut</Text>
         <FeeScheduleStatusPill status={summary.status} label={summary.statusLabel} />
       </View>
 
@@ -55,12 +55,12 @@ function SummaryRow({
   return (
     <View
       className={`flex-row items-center justify-between py-2.5 ${
-        last ? "" : "border-b border-gray-100"
+        last ? "" : "border-b border-divider"
       }`}
     >
-      <Text className="text-sm text-gray-500">{label}</Text>
+      <Text className="text-sm text-muted-foreground">{label}</Text>
       <Text
-        className={`text-sm font-semibold ${emphasize ? "text-red-600" : "text-black"}`}
+        className={`text-sm font-semibold ${emphasize ? "text-red-600" : "text-foreground"}`}
       >
         {value}
       </Text>

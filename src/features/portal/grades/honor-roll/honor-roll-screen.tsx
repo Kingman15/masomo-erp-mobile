@@ -67,7 +67,7 @@ export function HonorRollScreen() {
         }}
       />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         {filtersAreComplete && (
           <View className="flex-row items-center gap-3 px-4 pt-3 pb-2">
             <FilterButton
@@ -89,10 +89,10 @@ export function HonorRollScreen() {
 
         {!filtersAreComplete ? (
           <View className="flex-1 items-center justify-center px-6 gap-1">
-            <Text className="text-sm font-medium text-gray-700 text-center">
+            <Text className="text-sm font-medium text-foreground-secondary text-center">
               Aucun élève sélectionné
             </Text>
-            <Text className="text-sm text-gray-400 text-center">
+            <Text className="text-sm text-faint text-center">
               Sélectionnez un élève pour afficher son palmarès.
             </Text>
           </View>
@@ -102,19 +102,19 @@ export function HonorRollScreen() {
           </View>
         ) : portalStudentRankingError ? (
           <View className="flex-1 items-center justify-center px-6 gap-3">
-            <Text className="text-sm text-gray-500 text-center">
+            <Text className="text-sm text-muted-foreground text-center">
               Impossible de charger le palmarès.
             </Text>
             <Pressable
               onPress={() => loadPortalStudentRanking()}
-              className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+              className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
             >
-              <Text className="text-white font-medium">Réessayer</Text>
+              <Text className="text-background font-medium">Réessayer</Text>
             </Pressable>
           </View>
         ) : ranking.length === 0 ? (
           <View className="flex-1 items-center justify-center px-6 py-16">
-            <Text className="text-sm text-gray-400 text-center">
+            <Text className="text-sm text-faint text-center">
               Aucun palmarès disponible pour cet élève.
             </Text>
           </View>
@@ -136,7 +136,7 @@ export function HonorRollScreen() {
               />
             ) : (
               <>
-                <Text className="px-1 pb-2 text-xs text-gray-400">
+                <Text className="px-1 pb-2 text-xs text-faint">
                   {ranking.length} élève{ranking.length > 1 ? "s" : ""}
                 </Text>
                 {ranking.map((row) => (

@@ -99,7 +99,7 @@ export function NotificationsScreen() {
     <>
       <Stack.Screen options={{ headerShown: true, title: "Notifications" }} />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         <View className="flex-row items-center gap-3 px-4 pt-3 pb-2">
           <FilterButton
             fullWidth
@@ -122,14 +122,14 @@ export function NotificationsScreen() {
           </View>
         ) : notificationsError ? (
           <View className="flex-1 items-center justify-center px-6 gap-3">
-            <Text className="text-sm text-gray-500 text-center">
+            <Text className="text-sm text-muted-foreground text-center">
               Impossible de charger les notifications.
             </Text>
             <Pressable
               onPress={() => loadNotifications()}
-              className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+              className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
             >
-              <Text className="text-white font-medium">Réessayer</Text>
+              <Text className="text-background font-medium">Réessayer</Text>
             </Pressable>
           </View>
         ) : (
@@ -140,7 +140,7 @@ export function NotificationsScreen() {
             contentContainerStyle={{ paddingBottom: 12 }}
             ListHeaderComponent={
               <View className="flex-row items-center justify-between px-4 py-2">
-                <Text className="text-xs text-gray-400">
+                <Text className="text-xs text-faint">
                   {notificationsMeta
                     ? `${notificationsMeta.total} notification${notificationsMeta.total > 1 ? "s" : ""}`
                     : ""}
@@ -156,7 +156,7 @@ export function NotificationsScreen() {
                   <Text
                     className={`text-xs font-medium ${
                       unreadCount === 0 || markAllNotificationsAsReadIsPending
-                        ? "text-gray-300"
+                        ? "text-gray-300 dark:text-zinc-600"
                         : "text-blue-600"
                     }`}
                   >
@@ -169,7 +169,7 @@ export function NotificationsScreen() {
             }
             ListEmptyComponent={
               <View className="items-center justify-center px-6 py-16">
-                <Text className="text-sm text-gray-400 text-center">
+                <Text className="text-sm text-faint text-center">
                   Vous n&apos;avez aucune notification pour le moment.
                 </Text>
               </View>

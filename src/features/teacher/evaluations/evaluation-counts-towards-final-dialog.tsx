@@ -1,5 +1,6 @@
 import { CheckboxRow } from "@/components/list/checkbox-row";
 import { Toast } from "@/components/toast";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import {
   teachingCourseEvaluationCountsTowardsFinalSchema,
   type TeachingCourseEvaluationCountsTowardsFinalFormValues,
@@ -34,6 +35,7 @@ export function EvaluationCountsTowardsFinalDialog({
   onClose,
   onSave,
 }: EvaluationCountsTowardsFinalDialogProps) {
+  const colors = useThemeColors();
   const {
     control,
     handleSubmit,
@@ -66,11 +68,11 @@ export function EvaluationCountsTowardsFinalDialog({
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 bg-white">
-        <View className="flex-row items-center justify-between px-4 pt-14 pb-3 border-b border-gray-100">
-          <Text className="text-base font-semibold">Compte dans la moyenne</Text>
+      <View className="flex-1 bg-background">
+        <View className="flex-row items-center justify-between px-4 pt-14 pb-3 border-b border-divider">
+          <Text className="text-base font-semibold text-foreground">Compte dans la moyenne</Text>
           <Pressable onPress={onClose} hitSlop={8}>
-            <Ionicons name="close" size={22} color="#374151" />
+            <Ionicons name="close" size={22} color={colors.foregroundSecondary} />
           </Pressable>
         </View>
 
@@ -89,7 +91,7 @@ export function EvaluationCountsTowardsFinalDialog({
 
           {!countsTowardsFinal && (
             <>
-              <Text className="text-sm font-medium text-gray-700 mb-2">
+              <Text className="text-sm font-medium text-foreground-secondary mb-2">
                 {"Raison de l'exclusion"}
               </Text>
               <Controller
@@ -102,8 +104,8 @@ export function EvaluationCountsTowardsFinalDialog({
                     multiline
                     textAlignVertical="top"
                     placeholder="Pourquoi cette évaluation ne compte-t-elle pas dans la moyenne ?"
-                    placeholderTextColor="#9CA3AF"
-                    className="min-h-[80px] border border-gray-300 rounded-lg px-3 py-2 mb-1 bg-white"
+                    placeholderTextColor={colors.faint}
+                    className="min-h-[80px] border border-input rounded-lg px-3 py-2 mb-1 bg-card text-foreground"
                   />
                 )}
               />
@@ -119,13 +121,13 @@ export function EvaluationCountsTowardsFinalDialog({
             onPress={() => void handleSubmit(onSubmit)()}
             disabled={isPending}
             className={`h-12 rounded-lg items-center justify-center mt-4 ${
-              isPending ? "bg-gray-300" : "bg-black"
+              isPending ? "bg-gray-300 dark:bg-zinc-700" : "bg-foreground"
             }`}
           >
             {isPending ? (
-              <ActivityIndicator color="#ffffff" />
+              <ActivityIndicator color={colors.background} />
             ) : (
-              <Text className="text-white font-medium">Enregistrer</Text>
+              <Text className="text-background font-medium">Enregistrer</Text>
             )}
           </Pressable>
         </View>

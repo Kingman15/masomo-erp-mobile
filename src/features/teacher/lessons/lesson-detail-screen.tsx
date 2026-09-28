@@ -1,4 +1,5 @@
 import { useLessonById } from "@/hooks/queries/items/lesson";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { toastNotify } from "@/lib/toast";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, Stack, useLocalSearchParams } from "expo-router";
@@ -28,16 +29,18 @@ type InfoRowProps = {
 };
 
 function InfoRow({ icon, label, value }: InfoRowProps) {
+  const colors = useThemeColors();
   return (
     <View className="flex-row items-center gap-3 py-2.5">
-      <Ionicons name={icon} size={16} color="#6B7280" />
-      <Text className="text-xs text-gray-500 w-28">{label}</Text>
-      <Text className="flex-1 text-sm text-black">{value}</Text>
+      <Ionicons name={icon} size={16} color={colors.mutedForeground} />
+      <Text className="text-xs text-muted-foreground w-28">{label}</Text>
+      <Text className="flex-1 text-sm text-foreground">{value}</Text>
     </View>
   );
 }
 
 export function LessonDetailScreen() {
+  const colors = useThemeColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { lesson, lessonIsLoading, lessonError, loadLesson } =
     useLessonById(id);
@@ -52,21 +55,21 @@ export function LessonDetailScreen() {
     <>
       <Stack.Screen options={{ title: "Détails de la leçon" }} />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         {lessonIsLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />
           </View>
         ) : lessonError ? (
           <View className="flex-1 items-center justify-center px-6 gap-3">
-            <Text className="text-sm text-gray-500 text-center">
+            <Text className="text-sm text-muted-foreground text-center">
               Impossible de charger la leçon.
             </Text>
             <Pressable
               onPress={() => loadLesson()}
-              className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+              className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
             >
-              <Text className="text-white font-medium">Réessayer</Text>
+              <Text className="text-background font-medium">Réessayer</Text>
             </Pressable>
           </View>
         ) : lesson ? (
@@ -74,17 +77,17 @@ export function LessonDetailScreen() {
             className="flex-1"
             contentContainerStyle={{ padding: 16 }}
           >
-            <Text className="text-xs font-medium text-gray-500 capitalize">
+            <Text className="text-xs font-medium text-muted-foreground capitalize">
               {formatLessonDate(lesson.lessonDate)}
             </Text>
-            <Text className="text-xl font-semibold text-black mt-1">
+            <Text className="text-xl font-semibold text-foreground mt-1">
               {lesson.subject}
             </Text>
-            <Text className="text-sm text-gray-500 mt-0.5">
+            <Text className="text-sm text-muted-foreground mt-0.5">
               {lesson.intervalStr ?? `${lesson.startTime} - ${lesson.endTime}`}
             </Text>
 
-            <View className="mt-4 border-t border-gray-100 pt-1">
+            <View className="mt-4 border-t border-divider pt-1">
               <InfoRow
                 icon="bookmark-outline"
                 label="N° de leçon"
@@ -115,13 +118,13 @@ export function LessonDetailScreen() {
             </View>
 
             {lesson.comments && (
-              <View className="mt-4 border-t border-gray-100 pt-3">
-                <Text className="text-xs text-gray-500 mb-1">Commentaires</Text>
-                <Text className="text-sm text-black">{lesson.comments}</Text>
+              <View className="mt-4 border-t border-divider pt-3">
+                <Text className="text-xs text-muted-foreground mb-1">Commentaires</Text>
+                <Text className="text-sm text-foreground">{lesson.comments}</Text>
               </View>
             )}
 
-            <View className="mt-4 border-t border-gray-100 pt-1">
+            <View className="mt-4 border-t border-divider pt-1">
               <InfoRow
                 icon="person-outline"
                 label="Enseignant"
@@ -137,10 +140,10 @@ export function LessonDetailScreen() {
             <View className="mt-6 gap-3">
               <Pressable
                 onPress={() => router.push(`/teacher/lessons/${lesson.id}/edit`)}
-                className="h-12 rounded-lg bg-black items-center justify-center flex-row gap-2"
+                className="h-12 rounded-lg bg-foreground items-center justify-center flex-row gap-2"
               >
-                <Ionicons name="create-outline" size={18} color="#ffffff" />
-                <Text className="text-white font-medium">Modifier</Text>
+                <Ionicons name="create-outline" size={18} color={colors.background} />
+                <Text className="text-background font-medium">Modifier</Text>
               </Pressable>
 
               <Pressable
@@ -150,7 +153,7 @@ export function LessonDetailScreen() {
                     "info",
                   )
                 }
-                className="h-12 rounded-lg border border-red-200 items-center justify-center flex-row gap-2"
+                className="h-12 rounded-lg border border-red-200 dark:border-red-800 items-center justify-center flex-row gap-2"
               >
                 <Ionicons name="trash-outline" size={18} color="#DC2626" />
                 <Text className="text-red-600 font-medium">Supprimer</Text>

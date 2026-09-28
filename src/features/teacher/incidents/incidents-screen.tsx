@@ -3,6 +3,7 @@ import { SearchBar } from "@/components/list/search-bar";
 import { DrawerMenuButton } from "@/features/teacher/drawer-menu-button";
 import { useCurrentSchoolYear } from "@/hooks/queries/items/school-year";
 import { useStudentIncidents } from "@/hooks/queries/items/student-incident";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { StudentIncident } from "@/utils/types/StudentIncident";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { FlashList } from "@shopify/flash-list";
@@ -17,6 +18,7 @@ import {
 import { IncidentRow } from "./incident-row";
 
 export function IncidentsScreen() {
+  const colors = useThemeColors();
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<IncidentFiltersForm>(
     emptyIncidentFilters,
@@ -74,13 +76,13 @@ export function IncidentsScreen() {
               onPress={() => router.push("/teacher/incidents/new")}
               hitSlop={8}
             >
-              <Ionicons name="add-outline" size={26} color="#000000" />
+              <Ionicons name="add-outline" size={26} color={colors.foreground} />
             </Pressable>
           ),
         }}
       />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         <View className="flex-row items-center gap-3 px-4 pt-3 pb-2">
           <View className="flex-1">
             <SearchBar
@@ -108,14 +110,14 @@ export function IncidentsScreen() {
           </View>
         ) : studentIncidentsError ? (
           <View className="flex-1 items-center justify-center px-6 gap-3">
-            <Text className="text-sm text-gray-500 text-center">
+            <Text className="text-sm text-muted-foreground text-center">
               Impossible de charger les incidents.
             </Text>
             <Pressable
               onPress={() => loadStudentIncidents()}
-              className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+              className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
             >
-              <Text className="text-white font-medium">Réessayer</Text>
+              <Text className="text-background font-medium">Réessayer</Text>
             </Pressable>
           </View>
         ) : (
@@ -126,7 +128,7 @@ export function IncidentsScreen() {
             contentContainerStyle={{ paddingBottom: 12 }}
             ListHeaderComponent={
               studentIncidentsMeta ? (
-                <Text className="px-4 py-2 text-xs text-gray-400">
+                <Text className="px-4 py-2 text-xs text-faint">
                   {studentIncidentsMeta.total} incident
                   {studentIncidentsMeta.total > 1 ? "s" : ""}
                 </Text>
@@ -134,7 +136,7 @@ export function IncidentsScreen() {
             }
             ListEmptyComponent={
               <View className="items-center justify-center px-6 py-16">
-                <Text className="text-sm text-gray-400 text-center">
+                <Text className="text-sm text-faint text-center">
                   Aucun incident ne correspond aux filtres.
                 </Text>
               </View>

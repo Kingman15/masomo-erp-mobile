@@ -45,7 +45,7 @@ export function FeesFilterPanel({ value, onApply, onClose }: FeesFilterPanelProp
       onClose={onClose}
     >
       <View className="mb-4">
-        <Text className="text-sm font-medium text-gray-700 mb-2">Statut</Text>
+        <Text className="text-sm font-medium text-foreground-secondary mb-2">Statut</Text>
         <View className="flex-row flex-wrap gap-2">
           {FEE_SCHEDULE_STATUS_OPTIONS.map((option) => {
             const selected = status.includes(option.value);
@@ -54,10 +54,10 @@ export function FeesFilterPanel({ value, onApply, onClose }: FeesFilterPanelProp
                 key={option.value}
                 onPress={() => toggleStatus(option.value)}
                 className={`px-4 h-9 rounded-full items-center justify-center border ${
-                  selected ? "bg-black border-black" : "bg-white border-gray-300"
+                  selected ? "bg-foreground border-foreground" : "bg-card border-input"
                 }`}
               >
-                <Text className={`text-sm ${selected ? "text-white font-medium" : "text-gray-700"}`}>
+                <Text className={`text-sm ${selected ? "text-background font-medium" : "text-foreground-secondary"}`}>
                   {option.label}
                 </Text>
               </Pressable>

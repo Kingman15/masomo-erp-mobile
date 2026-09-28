@@ -5,6 +5,7 @@ import {
   useSendMessage,
 } from "@/hooks/queries/items/conversation";
 import { useServiceDesksMine } from "@/hooks/queries/items/service-desk";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { handleApiError } from "@/lib/handle-api-error";
 import { formatDateTime } from "@/lib/format";
 import type { Message } from "@/utils/types/Message";
@@ -46,19 +47,19 @@ function MessageBubble({ message }: { message: Message }) {
       <View className={`flex-1 ${isSchool ? "items-end" : "items-start"}`}>
         <View
           className={`max-w-[85%] rounded-lg px-3 py-2 ${
-            isSchool ? "bg-black" : "bg-gray-100"
+            isSchool ? "bg-foreground" : "bg-muted"
           }`}
         >
           {senderLabel ? (
             <Text
-              className={`text-xs mb-1 ${isSchool ? "text-gray-300" : "text-gray-500"}`}
+              className={`text-xs mb-1 ${isSchool ? "text-gray-300 dark:text-zinc-600" : "text-muted-foreground"}`}
             >
               {senderLabel}
             </Text>
           ) : null}
           {message.body ? (
             <Text
-              className={`text-sm ${isSchool ? "text-white" : "text-black"}`}
+              className={`text-sm ${isSchool ? "text-background" : "text-foreground"}`}
             >
               {message.body}
             </Text>
@@ -68,7 +69,7 @@ function MessageBubble({ message }: { message: Message }) {
             tint={isSchool ? "dark" : "light"}
           />
         </View>
-        <Text className="text-[10px] text-gray-400 mt-1">
+        <Text className="text-[10px] text-faint mt-1">
           {formatDateTime(message.createdAt)}
         </Text>
       </View>
@@ -77,6 +78,7 @@ function MessageBubble({ message }: { message: Message }) {
 }
 
 export function ConversationThreadScreen() {
+  const colors = useThemeColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const scrollRef = useRef<ScrollView>(null);
 
@@ -131,12 +133,12 @@ export function ConversationThreadScreen() {
               <PartyAvatar name={conversation?.party?.name} size={32} />
               <View>
                 <Text
-                  className="text-sm font-semibold text-black"
+                  className="text-sm font-semibold text-foreground"
                   numberOfLines={1}
                 >
                   {conversation?.party?.name ?? "—"}
                 </Text>
-                <Text className="text-xs text-gray-500" numberOfLines={1}>
+                <Text className="text-xs text-muted-foreground" numberOfLines={1}>
                   {conversation?.serviceDesk?.name ?? "Guichet"}
                 </Text>
               </View>
@@ -160,7 +162,7 @@ export function ConversationThreadScreen() {
                       <Ionicons
                         name="checkmark-circle-outline"
                         size={24}
-                        color="#000000"
+                        color={colors.foreground}
                       />
                     )}
                   </Pressable>
@@ -171,7 +173,7 @@ export function ConversationThreadScreen() {
       />
 
       <KeyboardAvoidingView
-        className="flex-1 bg-white"
+        className="flex-1 bg-background"
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
@@ -181,7 +183,7 @@ export function ConversationThreadScreen() {
           </View>
         ) : conversationError || !conversation ? (
           <View className="flex-1 items-center justify-center px-6">
-            <Text className="text-sm text-gray-500 text-center">
+            <Text className="text-sm text-muted-foreground text-center">
               Ce fil n&apos;existe pas ou vous n&apos;y avez pas accès.
             </Text>
           </View>
@@ -196,11 +198,11 @@ export function ConversationThreadScreen() {
               }
             >
               {messagesIsLoading ? (
-                <Text className="text-center text-sm text-gray-400 py-4">
+                <Text className="text-center text-sm text-faint py-4">
                   Chargement des messages…
                 </Text>
               ) : messages.length === 0 ? (
-                <Text className="text-center text-sm text-gray-400 py-4">
+                <Text className="text-center text-sm text-faint py-4">
                   Aucun message pour l&apos;instant.
                 </Text>
               ) : (
@@ -242,20 +244,20 @@ export function ConversationThreadScreen() {
                     !canReply ||
                     (!body.trim() && documents.length === 0) ||
                     sendMessageIsPending
-                      ? "bg-gray-200"
-                      : "bg-black"
+                      ? "bg-border"
+                      : "bg-foreground"
                   }`}
                 >
                   {sendMessageIsPending ? (
-                    <ActivityIndicator size="small" color="#ffffff" />
+                    <ActivityIndicator size="small" color={colors.background} />
                   ) : (
                     <Ionicons
                       name="arrow-up"
                       size={20}
                       color={
                         !canReply || (!body.trim() && documents.length === 0)
-                          ? "#9CA3AF"
-                          : "#FFFFFF"
+                          ? colors.faint
+                          : colors.background
                       }
                     />
                   )}

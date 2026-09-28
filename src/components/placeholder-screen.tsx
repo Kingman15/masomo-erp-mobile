@@ -10,9 +10,9 @@ export function PlaceholderScreen({
   description,
 }: PlaceholderScreenProps) {
   return (
-    <View className="flex-1 items-center justify-center px-6 bg-white">
-      <Text className="text-2xl font-medium mb-2 text-center">{title}</Text>
-      <Text className="text-sm text-gray-500 text-center">
+    <View className="flex-1 items-center justify-center px-6 bg-background">
+      <Text className="text-2xl font-medium mb-2 text-center text-foreground">{title}</Text>
+      <Text className="text-sm text-muted-foreground text-center">
         {description ?? "Écran à venir."}
       </Text>
     </View>

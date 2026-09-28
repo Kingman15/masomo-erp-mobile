@@ -1,3 +1,4 @@
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { formatShortDate } from "@/lib/format";
 import type { StudentInternalRegulation } from "@/utils/types/StudentInternalRegulation";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -8,19 +9,20 @@ type RegulationMetaCardProps = {
 };
 
 export function RegulationMetaCard({ regulation }: RegulationMetaCardProps) {
+  const colors = useThemeColors();
   const hasDateRange = regulation.effectiveFrom || regulation.effectiveUntil;
 
   return (
-    <View className="mx-4 mt-3 p-4 border border-gray-200 rounded-xl bg-white">
+    <View className="mx-4 mt-3 p-4 border border-border rounded-xl bg-card">
       <View className="flex-row items-center justify-between">
-        <Text className="flex-1 text-base font-semibold text-black" numberOfLines={2}>
+        <Text className="flex-1 text-base font-semibold text-foreground" numberOfLines={2}>
           {regulation.title ?? "—"}
         </Text>
         <View
-          className={`px-2 py-0.5 rounded-full ${regulation.isActive ? "bg-green-100" : "bg-gray-100"}`}
+          className={`px-2 py-0.5 rounded-full ${regulation.isActive ? "bg-green-100 dark:bg-green-900/40" : "bg-muted"}`}
         >
           <Text
-            className={`text-xs font-medium ${regulation.isActive ? "text-green-700" : "text-gray-500"}`}
+            className={`text-xs font-medium ${regulation.isActive ? "text-green-700 dark:text-green-300" : "text-muted-foreground"}`}
           >
             {regulation.isActive ? "Actif" : "Inactif"}
           </Text>
@@ -28,18 +30,18 @@ export function RegulationMetaCard({ regulation }: RegulationMetaCardProps) {
       </View>
 
       {regulation.code && (
-        <Text className="text-xs text-gray-400 mt-0.5">{regulation.code}</Text>
+        <Text className="text-xs text-faint mt-0.5">{regulation.code}</Text>
       )}
 
       {regulation.preamble && (
-        <Text className="text-sm text-gray-600 mt-2">{regulation.preamble}</Text>
+        <Text className="text-sm text-gray-600 dark:text-zinc-400 mt-2">{regulation.preamble}</Text>
       )}
 
       <View className="flex-row flex-wrap items-center gap-x-4 gap-y-1.5 mt-3">
         {regulation.targetStr && (
           <View className="flex-row items-center gap-1">
-            <Ionicons name="people-outline" size={13} color="#6B7280" />
-            <Text className="text-xs text-gray-500">
+            <Ionicons name="people-outline" size={13} color={colors.mutedForeground} />
+            <Text className="text-xs text-muted-foreground">
               {regulation.targetTypeStr ? `${regulation.targetTypeStr} · ` : ""}
               {regulation.targetStr}
             </Text>
@@ -47,16 +49,16 @@ export function RegulationMetaCard({ regulation }: RegulationMetaCardProps) {
         )}
         {regulation.schoolYear?.title && (
           <View className="flex-row items-center gap-1">
-            <Ionicons name="pricetag-outline" size={13} color="#6B7280" />
-            <Text className="text-xs text-gray-500">
+            <Ionicons name="pricetag-outline" size={13} color={colors.mutedForeground} />
+            <Text className="text-xs text-muted-foreground">
               Année {regulation.schoolYear.title}
             </Text>
           </View>
         )}
         {hasDateRange && (
           <View className="flex-row items-center gap-1">
-            <Ionicons name="calendar-outline" size={13} color="#6B7280" />
-            <Text className="text-xs text-gray-500">
+            <Ionicons name="calendar-outline" size={13} color={colors.mutedForeground} />
+            <Text className="text-xs text-muted-foreground">
               {formatShortDate(regulation.effectiveFrom)}
               {" - "}
               {formatShortDate(regulation.effectiveUntil)}
@@ -66,9 +68,9 @@ export function RegulationMetaCard({ regulation }: RegulationMetaCardProps) {
       </View>
 
       {regulation.description && (
-        <View className="mt-3 pt-3 border-t border-gray-100">
-          <Text className="text-xs text-gray-400 mb-1">Description</Text>
-          <Text className="text-sm text-gray-600">{regulation.description}</Text>
+        <View className="mt-3 pt-3 border-t border-divider">
+          <Text className="text-xs text-faint mb-1">Description</Text>
+          <Text className="text-sm text-gray-600 dark:text-zinc-400">{regulation.description}</Text>
         </View>
       )}
     </View>

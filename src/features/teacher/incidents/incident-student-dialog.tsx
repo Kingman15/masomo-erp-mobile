@@ -1,6 +1,7 @@
 import { StudentPicker } from "@/components/list/student-picker";
 import { ChipSelect } from "@/components/list/chip-select";
 import { Toast } from "@/components/toast";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import {
   incidentStudentFormSchema,
   type IncidentStudentFormValues,
@@ -32,6 +33,7 @@ export function IncidentStudentDialog({
   onClose,
   onSave,
 }: IncidentStudentDialogProps) {
+  const colors = useThemeColors();
   const {
     control,
     handleSubmit,
@@ -60,13 +62,13 @@ export function IncidentStudentDialog({
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 bg-white">
-        <View className="flex-row items-center justify-between px-4 pt-14 pb-3 border-b border-gray-100">
-          <Text className="text-base font-semibold">
+      <View className="flex-1 bg-background">
+        <View className="flex-row items-center justify-between px-4 pt-14 pb-3 border-b border-divider">
+          <Text className="text-base font-semibold text-foreground">
             {isEditing ? "Modifier l'élève" : "Ajouter un élève"}
           </Text>
           <Pressable onPress={onClose} hitSlop={8}>
-            <Ionicons name="close" size={22} color="#374151" />
+            <Ionicons name="close" size={22} color={colors.foregroundSecondary} />
           </Pressable>
         </View>
 
@@ -107,7 +109,7 @@ export function IncidentStudentDialog({
             </Text>
           )}
 
-          <Text className="text-sm font-medium text-gray-700 mb-2">Notes</Text>
+          <Text className="text-sm font-medium text-foreground-secondary mb-2">Notes</Text>
           <Controller
             control={control}
             name="notes"
@@ -118,8 +120,8 @@ export function IncidentStudentDialog({
                 multiline
                 textAlignVertical="top"
                 placeholder="Notes (optionnel)"
-                placeholderTextColor="#9CA3AF"
-                className="min-h-[80px] border border-gray-300 rounded-lg px-3 py-2 mb-1 bg-white"
+                placeholderTextColor={colors.faint}
+                className="min-h-[80px] border border-input rounded-lg px-3 py-2 mb-1 bg-card text-foreground"
               />
             )}
           />
@@ -131,9 +133,9 @@ export function IncidentStudentDialog({
 
           <Pressable
             onPress={() => void handleSubmit(onSubmit)()}
-            className="h-12 rounded-lg items-center justify-center bg-black mt-6"
+            className="h-12 rounded-lg items-center justify-center bg-foreground mt-6"
           >
-            <Text className="text-white font-medium">Enregistrer</Text>
+            <Text className="text-background font-medium">Enregistrer</Text>
           </Pressable>
         </ScrollView>
       </View>

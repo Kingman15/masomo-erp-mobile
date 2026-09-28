@@ -14,6 +14,7 @@ import {
   useStudentAttendanceRecordById,
   useUpdateStudentAttendanceRecord,
 } from "@/hooks/queries/items/student-attendance-record";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { handleApiError } from "@/lib/handle-api-error";
 import { toastNotify } from "@/lib/toast";
 import {
@@ -55,6 +56,7 @@ function FieldError({ message }: FieldErrorProps) {
 export function AttendanceRecordFormScreen({
   recordId,
 }: AttendanceRecordFormScreenProps) {
+  const colors = useThemeColors();
   const isEditing = Boolean(recordId);
   const params = useLocalSearchParams<{
     registerId?: string;
@@ -231,7 +233,7 @@ export function AttendanceRecordFormScreen({
 
   if (isEditing && studentAttendanceRecordIsLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
+      <View className="flex-1 items-center justify-center bg-background">
         <ActivityIndicator />
       </View>
     );
@@ -239,8 +241,8 @@ export function AttendanceRecordFormScreen({
 
   if (isEditing && studentAttendanceRecordError) {
     return (
-      <View className="flex-1 items-center justify-center px-6 bg-white">
-        <Text className="text-sm text-gray-500 text-center">
+      <View className="flex-1 items-center justify-center px-6 bg-background">
+        <Text className="text-sm text-muted-foreground text-center">
           Impossible de charger le pointage de présence.
         </Text>
       </View>
@@ -264,7 +266,7 @@ export function AttendanceRecordFormScreen({
       />
 
       <ScrollView
-        className="flex-1 bg-white"
+        className="flex-1 bg-background"
         contentContainerStyle={{ padding: 16 }}
         keyboardShouldPersistTaps="handled"
       >
@@ -393,7 +395,7 @@ export function AttendanceRecordFormScreen({
           />
         </View>
 
-        <Text className="text-xs font-semibold text-gray-400 uppercase mt-2 mb-3">
+        <Text className="text-xs font-semibold text-faint uppercase mt-2 mb-3">
           Justification
         </Text>
 
@@ -433,7 +435,7 @@ export function AttendanceRecordFormScreen({
           </Text>
         )}
 
-        <Text className="text-sm font-medium text-gray-700 mb-2 mt-4">
+        <Text className="text-sm font-medium text-foreground-secondary mb-2 mt-4">
           Note de justification
         </Text>
         <Controller
@@ -445,7 +447,7 @@ export function AttendanceRecordFormScreen({
               onChangeText={(text) => onChange(text || null)}
               multiline
               textAlignVertical="top"
-              className="min-h-[60px] border border-gray-300 rounded-lg px-3 py-2 mb-1 bg-white"
+              className="min-h-[60px] border border-input rounded-lg px-3 py-2 mb-1 bg-card text-foreground"
             />
           )}
         />
@@ -455,7 +457,7 @@ export function AttendanceRecordFormScreen({
           </Text>
         )}
 
-        <Text className="text-xs font-semibold text-gray-400 uppercase mt-4 mb-3">
+        <Text className="text-xs font-semibold text-faint uppercase mt-4 mb-3">
           Autres informations
         </Text>
 
@@ -477,7 +479,7 @@ export function AttendanceRecordFormScreen({
           )}
         />
 
-        <Text className="text-sm font-medium text-gray-700 mb-2">Lieu</Text>
+        <Text className="text-sm font-medium text-foreground-secondary mb-2">Lieu</Text>
         <Controller
           control={control}
           name="location"
@@ -485,7 +487,7 @@ export function AttendanceRecordFormScreen({
             <TextInput
               value={value ?? ""}
               onChangeText={(text) => onChange(text || null)}
-              className="h-11 border border-gray-300 rounded-lg px-3 mb-1 bg-white"
+              className="h-11 border border-input rounded-lg px-3 mb-1 bg-card text-foreground"
             />
           )}
         />
@@ -495,7 +497,7 @@ export function AttendanceRecordFormScreen({
           </Text>
         )}
 
-        <Text className="text-sm font-medium text-gray-700 mb-2 mt-3">Note</Text>
+        <Text className="text-sm font-medium text-foreground-secondary mb-2 mt-3">Note</Text>
         <Controller
           control={control}
           name="note"
@@ -505,7 +507,7 @@ export function AttendanceRecordFormScreen({
               onChangeText={(text) => onChange(text || null)}
               multiline
               textAlignVertical="top"
-              className="min-h-[60px] border border-gray-300 rounded-lg px-3 py-2 mb-1 bg-white"
+              className="min-h-[60px] border border-input rounded-lg px-3 py-2 mb-1 bg-card text-foreground"
             />
           )}
         />
@@ -517,13 +519,13 @@ export function AttendanceRecordFormScreen({
           onPress={() => void handleSubmit(onSubmit)()}
           disabled={isBusy}
           className={`h-12 rounded-lg items-center justify-center mt-6 ${
-            isBusy ? "bg-gray-300" : "bg-black"
+            isBusy ? "bg-gray-300 dark:bg-zinc-700" : "bg-foreground"
           }`}
         >
           {isBusy ? (
-            <ActivityIndicator color="#ffffff" />
+            <ActivityIndicator color={colors.background} />
           ) : (
-            <Text className="text-white font-medium">
+            <Text className="text-background font-medium">
               {isEditing ? "Sauvegarder" : "Créer"}
             </Text>
           )}

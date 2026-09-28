@@ -1,10 +1,15 @@
+import { DrawerMenuButton } from "@/features/teacher/drawer-menu-button";
 import { OfflineStatusPill } from "@/features/teacher/sync/offline-status-pill";
 import { TeacherDrawerContent } from "@/features/teacher/teacher-drawer-content";
 import { useTeacherOfflinePrefetch } from "@/features/teacher/use-teacher-offline-prefetch";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { Drawer } from "expo-router/drawer";
 import { View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TeacherLayout() {
+  const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
   // Horaire, ROI et données des formulaires gardés pour le hors ligne.
   useTeacherOfflinePrefetch();
 
@@ -13,8 +18,13 @@ export default function TeacherLayout() {
       <Drawer
         drawerContent={(props) => <TeacherDrawerContent {...props} />}
         screenOptions={{
-          headerTintColor: "#000000",
+          headerTintColor: colors.foreground,
           headerTitleStyle: { fontWeight: "600" },
+          // Aligné sur les en-têtes natifs des Stack enseignant : même bouton, retrait de 16,
+          // espace avant le titre et hauteur de barre de 56 (64 par défaut pour cet en-tête).
+          headerLeft: () => <DrawerMenuButton />,
+          headerLeftContainerStyle: { paddingLeft: 16 },
+          headerStyle: { height: insets.top + 56 },
         }}
       >
         <Drawer.Screen name="lessons" options={{ headerShown: false }} />

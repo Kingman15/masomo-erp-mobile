@@ -72,6 +72,16 @@ export function getOfflineFailure(error: unknown): OfflineFailure | null {
 const TRANSIENT_STATUSES = new Set([401, 408, 419, 425, 429]);
 
 /**
+ * 409 renvoyé quand la même clé d'idempotence est encore en cours de traitement (essai précédent parti en timeout) : pas un refus métier.
+ */
+export function isIdempotencyInProgress(failure: OfflineFailure | null): boolean {
+  return (
+    failure?.status === 409 &&
+    getFailureCode(failure) === "IDEMPOTENCY_KEY_IN_PROGRESS"
+  );
+}
+
+/**
  * Réseau, session à rafraîchir, 5xx : on réessaie (la clé d'idempotence rend le rejeu sûr).
  * Les autres 4xx (409 conflit, 422 validation, 403…) sont définitifs.
  */
@@ -80,7 +90,11 @@ export function isRetryableFailure(failure: OfflineFailure | null): boolean {
   if (!failure || failure.kind !== "http" || failure.status === null) {
     return true;
   }
-  return failure.status >= 500 || TRANSIENT_STATUSES.has(failure.status);
+  return (
+    failure.status >= 500 ||
+    TRANSIENT_STATUSES.has(failure.status) ||
+    isIdempotencyInProgress(failure)
+  );
 }
 
 /** Code machine d'un refus métier (ex. LESSON_ALREADY_DECLARED), s'il y en a un. */

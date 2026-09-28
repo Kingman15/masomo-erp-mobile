@@ -4,6 +4,7 @@ import {
   useUploadTeachingCourseEvaluationDocument,
 } from "@/hooks/queries/items/teaching-course-evaluation-document";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { handleApiError } from "@/lib/handle-api-error";
 import { toastNotify } from "@/lib/toast";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -22,6 +23,7 @@ type EvaluationDocumentsSectionProps = {
 export function EvaluationDocumentsSection({
   evaluationId,
 }: EvaluationDocumentsSectionProps) {
+  const colors = useThemeColors();
   const {
     teachingCourseEvaluationDocuments,
     teachingCourseEvaluationDocumentsIsLoading,
@@ -70,7 +72,7 @@ export function EvaluationDocumentsSection({
   return (
     <View className="mb-6">
       <View className="flex-row items-center justify-between mb-3">
-        <Text className="text-base font-semibold text-black">Documents</Text>
+        <Text className="text-base font-semibold text-foreground">Documents</Text>
         <Pressable
           onPress={() => loadTeachingCourseEvaluationDocuments()}
           hitSlop={8}
@@ -78,15 +80,15 @@ export function EvaluationDocumentsSection({
           {teachingCourseEvaluationDocumentsIsFetching ? (
             <ActivityIndicator size="small" />
           ) : (
-            <Ionicons name="refresh-outline" size={18} color="#374151" />
+            <Ionicons name="refresh-outline" size={18} color={colors.foregroundSecondary} />
           )}
         </Pressable>
       </View>
 
       {teachingCourseEvaluationDocumentsIsLoading ? (
-        <Text className="text-sm text-gray-400 mb-3">Chargement ...</Text>
+        <Text className="text-sm text-faint mb-3">Chargement ...</Text>
       ) : teachingCourseEvaluationDocumentsError ? (
-        <Text className="text-sm text-gray-500 mb-3">
+        <Text className="text-sm text-muted-foreground mb-3">
           Impossible de charger les documents.
         </Text>
       ) : teachingCourseEvaluationDocuments &&
@@ -101,14 +103,14 @@ export function EvaluationDocumentsSection({
           />
         ))
       ) : (
-        <Text className="text-sm text-gray-400 mb-3">Aucun document.</Text>
+        <Text className="text-sm text-faint mb-3">Aucun document.</Text>
       )}
 
       <Pressable
         onPress={() => setUploadDialogOpen(true)}
-        className="h-11 rounded-lg border border-dashed border-gray-300 items-center justify-center"
+        className="h-11 rounded-lg border border-dashed border-input items-center justify-center"
       >
-        <Text className="text-sm font-medium text-gray-600">
+        <Text className="text-sm font-medium text-gray-600 dark:text-zinc-400">
           + Ajouter un document
         </Text>
       </Pressable>

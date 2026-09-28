@@ -1,12 +1,14 @@
 import { MENU_CATEGORIES } from "@/features/portal/menu-config";
 import { StudentSwitcherEntry } from "@/features/portal/student-switcher-entry";
 import { usePortalSelection } from "@/features/portal/use-portal-selection";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { toastNotify } from "@/lib/toast";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, Stack } from "expo-router";
 import { FlatList, Pressable, Text, View } from "react-native";
 
 export default function PortalMenuScreen() {
+  const colors = useThemeColors();
   const { selectedStudent } = usePortalSelection();
   const hasSelectedStudent = !!selectedStudent;
 
@@ -15,7 +17,7 @@ export default function PortalMenuScreen() {
       <Stack.Screen options={{ headerShown: true, title: "Menu" }} />
 
       <FlatList
-        className="flex-1 bg-white"
+        className="flex-1 bg-background"
         contentContainerClassName="p-4"
         data={MENU_CATEGORIES}
         numColumns={2}
@@ -35,32 +37,32 @@ export default function PortalMenuScreen() {
               }
               router.push(`/portal/menu/${category.slug}`);
             }}
-            className="flex-1 border border-gray-200 rounded-2xl bg-white active:bg-gray-50 active:scale-[0.98] p-4 shadow-sm"
+            className="flex-1 border border-border rounded-2xl bg-card active:bg-subtle active:scale-[0.98] p-4 shadow-sm"
           >
             <View
               className="w-11 h-11 rounded-full items-center justify-center mb-3"
               style={{
                 backgroundColor: hasSelectedStudent
                   ? `${category.color}1A`
-                  : "#F3F4F6",
+                  : colors.muted,
               }}
             >
               <Ionicons
                 name={category.icon}
                 size={22}
-                color={hasSelectedStudent ? category.color : "#9CA3AF"}
+                color={hasSelectedStudent ? category.color : colors.faint}
               />
             </View>
             <Text
               className={`text-base font-semibold mb-1 ${
-                hasSelectedStudent ? "text-gray-900" : "text-gray-400"
+                hasSelectedStudent ? "text-foreground" : "text-faint"
               }`}
             >
               {category.label}
             </Text>
             <Text
               className={`text-xs ${
-                hasSelectedStudent ? "text-gray-500" : "text-gray-400"
+                hasSelectedStudent ? "text-muted-foreground" : "text-faint"
               }`}
               numberOfLines={2}
             >

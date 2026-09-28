@@ -1,3 +1,4 @@
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { StudentRegulationArticleDTO } from "@/utils/types/StudentRegulationArticleDTO";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState } from "react";
@@ -20,32 +21,33 @@ export function ArticleAccordionItem({
   article,
   level = 0,
 }: ArticleAccordionItemProps) {
+  const colors = useThemeColors();
   const [expanded, setExpanded] = useState(true);
   const children = sortArticles(article.childArticles ?? []);
   const hasChildren = children.length > 0;
 
   return (
-    <View className={level > 0 ? "border-l border-gray-100 ml-3" : ""}>
+    <View className={level > 0 ? "border-l border-divider ml-3" : ""}>
       <Pressable
         onPress={() => setExpanded((prev) => !prev)}
-        className="flex-row items-center px-4 py-3 border-b border-gray-100 bg-white"
+        className="flex-row items-center px-4 py-3 border-b border-divider bg-card"
       >
         <View className="flex-1">
           <View className="flex-row items-center gap-2">
             {article.number && (
-              <Text className="text-xs font-mono text-gray-500">
+              <Text className="text-xs font-mono text-muted-foreground">
                 {article.number}
               </Text>
             )}
             <Text
-              className="flex-1 text-sm font-medium text-black"
+              className="flex-1 text-sm font-medium text-foreground"
               numberOfLines={expanded ? undefined : 2}
             >
               {article.title ?? "—"}
             </Text>
           </View>
           {!expanded && hasChildren && (
-            <Text className="text-xs text-gray-400 mt-1">
+            <Text className="text-xs text-faint mt-1">
               {children.length} sous-article{children.length > 1 ? "s" : ""}
             </Text>
           )}
@@ -53,27 +55,27 @@ export function ArticleAccordionItem({
         <Ionicons
           name={expanded ? "chevron-down" : "chevron-forward"}
           size={18}
-          color="#9CA3AF"
+          color={colors.faint}
         />
       </Pressable>
 
       {expanded && (
-        <View className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+        <View className="px-4 py-3 bg-subtle border-b border-divider">
           {article.content && (
-            <Text className="text-sm text-gray-700 leading-relaxed">
+            <Text className="text-sm text-foreground-secondary leading-relaxed">
               {article.content}
             </Text>
           )}
 
           {article.comments && (
-            <View className="mt-3 pt-3 border-t border-gray-200">
-              <Text className="text-xs text-gray-400 mb-1">Commentaires</Text>
-              <Text className="text-sm text-gray-600">{article.comments}</Text>
+            <View className="mt-3 pt-3 border-t border-border">
+              <Text className="text-xs text-faint mb-1">Commentaires</Text>
+              <Text className="text-sm text-gray-600 dark:text-zinc-400">{article.comments}</Text>
             </View>
           )}
 
           {hasChildren && (
-            <View className="mt-3 rounded-lg border border-gray-200 overflow-hidden bg-white">
+            <View className="mt-3 rounded-lg border border-border overflow-hidden bg-card">
               {children.map((child) => (
                 <ArticleAccordionItem
                   key={child.id}

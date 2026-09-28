@@ -5,6 +5,7 @@ import { useCurrentTeacher } from "@/hooks/queries/items/employee";
 import { useSchoolClasses } from "@/hooks/queries/items/school-class";
 import { useCurrentSchoolYear } from "@/hooks/queries/items/school-year";
 import { useStudentAttendanceRecords } from "@/hooks/queries/items/student-attendance-record";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { StudentAttendanceRecord } from "@/utils/types/StudentAttendanceRecord";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { FlashList } from "@shopify/flash-list";
@@ -22,6 +23,7 @@ import { AttendanceSessionPicker } from "./attendance-session-picker";
 import { useAttendanceRegistersSessions } from "./use-attendance-registers-sessions";
 
 export function AttendanceRecordsScreen() {
+  const colors = useThemeColors();
   const [selectedSessionId, setSessionId] = useState<string | null>(null);
   const [selectedSchoolClassId, setSchoolClassId] = useState<string | null>(
     null,
@@ -124,7 +126,7 @@ export function AttendanceRecordsScreen() {
                 <Ionicons
                   name="checkmark-done-outline"
                   size={24}
-                  color="#000000"
+                  color={colors.foreground}
                 />
               </Pressable>
               <Pressable
@@ -136,14 +138,14 @@ export function AttendanceRecordsScreen() {
                 }
                 hitSlop={8}
               >
-                <Ionicons name="add-outline" size={26} color="#000000" />
+                <Ionicons name="add-outline" size={26} color={colors.foreground} />
               </Pressable>
             </View>
           ),
         }}
       />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         <View className="px-4 pt-3">
           <AttendanceSessionPicker
             registers={registers}
@@ -171,7 +173,7 @@ export function AttendanceRecordsScreen() {
         </View>
 
         <View className="flex-row items-center justify-between px-4 pb-2">
-          <Text className="text-xs text-gray-400">
+          <Text className="text-xs text-faint">
             {isSelectionComplete
               ? `${total} pointage${total > 1 ? "s" : ""}`
               : "Session et classe requises"}
@@ -192,8 +194,8 @@ export function AttendanceRecordsScreen() {
 
         {!isSelectionComplete ? (
           <View className="flex-1 items-center justify-center px-6 gap-3">
-            <Ionicons name="calendar-outline" size={32} color="#9CA3AF" />
-            <Text className="text-sm text-gray-400 text-center">
+            <Ionicons name="calendar-outline" size={32} color={colors.faint} />
+            <Text className="text-sm text-faint text-center">
               Sélectionnez une session de présences et une classe pour
               afficher les pointages.
             </Text>
@@ -204,14 +206,14 @@ export function AttendanceRecordsScreen() {
           </View>
         ) : studentAttendanceRecordsError ? (
           <View className="flex-1 items-center justify-center px-6 gap-3">
-            <Text className="text-sm text-gray-500 text-center">
+            <Text className="text-sm text-muted-foreground text-center">
               Impossible de charger les pointages de présences.
             </Text>
             <Pressable
               onPress={() => loadStudentAttendanceRecords()}
-              className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+              className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
             >
-              <Text className="text-white font-medium">Réessayer</Text>
+              <Text className="text-background font-medium">Réessayer</Text>
             </Pressable>
           </View>
         ) : (
@@ -222,7 +224,7 @@ export function AttendanceRecordsScreen() {
             contentContainerStyle={{ paddingBottom: 12 }}
             ListEmptyComponent={
               <View className="items-center justify-center px-6 py-16 gap-3">
-                <Text className="text-sm text-gray-400 text-center">
+                <Text className="text-sm text-faint text-center">
                   Aucun pointage pour cette session.
                 </Text>
                 <Pressable
@@ -232,9 +234,9 @@ export function AttendanceRecordsScreen() {
                       params: selectionParams,
                     })
                   }
-                  className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+                  className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
                 >
-                  <Text className="text-white font-medium">
+                  <Text className="text-background font-medium">
                     Pointer les présences
                   </Text>
                 </Pressable>

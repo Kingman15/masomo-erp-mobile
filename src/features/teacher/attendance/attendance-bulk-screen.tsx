@@ -8,6 +8,7 @@ import { useCurrentSchoolYear } from "@/hooks/queries/items/school-year";
 import { useStudentAttendancePointingChannels } from "@/hooks/queries/items/student-attendance-pointing-channel";
 import { useBulkCreateStudentAttendanceRecords } from "@/hooks/queries/items/student-attendance-record";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { handleApiError } from "@/lib/handle-api-error";
 import { getFailureCode, getOfflineFailure } from "@/lib/offline/offline-error";
 import { notifyQueued } from "@/lib/offline/use-offline-mutation";
@@ -37,6 +38,7 @@ import { classEnrollmentsFilters } from "./class-enrollments";
 import { useAttendanceRegistersSessions } from "./use-attendance-registers-sessions";
 
 export function AttendanceBulkScreen() {
+  const colors = useThemeColors();
   const params = useLocalSearchParams<{
     registerId?: string;
     sessionId?: string;
@@ -288,12 +290,12 @@ export function AttendanceBulkScreen() {
       <ConfirmDialog />
 
       <ScrollView
-        className="flex-1 bg-white"
+        className="flex-1 bg-background"
         contentContainerStyle={{ paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
         <View className="p-4">
-          <Text className="text-xs font-semibold text-gray-400 uppercase mb-3">
+          <Text className="text-xs font-semibold text-faint uppercase mb-3">
             Informations principales
           </Text>
 
@@ -389,7 +391,7 @@ export function AttendanceBulkScreen() {
             )}
           />
 
-          <Text className="text-sm font-medium text-gray-700 mb-2">Lieu</Text>
+          <Text className="text-sm font-medium text-foreground-secondary mb-2">Lieu</Text>
           <Controller
             control={control}
             name="location"
@@ -398,8 +400,8 @@ export function AttendanceBulkScreen() {
                 value={value ?? ""}
                 onChangeText={(text) => onChange(text || null)}
                 placeholder="Lieu du pointage"
-                placeholderTextColor="#9CA3AF"
-                className="h-11 border border-gray-300 rounded-lg px-3 mb-1 bg-white"
+                placeholderTextColor={colors.faint}
+                className="h-11 border border-input rounded-lg px-3 mb-1 bg-card text-foreground"
               />
             )}
           />
@@ -410,13 +412,13 @@ export function AttendanceBulkScreen() {
           )}
         </View>
 
-        <View className="border-t border-gray-100 pt-4">
+        <View className="border-t border-divider pt-4">
           <View className="flex-row items-center justify-between px-4 mb-2">
-            <Text className="text-xs font-semibold text-gray-400 uppercase">
+            <Text className="text-xs font-semibold text-faint uppercase">
               Pointage
             </Text>
             {records.length > 0 && (
-              <Text className="text-xs text-gray-500">
+              <Text className="text-xs text-muted-foreground">
                 {counts.present} présent{counts.present > 1 ? "s" : ""} ·{" "}
                 {counts.absent} absent{counts.absent > 1 ? "s" : ""}
               </Text>
@@ -427,17 +429,17 @@ export function AttendanceBulkScreen() {
             <View className="flex-row flex-wrap gap-2 px-4 pb-3">
               <Pressable
                 onPress={() => setAll({ isChecked: !allChecked })}
-                className="h-8 px-3 rounded-lg border border-gray-300 items-center justify-center"
+                className="h-8 px-3 rounded-lg border border-input items-center justify-center"
               >
-                <Text className="text-xs font-medium text-gray-700">
+                <Text className="text-xs font-medium text-foreground-secondary">
                   {allChecked ? "Tout décocher" : "Tout cocher"}
                 </Text>
               </Pressable>
               <Pressable
                 onPress={() => setAll({ isPresent: true })}
-                className="h-8 px-3 rounded-lg border border-gray-300 items-center justify-center"
+                className="h-8 px-3 rounded-lg border border-input items-center justify-center"
               >
-                <Text className="text-xs font-medium text-gray-700">
+                <Text className="text-xs font-medium text-foreground-secondary">
                   Tous présents
                 </Text>
               </Pressable>
@@ -445,9 +447,9 @@ export function AttendanceBulkScreen() {
                 onPress={() =>
                   setAll({ isPresent: false, isLate: false, isPartial: false })
                 }
-                className="h-8 px-3 rounded-lg border border-gray-300 items-center justify-center"
+                className="h-8 px-3 rounded-lg border border-input items-center justify-center"
               >
-                <Text className="text-xs font-medium text-gray-700">
+                <Text className="text-xs font-medium text-foreground-secondary">
                   Tous absents
                 </Text>
               </Pressable>
@@ -455,7 +457,7 @@ export function AttendanceBulkScreen() {
           )}
 
           {!canLoadStudents ? (
-            <Text className="text-sm text-gray-400 text-center px-6 py-10">
+            <Text className="text-sm text-faint text-center px-6 py-10">
               Sélectionnez une session et une classe pour afficher les élèves.
             </Text>
           ) : enrollmentsIsLoading ||
@@ -465,23 +467,23 @@ export function AttendanceBulkScreen() {
             </View>
           ) : !enrollments && isOnline && enrollmentsError ? (
             <View className="items-center px-6 py-10 gap-3">
-              <Text className="text-sm text-gray-500 text-center">
+              <Text className="text-sm text-muted-foreground text-center">
                 Impossible de charger les élèves.
               </Text>
               <Pressable
                 onPress={() => loadEnrollments()}
-                className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+                className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
               >
-                <Text className="text-white font-medium">Réessayer</Text>
+                <Text className="text-background font-medium">Réessayer</Text>
               </Pressable>
             </View>
           ) : !enrollments ? (
-            <Text className="text-sm text-gray-400 text-center px-6 py-10">
+            <Text className="text-sm text-faint text-center px-6 py-10">
               Les élèves de cette classe n&apos;ont pas été gardés sur
               l&apos;appareil. Reconnecte-toi pour les charger.
             </Text>
           ) : records.length === 0 ? (
-            <Text className="text-sm text-gray-400 text-center px-6 py-10">
+            <Text className="text-sm text-faint text-center px-6 py-10">
               Tous les élèves de cette classe ont déjà été pointés pour cette
               session.
             </Text>
@@ -501,13 +503,13 @@ export function AttendanceBulkScreen() {
             onPress={() => void handleSubmit(onSubmit)()}
             disabled={isBusy}
             className={`h-12 rounded-lg items-center justify-center mt-6 ${
-              isBusy ? "bg-gray-300" : "bg-black"
+              isBusy ? "bg-gray-300 dark:bg-zinc-700" : "bg-foreground"
             }`}
           >
             {isBusy ? (
-              <ActivityIndicator color="#ffffff" />
+              <ActivityIndicator color={colors.background} />
             ) : (
-              <Text className="text-white font-medium">
+              <Text className="text-background font-medium">
                 Sauvegarder
                 {counts.checked > 0 ? ` (${counts.checked})` : ""}
               </Text>

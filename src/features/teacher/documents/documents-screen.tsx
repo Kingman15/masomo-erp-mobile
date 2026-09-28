@@ -3,6 +3,7 @@ import { SearchBar } from "@/components/list/search-bar";
 import { DrawerMenuButton } from "@/features/teacher/drawer-menu-button";
 import { useDocuments } from "@/hooks/queries/items/document";
 import { useCurrentSchoolYear } from "@/hooks/queries/items/school-year";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { Document } from "@/utils/types/Document";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, Stack } from "expo-router";
@@ -55,6 +56,7 @@ function groupDocumentsByCategory(documents: Document[]): DocumentGroup[] {
 }
 
 export function DocumentsScreen() {
+  const colors = useThemeColors();
 
   const [filters, setFilters] = useState<DocumentFiltersForm>(
     emptyDocumentFilters,
@@ -102,13 +104,13 @@ export function DocumentsScreen() {
               onPress={() => router.push("/teacher/documents/new")}
               hitSlop={8}
             >
-              <Ionicons name="add-outline" size={26} color="#000000" />
+              <Ionicons name="add-outline" size={26} color={colors.foreground} />
             </Pressable>
           ),
         }}
       />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         <View className="flex-row items-center gap-3 px-4 pt-3 pb-2">
           <View className="flex-1">
             <SearchBar
@@ -146,26 +148,26 @@ export function DocumentsScreen() {
             </View>
           ) : documentsError ? (
             <View className="items-center justify-center px-6 py-10 gap-3">
-              <Text className="text-sm text-gray-500 text-center">
+              <Text className="text-sm text-muted-foreground text-center">
                 Impossible de charger les documents.
               </Text>
               <Pressable
                 onPress={() => loadDocuments()}
-                className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+                className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
               >
-                <Text className="text-white font-medium">Réessayer</Text>
+                <Text className="text-background font-medium">Réessayer</Text>
               </Pressable>
             </View>
           ) : documentGroups.length === 0 ? (
             <View className="items-center justify-center px-6 py-16">
-              <Text className="text-sm text-gray-400 text-center">
+              <Text className="text-sm text-faint text-center">
                 Aucun document partagé.
               </Text>
             </View>
           ) : (
             documentGroups.map((group) => (
               <View key={group.key}>
-                <Text className="px-4 pt-5 pb-1.5 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                <Text className="px-4 pt-5 pb-1.5 text-xs font-bold text-faint uppercase tracking-wider">
                   {group.label}
                 </Text>
                 {group.rows.map((row, index) => (

@@ -1,5 +1,6 @@
 import { ChipSelect } from "@/components/list/chip-select";
 import { Toast } from "@/components/toast";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { TeachingCourseEvaluationDocumentType } from "@/utils/types/TeachingCourseEvaluationDocument";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as DocumentPicker from "expo-document-picker";
@@ -82,6 +83,7 @@ export function EvaluationDocumentUploadDialog({
   onClose,
   onUpload,
 }: EvaluationDocumentUploadDialogProps) {
+  const colors = useThemeColors();
   const [file, setFile] = useState<PickedFile | null>(null);
   const [documentType, setDocumentType] =
     useState<TeachingCourseEvaluationDocumentType | null>(null);
@@ -133,27 +135,27 @@ export function EvaluationDocumentUploadDialog({
 
   return (
     <Modal visible animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 bg-white">
-        <View className="flex-row items-center justify-between px-4 pt-14 pb-3 border-b border-gray-100">
-          <Text className="text-base font-semibold">Ajouter un document</Text>
+      <View className="flex-1 bg-background">
+        <View className="flex-row items-center justify-between px-4 pt-14 pb-3 border-b border-divider">
+          <Text className="text-base font-semibold text-foreground">Ajouter un document</Text>
           <Pressable onPress={onClose} hitSlop={8}>
-            <Ionicons name="close" size={22} color="#374151" />
+            <Ionicons name="close" size={22} color={colors.foregroundSecondary} />
           </Pressable>
         </View>
 
         <View className="p-4">
           <Pressable
             onPress={() => void pickFile()}
-            className="h-11 rounded-lg border border-dashed border-gray-300 items-center justify-center mb-1 flex-row gap-2"
+            className="h-11 rounded-lg border border-dashed border-input items-center justify-center mb-1 flex-row gap-2"
           >
-            <Ionicons name="attach-outline" size={18} color="#374151" />
-            <Text className="text-sm font-medium text-gray-700">
+            <Ionicons name="attach-outline" size={18} color={colors.foregroundSecondary} />
+            <Text className="text-sm font-medium text-foreground-secondary">
               {file ? "Changer de fichier" : "Sélectionner un fichier"}
             </Text>
           </Pressable>
 
           {file && (
-            <Text className="text-xs text-gray-500 mb-3">
+            <Text className="text-xs text-muted-foreground mb-3">
               {file.name}
               {file.size ? ` · ${formatFileSize(file.size)}` : ""}
             </Text>
@@ -173,7 +175,7 @@ export function EvaluationDocumentUploadDialog({
             }
           />
           {selectedTypeHelp && (
-            <Text className="text-xs text-gray-400 -mt-3 mb-4">
+            <Text className="text-xs text-faint -mt-3 mb-4">
               {selectedTypeHelp}
             </Text>
           )}
@@ -182,13 +184,13 @@ export function EvaluationDocumentUploadDialog({
             onPress={handleUpload}
             disabled={!file || isPending}
             className={`h-12 rounded-lg items-center justify-center mt-2 ${
-              !file || isPending ? "bg-gray-300" : "bg-black"
+              !file || isPending ? "bg-gray-300 dark:bg-zinc-700" : "bg-foreground"
             }`}
           >
             {isPending ? (
-              <ActivityIndicator color="#ffffff" />
+              <ActivityIndicator color={colors.background} />
             ) : (
-              <Text className="text-white font-medium">Uploader</Text>
+              <Text className="text-background font-medium">Uploader</Text>
             )}
           </Pressable>
         </View>

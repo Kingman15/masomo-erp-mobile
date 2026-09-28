@@ -3,11 +3,11 @@ import { Text, View } from "react-native";
 import { TRANSPORT_SUBSCRIPTION_LEG_STATUS_LABEL_MAP } from "./transport-subscription-leg-status";
 
 const STATUS_CONFIG: Record<TransportSubscriptionLegStatus, { bg: string; fg: string }> = {
-  pending: { bg: "bg-amber-100", fg: "text-amber-700" },
-  active: { bg: "bg-green-100", fg: "text-green-700" },
-  suspended: { bg: "bg-red-100", fg: "text-red-700" },
-  cancelled: { bg: "bg-gray-100", fg: "text-gray-600" },
-  expired: { bg: "bg-gray-100", fg: "text-gray-600" },
+  pending: { bg: "bg-amber-100 dark:bg-amber-900/40", fg: "text-amber-700 dark:text-amber-300" },
+  active: { bg: "bg-green-100 dark:bg-green-900/40", fg: "text-green-700 dark:text-green-300" },
+  suspended: { bg: "bg-red-100 dark:bg-red-900/40", fg: "text-red-700 dark:text-red-300" },
+  cancelled: { bg: "bg-muted", fg: "text-gray-600 dark:text-zinc-400" },
+  expired: { bg: "bg-muted", fg: "text-gray-600 dark:text-zinc-400" },
 };
 
 type TransportSubscriptionLegStatusPillProps = {

@@ -8,6 +8,7 @@ import {
   useSaveTeachingCourseEvaluationResults,
   useTeachingCourseEvaluationResultRoster,
 } from "@/hooks/queries/items/teaching-course-evaluation-result";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { handleApiError } from "@/lib/handle-api-error";
 import { getFailureCode, getOfflineFailure } from "@/lib/offline/offline-error";
 import { notifyQueued } from "@/lib/offline/use-offline-mutation";
@@ -106,6 +107,7 @@ export function EvaluationScoringDialog({
   evaluation,
   onClose,
 }: EvaluationScoringDialogProps) {
+  const colors = useThemeColors();
   const {
     teachingCourseEvaluationResultRoster,
     teachingCourseEvaluationResultRosterIsLoading,
@@ -409,15 +411,15 @@ export function EvaluationScoringDialog({
   return (
     <Modal visible animationType="slide" onRequestClose={onClose}>
       <ConfirmDialog />
-      <View className="flex-1 bg-white">
-        <View className="px-4 pt-14 pb-3 border-b border-gray-100">
+      <View className="flex-1 bg-background">
+        <View className="px-4 pt-14 pb-3 border-b border-divider">
           <View className="flex-row items-center justify-between">
-            <Text className="text-base font-semibold">Saisir les notes</Text>
+            <Text className="text-base font-semibold text-foreground">Saisir les notes</Text>
             <Pressable onPress={onClose} hitSlop={8}>
-              <Ionicons name="close" size={22} color="#374151" />
+              <Ionicons name="close" size={22} color={colors.foregroundSecondary} />
             </Pressable>
           </View>
-          <Text className="text-xs text-gray-500 mt-1" numberOfLines={1}>
+          <Text className="text-xs text-muted-foreground mt-1" numberOfLines={1}>
             {`${evaluation.wording ?? "Évaluation"} · Noté sur ${maxScore}`}
           </Text>
 
@@ -426,15 +428,15 @@ export function EvaluationScoringDialog({
               onPress={() => void handleExport()}
               disabled={isBusy}
               className={`flex-1 h-10 rounded-lg border items-center justify-center flex-row gap-1.5 ${
-                isBusy ? "border-gray-200" : "border-gray-300"
+                isBusy ? "border-border" : "border-input"
               }`}
             >
               {exportTeachingCourseEvaluationResultsIsPending ? (
-                <ActivityIndicator size="small" color="#374151" />
+                <ActivityIndicator size="small" color={colors.foregroundSecondary} />
               ) : (
-                <Ionicons name="download-outline" size={16} color="#374151" />
+                <Ionicons name="download-outline" size={16} color={colors.foregroundSecondary} />
               )}
-              <Text className="text-sm font-medium text-gray-700">
+              <Text className="text-sm font-medium text-foreground-secondary">
                 Exporter
               </Text>
             </Pressable>
@@ -443,19 +445,19 @@ export function EvaluationScoringDialog({
               onPress={() => void handleImport()}
               disabled={isBusy}
               className={`flex-1 h-10 rounded-lg border items-center justify-center flex-row gap-1.5 ${
-                isBusy ? "border-gray-200" : "border-gray-300"
+                isBusy ? "border-border" : "border-input"
               }`}
             >
               {importTeachingCourseEvaluationResultsIsPending ? (
-                <ActivityIndicator size="small" color="#374151" />
+                <ActivityIndicator size="small" color={colors.foregroundSecondary} />
               ) : (
                 <Ionicons
                   name="cloud-upload-outline"
                   size={16}
-                  color="#374151"
+                  color={colors.foregroundSecondary}
                 />
               )}
-              <Text className="text-sm font-medium text-gray-700">
+              <Text className="text-sm font-medium text-foreground-secondary">
                 Importer
               </Text>
             </Pressable>
@@ -468,14 +470,14 @@ export function EvaluationScoringDialog({
           </View>
         ) : teachingCourseEvaluationResultRosterError ? (
           <View className="flex-1 items-center justify-center px-6 gap-3">
-            <Text className="text-sm text-gray-500 text-center">
+            <Text className="text-sm text-muted-foreground text-center">
               {"Impossible de charger les élèves."}
             </Text>
             <Pressable
               onPress={() => loadTeachingCourseEvaluationResultRoster()}
-              className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+              className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
             >
-              <Text className="text-white font-medium">Réessayer</Text>
+              <Text className="text-background font-medium">Réessayer</Text>
             </Pressable>
           </View>
         ) : (
@@ -500,7 +502,7 @@ export function EvaluationScoringDialog({
             )}
             ListEmptyComponent={
               <View className="items-center justify-center px-6 py-16">
-                <Text className="text-sm text-gray-400 text-center">
+                <Text className="text-sm text-faint text-center">
                   {"Aucun élève inscrit."}
                 </Text>
               </View>
@@ -508,20 +510,20 @@ export function EvaluationScoringDialog({
           />
         )}
 
-        <View className="p-4 border-t border-gray-100">
+        <View className="p-4 border-t border-divider">
           <Pressable
             onPress={() => void handleSave()}
             disabled={saveTeachingCourseEvaluationResultsIsPending}
             className={`h-12 rounded-lg items-center justify-center ${
               saveTeachingCourseEvaluationResultsIsPending
-                ? "bg-gray-300"
-                : "bg-black"
+                ? "bg-gray-300 dark:bg-zinc-700"
+                : "bg-foreground"
             }`}
           >
             {saveTeachingCourseEvaluationResultsIsPending ? (
-              <ActivityIndicator color="#ffffff" />
+              <ActivityIndicator color={colors.background} />
             ) : (
-              <Text className="text-white font-medium">
+              <Text className="text-background font-medium">
                 Enregistrer les notes
               </Text>
             )}

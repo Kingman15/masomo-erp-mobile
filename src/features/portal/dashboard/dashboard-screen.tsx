@@ -6,6 +6,7 @@ import {
   usePortalStudentToday,
 } from "@/hooks/queries/items/portal-dashboard";
 import { useCurrentSchoolYear, useSchoolYears } from "@/hooks/queries/items/school-year";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { Enrollment } from "@/utils/types/Enrollment";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Stack } from "expo-router";
@@ -22,13 +23,14 @@ import { StudentEnrollmentDialog } from "./student-enrollment-dialog";
 
 function SectionTitle({ children }: { children: string }) {
   return (
-    <Text className="text-xs font-semibold text-gray-500 uppercase mb-1 mt-4">
+    <Text className="text-xs font-semibold text-muted-foreground uppercase mb-1 mt-4">
       {children}
     </Text>
   );
 }
 
 export function DashboardScreen() {
+  const colors = useThemeColors();
   const {
     selectedStudent,
     selectedSchoolYear,
@@ -128,7 +130,7 @@ export function DashboardScreen() {
     <>
       <Stack.Screen options={{ headerShown: true, title: "Tableau de bord" }} />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         <ScrollView
           className="flex-1"
           contentContainerStyle={{ padding: 16 }}
@@ -153,22 +155,22 @@ export function DashboardScreen() {
           />
 
           <SectionTitle>Foyer</SectionTitle>
-          <View className="border-t border-gray-100 pt-1">
+          <View className="border-t border-divider pt-1">
             {householdIsLoading ? (
               <View className="py-4">
                 <ActivityIndicator />
               </View>
             ) : householdError ? (
               <View className="py-4 gap-2">
-                <Text className="text-sm text-gray-500">
+                <Text className="text-sm text-muted-foreground">
                   Impossible de charger le foyer.
                 </Text>
                 <Pressable onPress={() => loadHousehold()}>
-                  <Text className="text-sm font-medium text-black">Réessayer</Text>
+                  <Text className="text-sm font-medium text-foreground">Réessayer</Text>
                 </Pressable>
               </View>
             ) : household.length === 0 ? (
-              <Text className="text-sm text-gray-400 py-2.5">
+              <Text className="text-sm text-faint py-2.5">
                 Aucun élève rattaché à ce compte.
               </Text>
             ) : (
@@ -176,20 +178,20 @@ export function DashboardScreen() {
                 <View
                   key={student.studentId}
                   className={`flex-row items-center justify-between gap-3 py-2.5 ${
-                    index > 0 ? "border-t border-gray-100" : ""
+                    index > 0 ? "border-t border-divider" : ""
                   }`}
                 >
                   <View className="flex-1">
-                    <Text className="text-sm font-medium text-black" numberOfLines={1}>
+                    <Text className="text-sm font-medium text-foreground" numberOfLines={1}>
                       {student.studentName ?? "Élève"}
                     </Text>
-                    <Text className="text-xs text-gray-400" numberOfLines={1}>
+                    <Text className="text-xs text-faint" numberOfLines={1}>
                       {student.schoolClassName ?? "Classe non renseignée"}
                     </Text>
                   </View>
                   {student.needsAttention && (
-                    <View className="px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200">
-                      <Text className="text-[10px] font-medium uppercase text-amber-700">
+                    <View className="px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800">
+                      <Text className="text-[10px] font-medium uppercase text-amber-700 dark:text-amber-300">
                         À surveiller
                       </Text>
                     </View>
@@ -202,34 +204,34 @@ export function DashboardScreen() {
           <SectionTitle>Élève</SectionTitle>
           <Pressable
             onPress={() => setDialogVisible(true)}
-            className="flex-row items-center justify-between gap-3 py-2.5 border-t border-gray-100"
+            className="flex-row items-center justify-between gap-3 py-2.5 border-t border-divider"
           >
             <View className="flex-1">
-              <Text className="text-sm font-medium text-black" numberOfLines={1}>
+              <Text className="text-sm font-medium text-foreground" numberOfLines={1}>
                 {selectedStudent?.fullName ?? "Sélectionner un élève"}
               </Text>
               {!!studentSubtitle && (
-                <Text className="text-xs text-gray-400 mt-0.5" numberOfLines={1}>
+                <Text className="text-xs text-faint mt-0.5" numberOfLines={1}>
                   {studentSubtitle}
                 </Text>
               )}
             </View>
-            <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
+            <Ionicons name="chevron-forward" size={16} color={colors.faint} />
           </Pressable>
 
           {enrollmentsError && (
             <View className="py-3 gap-2">
-              <Text className="text-sm text-gray-500">
+              <Text className="text-sm text-muted-foreground">
                 Impossible de charger les élèves pour cette année.
               </Text>
               <Pressable onPress={() => loadEnrollments()}>
-                <Text className="text-sm font-medium text-black">Réessayer</Text>
+                <Text className="text-sm font-medium text-foreground">Réessayer</Text>
               </Pressable>
             </View>
           )}
 
           {!studentFiltersAreComplete ? (
-            <Text className="text-sm text-gray-400 py-4 mt-2">
+            <Text className="text-sm text-faint py-4 mt-2">
               {selectedStudent && effectiveYearId && !enrollmentsIsLoading && !activeEnrollmentForStudent
                 ? `${selectedStudent.fullName ?? "Cet élève"} n'a pas d'inscription pour cette année scolaire.`
                 : "Sélectionnez un élève pour afficher ses statistiques."}
@@ -242,28 +244,28 @@ export function DashboardScreen() {
               />
               {studentSummaryError && (
                 <View className="py-3 gap-2">
-                  <Text className="text-sm text-gray-500">
+                  <Text className="text-sm text-muted-foreground">
                     Impossible de charger le sommaire de l'élève.
                   </Text>
                   <Pressable onPress={() => loadStudentSummary()}>
-                    <Text className="text-sm font-medium text-black">Réessayer</Text>
+                    <Text className="text-sm font-medium text-foreground">Réessayer</Text>
                   </Pressable>
                 </View>
               )}
 
               <SectionTitle>Aujourd'hui</SectionTitle>
-              <View className="border-t border-gray-100 pt-1">
+              <View className="border-t border-divider pt-1">
                 {!todayFiltersAreComplete ? (
-                  <Text className="text-sm text-gray-400 py-2.5">
+                  <Text className="text-sm text-faint py-2.5">
                     Classe non déterminée pour cet élève.
                   </Text>
                 ) : studentTodayError ? (
                   <View className="py-3 gap-2">
-                    <Text className="text-sm text-gray-500">
+                    <Text className="text-sm text-muted-foreground">
                       Impossible de charger la journée de l'élève.
                     </Text>
                     <Pressable onPress={() => loadStudentToday()}>
-                      <Text className="text-sm font-medium text-black">Réessayer</Text>
+                      <Text className="text-sm font-medium text-foreground">Réessayer</Text>
                     </Pressable>
                   </View>
                 ) : (
@@ -272,7 +274,7 @@ export function DashboardScreen() {
               </View>
 
               <SectionTitle>Présences</SectionTitle>
-              <View className="border-t border-gray-100 pt-1">
+              <View className="border-t border-divider pt-1">
                 <DashboardAttendanceSection
                   attendance={studentSummary?.attendance}
                   loading={studentSummaryIsLoading}
@@ -280,7 +282,7 @@ export function DashboardScreen() {
               </View>
 
               <SectionTitle>Résultats</SectionTitle>
-              <View className="border-t border-gray-100 pt-1">
+              <View className="border-t border-divider pt-1">
                 <DashboardAcademicSection
                   academic={studentSummary?.academic}
                   loading={studentSummaryIsLoading}
@@ -288,7 +290,7 @@ export function DashboardScreen() {
               </View>
 
               <SectionTitle>Discipline</SectionTitle>
-              <View className="border-t border-gray-100 pt-1">
+              <View className="border-t border-divider pt-1">
                 <DashboardDisciplineSection
                   discipline={studentSummary?.discipline}
                   loading={studentSummaryIsLoading}
@@ -296,7 +298,7 @@ export function DashboardScreen() {
               </View>
 
               <SectionTitle>Finances</SectionTitle>
-              <View className="border-t border-gray-100 pt-1">
+              <View className="border-t border-divider pt-1">
                 <DashboardFinanceSection
                   finance={studentSummary?.finance}
                   loading={studentSummaryIsLoading}

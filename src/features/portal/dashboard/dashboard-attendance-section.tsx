@@ -1,6 +1,7 @@
 import { DonutChart } from "@/components/ui/donut-chart";
 import { formatNumber } from "@/lib/format";
 import { DashboardAttendance } from "@/utils/types/PortalStudentDashboard";
+import { useColorScheme } from "nativewind";
 import { ActivityIndicator, Text, View } from "react-native";
 import { StatBox } from "./stat-box";
 
@@ -13,6 +14,7 @@ export function DashboardAttendanceSection({
   attendance,
   loading,
 }: DashboardAttendanceSectionProps) {
+  const isDark = useColorScheme().colorScheme === "dark";
   if (loading || !attendance) {
     return (
       <View className="py-4">
@@ -29,14 +31,14 @@ export function DashboardAttendanceSection({
       <DonutChart
         segments={[
           { value: presenceRate, color: "#16A34A" },
-          { value: 100 - presenceRate, color: "#FEE2E2" },
+          { value: 100 - presenceRate, color: isDark ? "#450A0A" : "#FEE2E2" },
         ]}
         centerLabel={annual.presenceRate !== null ? `${formatNumber(annual.presenceRate)}%` : "—"}
         centerSubLabel="présence"
       />
 
       <View className="flex-1 gap-3">
-        <Text className="text-xs text-gray-400">
+        <Text className="text-xs text-faint">
           Taux annuel · {annual.sessionsRecorded} session(s)
         </Text>
         <View className="flex-row">

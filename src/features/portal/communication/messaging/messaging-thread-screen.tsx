@@ -5,6 +5,7 @@ import {
   usePortalConversationMessages,
   useSendPortalMessage,
 } from "@/hooks/queries/items/portal-conversation";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { handleApiError } from "@/lib/handle-api-error";
 import { formatDateTime } from "@/lib/format";
 import type { Message } from "@/utils/types/Message";
@@ -42,19 +43,19 @@ function MessageBubble({ message }: { message: Message }) {
       <View className={`flex-1 ${isSchool ? "items-start" : "items-end"}`}>
         <View
           className={`max-w-[85%] rounded-lg px-3 py-2 ${
-            isSchool ? "bg-gray-100" : "bg-black"
+            isSchool ? "bg-muted" : "bg-foreground"
           }`}
         >
           {senderLabel ? (
             <Text
-              className={`text-xs mb-1 ${isSchool ? "text-gray-500" : "text-gray-300"}`}
+              className={`text-xs mb-1 ${isSchool ? "text-muted-foreground" : "text-gray-300 dark:text-zinc-600"}`}
             >
               {senderLabel}
             </Text>
           ) : null}
           {message.body ? (
             <Text
-              className={`text-sm ${isSchool ? "text-black" : "text-white"}`}
+              className={`text-sm ${isSchool ? "text-foreground" : "text-background"}`}
             >
               {message.body}
             </Text>
@@ -64,7 +65,7 @@ function MessageBubble({ message }: { message: Message }) {
             tint={isSchool ? "light" : "dark"}
           />
         </View>
-        <Text className="text-[10px] text-gray-400 mt-1">
+        <Text className="text-[10px] text-faint mt-1">
           {formatDateTime(message.createdAt)}
         </Text>
       </View>
@@ -73,6 +74,7 @@ function MessageBubble({ message }: { message: Message }) {
 }
 
 export function MessagingThreadScreen() {
+  const colors = useThemeColors();
   const { id: deskId } = useLocalSearchParams<{ id: string }>();
   const scrollRef = useRef<ScrollView>(null);
   const { selectedSchoolYear } = usePortalSelection();
@@ -123,7 +125,7 @@ export function MessagingThreadScreen() {
       />
 
       <KeyboardAvoidingView
-        className="flex-1 bg-white"
+        className="flex-1 bg-background"
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
@@ -133,7 +135,7 @@ export function MessagingThreadScreen() {
           </View>
         ) : portalConversationError || !portalConversation ? (
           <View className="flex-1 items-center justify-center px-6">
-            <Text className="text-sm text-gray-500 text-center">
+            <Text className="text-sm text-muted-foreground text-center">
               Impossible de charger ce guichet.
             </Text>
           </View>
@@ -148,11 +150,11 @@ export function MessagingThreadScreen() {
               }
             >
               {portalMessagesIsLoading ? (
-                <Text className="text-center text-sm text-gray-400 py-4">
+                <Text className="text-center text-sm text-faint py-4">
                   Chargement des messages…
                 </Text>
               ) : portalMessages.length === 0 ? (
-                <Text className="text-center text-sm text-gray-400 py-4">
+                <Text className="text-center text-sm text-faint py-4">
                   Aucun message pour l&apos;instant — écrivez le premier.
                 </Text>
               ) : (
@@ -186,20 +188,20 @@ export function MessagingThreadScreen() {
                   className={`h-10 w-10 rounded-full items-center justify-center ${
                     (!body.trim() && documents.length === 0) ||
                     sendPortalMessageIsPending
-                      ? "bg-gray-200"
-                      : "bg-black"
+                      ? "bg-border"
+                      : "bg-foreground"
                   }`}
                 >
                   {sendPortalMessageIsPending ? (
-                    <ActivityIndicator size="small" color="#ffffff" />
+                    <ActivityIndicator size="small" color={colors.background} />
                   ) : (
                     <Ionicons
                       name="arrow-up"
                       size={20}
                       color={
                         !body.trim() && documents.length === 0
-                          ? "#9CA3AF"
-                          : "#FFFFFF"
+                          ? colors.faint
+                          : colors.background
                       }
                     />
                   )}

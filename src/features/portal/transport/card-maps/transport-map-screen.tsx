@@ -1,5 +1,6 @@
 import { useCurrentTransportSubscription } from "@/hooks/queries/items/portal-transport-subscription";
 import { useCurrentSchool } from "@/hooks/queries/items/school";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { TransportSubscriptionLeg } from "@/utils/types/TransportSubscriptionLeg";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Stack } from "expo-router";
@@ -48,6 +49,7 @@ function groupLegsByStop(legs: TransportSubscriptionLeg[]): StopGroup[] {
 }
 
 export function TransportMapScreen() {
+  const colors = useThemeColors();
   const { selectedStudent } = usePortalSelection();
 
   const { currentSchool, currentSchoolError, loadCurrentSchool } =
@@ -142,13 +144,13 @@ export function TransportMapScreen() {
     <>
       <Stack.Screen options={{ headerShown: true, title: "Carte Maps" }} />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         {!selectedStudent ? (
           <View className="flex-1 items-center justify-center px-6 gap-1">
-            <Text className="text-sm font-medium text-gray-700 text-center">
+            <Text className="text-sm font-medium text-foreground-secondary text-center">
               Aucun élève sélectionné
             </Text>
-            <Text className="text-sm text-gray-400 text-center">
+            <Text className="text-sm text-faint text-center">
               Sélectionnez un élève pour afficher sa carte de transport.
             </Text>
           </View>
@@ -158,14 +160,14 @@ export function TransportMapScreen() {
           </View>
         ) : hasError ? (
           <View className="flex-1 items-center justify-center px-6 gap-3">
-            <Text className="text-sm text-gray-500 text-center">
+            <Text className="text-sm text-muted-foreground text-center">
               Impossible de charger la carte de transport.
             </Text>
             <Pressable
               onPress={handleRefresh}
-              className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+              className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
             >
-              <Text className="text-white font-medium">Réessayer</Text>
+              <Text className="text-background font-medium">Réessayer</Text>
             </Pressable>
           </View>
         ) : legs.length === 0 ? (
@@ -173,13 +175,13 @@ export function TransportMapScreen() {
             <Ionicons
               name="bus-outline"
               size={28}
-              color="#9CA3AF"
+              color={colors.faint}
               style={{ marginBottom: 4 }}
             />
-            <Text className="text-sm font-medium text-gray-700 text-center">
+            <Text className="text-sm font-medium text-foreground-secondary text-center">
               Aucun trajet actif
             </Text>
-            <Text className="text-sm text-gray-400 text-center">
+            <Text className="text-sm text-faint text-center">
               {selectedStudent.fullName ?? "Cet élève"} n&apos;est pas
               inscrit·e au transport scolaire. Contactez l&apos;administration
               pour plus d&apos;informations.
@@ -196,9 +198,9 @@ export function TransportMapScreen() {
               />
             </View>
 
-            <View className="border-t border-gray-100" style={{ maxHeight: "35%" }}>
+            <View className="border-t border-divider" style={{ maxHeight: "35%" }}>
               <ScrollView contentContainerStyle={{ padding: 16 }}>
-                <Text className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                <Text className="text-[10px] font-semibold text-faint uppercase tracking-widest mb-3">
                   Trajets
                 </Text>
 
@@ -216,12 +218,12 @@ export function TransportMapScreen() {
                         />
                         <View className="flex-1">
                           <View className="flex-row items-center gap-2 flex-wrap">
-                            <Text className="text-sm font-semibold text-gray-900">
+                            <Text className="text-sm font-semibold text-foreground">
                               {leg.busLine?.name ?? "Trajet"}
                             </Text>
                             {directionLabel && (
-                              <View className="px-2 py-0.5 rounded-full bg-gray-100">
-                                <Text className="text-[10px] font-medium text-gray-600">
+                              <View className="px-2 py-0.5 rounded-full bg-muted">
+                                <Text className="text-[10px] font-medium text-gray-600 dark:text-zinc-400">
                                   {directionLabel}
                                 </Text>
                               </View>
@@ -229,8 +231,8 @@ export function TransportMapScreen() {
                             <TransportSubscriptionLegStatusPill status={leg.status} />
                           </View>
                           <View className="flex-row items-center gap-1.5 mt-1">
-                            <Ionicons name="location-outline" size={12} color="#9CA3AF" />
-                            <Text className="text-xs text-gray-400" numberOfLines={1}>
+                            <Ionicons name="location-outline" size={12} color={colors.faint} />
+                            <Text className="text-xs text-faint" numberOfLines={1}>
                               {leg.busStop?.name ?? "—"}
                             </Text>
                           </View>

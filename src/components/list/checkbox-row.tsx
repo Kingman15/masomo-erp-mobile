@@ -1,3 +1,4 @@
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Pressable, Text } from "react-native";
 
@@ -14,6 +15,7 @@ export function CheckboxRow({
   onChange,
   disabled,
 }: CheckboxRowProps) {
+  const colors = useThemeColors();
   return (
     <Pressable
       onPress={() => !disabled && onChange(!value)}
@@ -22,9 +24,9 @@ export function CheckboxRow({
       <Ionicons
         name={value ? "checkbox" : "square-outline"}
         size={22}
-        color={value ? (disabled ? "#9CA3AF" : "#000000") : "#9CA3AF"}
+        color={value ? (disabled ? colors.faint : colors.foreground) : colors.faint}
       />
-      <Text className={`text-sm ${disabled ? "text-gray-400" : "text-gray-700"}`}>
+      <Text className={`text-sm ${disabled ? "text-faint" : "text-foreground-secondary"}`}>
         {label}
       </Text>
     </Pressable>

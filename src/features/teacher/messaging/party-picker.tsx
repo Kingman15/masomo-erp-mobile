@@ -39,7 +39,7 @@ export function PartyPicker({
   return (
     <View className="mb-1">
       {canToggleKind && (
-        <View className="flex-row bg-gray-100 rounded-lg p-1 mb-4">
+        <View className="flex-row bg-muted rounded-lg p-1 mb-4">
           {(
             [
               { id: "guardian", label: "Parent" },
@@ -52,12 +52,12 @@ export function PartyPicker({
                 key={option.id}
                 onPress={() => handleKindChange(option.id)}
                 className={`flex-1 h-9 rounded-md items-center justify-center ${
-                  selected ? "bg-white" : ""
+                  selected ? "bg-card" : ""
                 }`}
               >
                 <Text
                   className={`text-sm ${
-                    selected ? "font-semibold text-black" : "text-gray-500"
+                    selected ? "font-semibold text-foreground" : "text-muted-foreground"
                   }`}
                 >
                   {option.label}

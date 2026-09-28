@@ -1,5 +1,6 @@
 import { documentIconName } from "@/features/teacher/documents/document-icon";
 import { formatFileSize } from "@/features/teacher/documents/format-file-size";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { MessageDocumentDraft } from "@/utils/types/MessageDocument";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import type { ReactNode } from "react";
@@ -35,6 +36,7 @@ export function MessageComposer({
   placeholder = "Écrire un message…",
   trailing,
 }: MessageComposerProps) {
+  const colors = useThemeColors();
   const [attachDialogVisible, setAttachDialogVisible] = useState(false);
   const [uploadDialogVisible, setUploadDialogVisible] = useState(false);
 
@@ -48,33 +50,33 @@ export function MessageComposer({
   };
 
   return (
-    <View className="p-3 border-t border-gray-100">
+    <View className="p-3 border-t border-divider">
       {documents.length > 0 && (
         <View className="gap-2 mb-2">
           {documents.map((draft) => (
             <View
               key={draft.tempId}
-              className="flex-row items-center gap-2 border border-gray-200 rounded-lg px-3 py-2"
+              className="flex-row items-center gap-2 border border-border rounded-lg px-3 py-2"
             >
               <Ionicons
                 name={documentIconName(draft.document?.mimeType ?? null)}
                 size={16}
-                color="#6B7280"
+                color={colors.mutedForeground}
               />
               <View className="flex-1">
-                <Text className="text-sm text-black" numberOfLines={1}>
+                <Text className="text-sm text-foreground" numberOfLines={1}>
                   {draft.document?.title ??
                     draft.document?.originalName ??
                     "Sans nom"}
                 </Text>
                 {draft.document?.size != null && (
-                  <Text className="text-xs text-gray-400">
+                  <Text className="text-xs text-faint">
                     {formatFileSize(draft.document.size)}
                   </Text>
                 )}
               </View>
               <Pressable onPress={() => removeDraft(draft.tempId)} hitSlop={8}>
-                <Ionicons name="close-circle" size={18} color="#9CA3AF" />
+                <Ionicons name="close-circle" size={18} color={colors.faint} />
               </Pressable>
             </View>
           ))}
@@ -87,8 +89,8 @@ export function MessageComposer({
             onPress={() => setAttachDialogVisible(true)}
             className="flex-row items-center gap-1.5"
           >
-            <Ionicons name="attach-outline" size={18} color="#374151" />
-            <Text className="text-xs font-medium text-gray-700">
+            <Ionicons name="attach-outline" size={18} color={colors.foregroundSecondary} />
+            <Text className="text-xs font-medium text-foreground-secondary">
               Joindre un document
             </Text>
           </Pressable>
@@ -96,8 +98,8 @@ export function MessageComposer({
             onPress={() => setUploadDialogVisible(true)}
             className="flex-row items-center gap-1.5"
           >
-            <Ionicons name="cloud-upload-outline" size={18} color="#374151" />
-            <Text className="text-xs font-medium text-gray-700">
+            <Ionicons name="cloud-upload-outline" size={18} color={colors.foregroundSecondary} />
+            <Text className="text-xs font-medium text-foreground-secondary">
               Téléverser un fichier
             </Text>
           </Pressable>
@@ -105,7 +107,7 @@ export function MessageComposer({
       )}
 
       {disabled && disabledReason && (
-        <Text className="text-xs text-gray-500 mb-2">{disabledReason}</Text>
+        <Text className="text-xs text-muted-foreground mb-2">{disabledReason}</Text>
       )}
 
       <View className="flex-row items-end gap-2">
@@ -114,10 +116,10 @@ export function MessageComposer({
           onChangeText={onBodyChange}
           editable={!disabled}
           placeholder={placeholder}
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={colors.faint}
           multiline
-          className={`flex-1 min-h-[40px] max-h-32 border border-gray-300 rounded-lg px-3 py-2 text-sm ${
-            disabled ? "bg-gray-50 text-gray-400" : "bg-white"
+          className={`flex-1 min-h-[40px] max-h-32 border border-input rounded-lg px-3 py-2 text-sm ${
+            disabled ? "bg-subtle text-faint" : "bg-card"
           }`}
         />
         {trailing}

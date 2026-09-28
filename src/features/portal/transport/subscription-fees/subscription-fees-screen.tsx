@@ -67,13 +67,13 @@ export function SubscriptionFeesScreen() {
         }}
       />
 
-      <View className="flex-1 bg-gray-50">
+      <View className="flex-1 bg-subtle">
         {!filtersAreComplete ? (
           <View className="flex-1 items-center justify-center px-6 gap-1">
-            <Text className="text-sm font-medium text-gray-700 text-center">
+            <Text className="text-sm font-medium text-foreground-secondary text-center">
               Aucun élève sélectionné
             </Text>
-            <Text className="text-sm text-gray-400 text-center">
+            <Text className="text-sm text-faint text-center">
               Sélectionnez un élève pour afficher ses frais d&apos;abonnement.
             </Text>
           </View>
@@ -83,22 +83,22 @@ export function SubscriptionFeesScreen() {
           </View>
         ) : portalTransportSubscriptionFeesError ? (
           <View className="flex-1 items-center justify-center px-6 gap-3">
-            <Text className="text-sm text-gray-500 text-center">
+            <Text className="text-sm text-muted-foreground text-center">
               Impossible de charger les frais d&apos;abonnement.
             </Text>
             <Pressable
               onPress={() => loadPortalTransportSubscriptionFees()}
-              className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+              className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
             >
-              <Text className="text-white font-medium">Réessayer</Text>
+              <Text className="text-background font-medium">Réessayer</Text>
             </Pressable>
           </View>
         ) : subscription === null ? (
           <View className="flex-1 items-center justify-center px-6 gap-1">
-            <Text className="text-sm font-medium text-gray-700 text-center">
+            <Text className="text-sm font-medium text-foreground-secondary text-center">
               Transport non souscrit
             </Text>
-            <Text className="text-sm text-gray-400 text-center">
+            <Text className="text-sm text-faint text-center">
               Cet élève n&apos;est pas inscrit au transport scolaire.
             </Text>
           </View>
@@ -132,13 +132,13 @@ export function SubscriptionFeesScreen() {
             >
               <SubscriptionPlansSummaryCard subscription={subscription} />
 
-              <Text className="mx-4 mt-5 mb-1 text-xs font-semibold text-gray-400 uppercase">
+              <Text className="mx-4 mt-5 mb-1 text-xs font-semibold text-faint uppercase">
                 Échéances
               </Text>
 
               {fees.length === 0 ? (
                 <View className="items-center justify-center px-6 py-10">
-                  <Text className="text-sm text-gray-400 text-center">
+                  <Text className="text-sm text-faint text-center">
                     Aucune échéance de frais d&apos;abonnement.
                   </Text>
                 </View>

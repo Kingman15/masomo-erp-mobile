@@ -5,6 +5,7 @@ import { useGeneralClasses } from "@/hooks/queries/items/general-class";
 import { useOptions } from "@/hooks/queries/items/option";
 import { useSchoolClasses } from "@/hooks/queries/items/school-class";
 import { useSections } from "@/hooks/queries/items/section";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import {
   documentShareFormSchema,
   type DocumentShareFormValues,
@@ -43,6 +44,7 @@ export function DocumentShareDialog({
   onClose,
   onSave,
 }: DocumentShareDialogProps) {
+  const colors = useThemeColors();
   const {
     control,
     handleSubmit,
@@ -110,13 +112,13 @@ export function DocumentShareDialog({
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 bg-white">
-        <View className="flex-row items-center justify-between px-4 pt-14 pb-3 border-b border-gray-100">
-          <Text className="text-base font-semibold">
+      <View className="flex-1 bg-background">
+        <View className="flex-row items-center justify-between px-4 pt-14 pb-3 border-b border-divider">
+          <Text className="text-base font-semibold text-foreground">
             {isEditing ? "Modifier le partage" : "Ajouter un partage"}
           </Text>
           <Pressable onPress={onClose} hitSlop={8}>
-            <Ionicons name="close" size={22} color="#374151" />
+            <Ionicons name="close" size={22} color={colors.foregroundSecondary} />
           </Pressable>
         </View>
 
@@ -279,9 +281,9 @@ export function DocumentShareDialog({
 
           <Pressable
             onPress={() => void handleSubmit(onSubmit)()}
-            className="h-12 rounded-lg items-center justify-center bg-black mt-6"
+            className="h-12 rounded-lg items-center justify-center bg-foreground mt-6"
           >
-            <Text className="text-white font-medium">Enregistrer</Text>
+            <Text className="text-background font-medium">Enregistrer</Text>
           </Pressable>
         </ScrollView>
       </View>

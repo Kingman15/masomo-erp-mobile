@@ -1,6 +1,7 @@
 import { ComboBox } from "@/components/list/combo-box";
 import { Toast } from "@/components/toast";
 import { useAttachableDocuments } from "@/hooks/queries/items/conversation";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { MessageDocumentDraft } from "@/utils/types/MessageDocument";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState } from "react";
@@ -25,6 +26,7 @@ export function AttachExistingDocumentDialog({
   onClose,
   onAdd,
 }: AttachExistingDocumentDialogProps) {
+  const colors = useThemeColors();
   const [mine, setMine] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -52,11 +54,11 @@ export function AttachExistingDocumentDialog({
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={handleClose}>
-      <View className="flex-1 bg-white">
-        <View className="flex-row items-center justify-between px-4 pt-14 pb-3 border-b border-gray-100">
-          <Text className="text-base font-semibold">Joindre un document</Text>
+      <View className="flex-1 bg-background">
+        <View className="flex-row items-center justify-between px-4 pt-14 pb-3 border-b border-divider">
+          <Text className="text-base font-semibold text-foreground">Joindre un document</Text>
           <Pressable onPress={handleClose} hitSlop={8}>
-            <Ionicons name="close" size={22} color="#374151" />
+            <Ionicons name="close" size={22} color={colors.foregroundSecondary} />
           </Pressable>
         </View>
 
@@ -68,9 +70,9 @@ export function AttachExistingDocumentDialog({
             <Ionicons
               name={mine ? "checkbox" : "square-outline"}
               size={20}
-              color={mine ? "#000000" : "#9CA3AF"}
+              color={mine ? colors.foreground : colors.faint}
             />
-            <Text className="text-sm text-gray-700">Mes documents</Text>
+            <Text className="text-sm text-foreground-secondary">Mes documents</Text>
           </Pressable>
 
           <ComboBox
@@ -89,11 +91,11 @@ export function AttachExistingDocumentDialog({
             onPress={handleAdd}
             disabled={!selectedId}
             className={`h-11 rounded-lg items-center justify-center mt-2 ${
-              selectedId ? "bg-black" : "bg-gray-200"
+              selectedId ? "bg-foreground" : "bg-border"
             }`}
           >
             <Text
-              className={`font-medium ${selectedId ? "text-white" : "text-gray-400"}`}
+              className={`font-medium ${selectedId ? "text-background" : "text-faint"}`}
             >
               Ajouter
             </Text>

@@ -1,5 +1,6 @@
 import { Toast } from "@/components/toast";
 import { useChangePassword } from "@/hooks/queries/items/account";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { handleApiError } from "@/lib/handle-api-error";
 import { toastNotify } from "@/lib/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,11 +47,12 @@ function PasswordField({
   autoComplete: "current-password" | "new-password";
   error?: string;
 }) {
+  const colors = useThemeColors();
   const [visible, setVisible] = useState(false);
 
   return (
     <View className="mb-3">
-      <Text className="text-sm font-medium text-gray-700 mb-2">{label}</Text>
+      <Text className="text-sm font-medium text-foreground-secondary mb-2">{label}</Text>
       <View className="relative justify-center">
         <TextInput
           value={value}
@@ -59,7 +61,7 @@ function PasswordField({
           secureTextEntry={!visible}
           autoComplete={autoComplete}
           autoCapitalize="none"
-          className="h-11 border border-gray-300 rounded-lg px-3 pr-10 bg-white"
+          className="h-11 border border-input rounded-lg px-3 pr-10 bg-card text-foreground"
         />
         <Pressable
           onPress={() => setVisible((v) => !v)}
@@ -69,7 +71,7 @@ function PasswordField({
           <Ionicons
             name={visible ? "eye-off-outline" : "eye-outline"}
             size={18}
-            color="#6B7280"
+            color={colors.mutedForeground}
           />
         </Pressable>
       </View>
@@ -79,6 +81,7 @@ function PasswordField({
 }
 
 export function ChangePasswordDialog({ visible, onClose }: ChangePasswordDialogProps) {
+  const colors = useThemeColors();
   const {
     control,
     handleSubmit,
@@ -115,11 +118,11 @@ export function ChangePasswordDialog({ visible, onClose }: ChangePasswordDialogP
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 bg-white">
-        <View className="flex-row items-center justify-between px-4 pt-14 pb-3 border-b border-gray-100">
-          <Text className="text-base font-semibold">Changer le mot de passe</Text>
+      <View className="flex-1 bg-background">
+        <View className="flex-row items-center justify-between px-4 pt-14 pb-3 border-b border-divider">
+          <Text className="text-base font-semibold text-foreground">Changer le mot de passe</Text>
           <Pressable onPress={onClose} hitSlop={8}>
-            <Ionicons name="close" size={22} color="#374151" />
+            <Ionicons name="close" size={22} color={colors.foregroundSecondary} />
           </Pressable>
         </View>
 
@@ -173,13 +176,13 @@ export function ChangePasswordDialog({ visible, onClose }: ChangePasswordDialogP
             onPress={() => void handleSubmit(onSubmit)()}
             disabled={changePasswordIsPending}
             className={`h-12 rounded-lg items-center justify-center mt-4 ${
-              changePasswordIsPending ? "bg-gray-300" : "bg-black"
+              changePasswordIsPending ? "bg-gray-300 dark:bg-zinc-700" : "bg-foreground"
             }`}
           >
             {changePasswordIsPending ? (
-              <ActivityIndicator color="#ffffff" />
+              <ActivityIndicator color={colors.background} />
             ) : (
-              <Text className="text-white font-medium">Valider</Text>
+              <Text className="text-background font-medium">Valider</Text>
             )}
           </Pressable>
         </ScrollView>

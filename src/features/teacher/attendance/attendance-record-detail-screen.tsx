@@ -4,6 +4,7 @@ import {
   useStudentAttendanceRecordById,
 } from "@/hooks/queries/items/student-attendance-record";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { handleApiError } from "@/lib/handle-api-error";
 import { toastNotify } from "@/lib/toast";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -30,11 +31,12 @@ type InfoRowProps = {
 };
 
 function InfoRow({ icon, label, value }: InfoRowProps) {
+  const colors = useThemeColors();
   return (
     <View className="flex-row items-center gap-3 py-2.5">
-      <Ionicons name={icon} size={16} color="#6B7280" />
-      <Text className="text-xs text-gray-500 w-28">{label}</Text>
-      <Text className="flex-1 text-sm text-black">{value}</Text>
+      <Ionicons name={icon} size={16} color={colors.mutedForeground} />
+      <Text className="text-xs text-muted-foreground w-28">{label}</Text>
+      <Text className="flex-1 text-sm text-foreground">{value}</Text>
     </View>
   );
 }
@@ -44,6 +46,7 @@ function yesNo(value: boolean | null) {
 }
 
 export function AttendanceRecordDetailScreen() {
+  const colors = useThemeColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const {
     studentAttendanceRecord: record,
@@ -84,21 +87,21 @@ export function AttendanceRecordDetailScreen() {
     <>
       <Stack.Screen options={{ title: "Détails du pointage" }} />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         {studentAttendanceRecordIsLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />
           </View>
         ) : studentAttendanceRecordError ? (
           <View className="flex-1 items-center justify-center px-6 gap-3">
-            <Text className="text-sm text-gray-500 text-center">
+            <Text className="text-sm text-muted-foreground text-center">
               Impossible de charger le pointage de présence.
             </Text>
             <Pressable
               onPress={() => loadStudentAttendanceRecord()}
-              className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+              className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
             >
-              <Text className="text-white font-medium">Réessayer</Text>
+              <Text className="text-background font-medium">Réessayer</Text>
             </Pressable>
           </View>
         ) : record ? (
@@ -107,11 +110,11 @@ export function AttendanceRecordDetailScreen() {
             contentContainerStyle={{ padding: 16 }}
           >
             {record.session && (
-              <Text className="text-xs font-medium text-gray-500 capitalize">
+              <Text className="text-xs font-medium text-muted-foreground capitalize">
                 {formatAttendanceDate(record.session.attendanceDate, "long")}
               </Text>
             )}
-            <Text className="text-xl font-semibold text-black mt-1">
+            <Text className="text-xl font-semibold text-foreground mt-1">
               {getEnrollmentLabel(record.enrollment)}
             </Text>
             {badge && (
@@ -128,7 +131,7 @@ export function AttendanceRecordDetailScreen() {
               </View>
             )}
 
-            <View className="mt-4 border-t border-gray-100 pt-1">
+            <View className="mt-4 border-t border-divider pt-1">
               {record.session && (
                 <InfoRow
                   icon="calendar-outline"
@@ -165,7 +168,7 @@ export function AttendanceRecordDetailScreen() {
               />
             </View>
 
-            <View className="mt-4 border-t border-gray-100 pt-1">
+            <View className="mt-4 border-t border-divider pt-1">
               <InfoRow
                 icon="document-text-outline"
                 label="Justification"
@@ -187,7 +190,7 @@ export function AttendanceRecordDetailScreen() {
               )}
             </View>
 
-            <View className="mt-4 border-t border-gray-100 pt-1">
+            <View className="mt-4 border-t border-divider pt-1">
               <InfoRow
                 icon="radio-outline"
                 label="Canal"
@@ -206,9 +209,9 @@ export function AttendanceRecordDetailScreen() {
             </View>
 
             {record.note && (
-              <View className="mt-4 border-t border-gray-100 pt-3">
-                <Text className="text-xs text-gray-500 mb-1">Note</Text>
-                <Text className="text-sm text-black">{record.note}</Text>
+              <View className="mt-4 border-t border-divider pt-3">
+                <Text className="text-xs text-muted-foreground mb-1">Note</Text>
+                <Text className="text-sm text-foreground">{record.note}</Text>
               </View>
             )}
 
@@ -217,16 +220,16 @@ export function AttendanceRecordDetailScreen() {
                 onPress={() =>
                   router.push(`/teacher/attendance/${record.id}/edit`)
                 }
-                className="h-12 rounded-lg bg-black items-center justify-center flex-row gap-2"
+                className="h-12 rounded-lg bg-foreground items-center justify-center flex-row gap-2"
               >
-                <Ionicons name="create-outline" size={18} color="#ffffff" />
-                <Text className="text-white font-medium">Modifier</Text>
+                <Ionicons name="create-outline" size={18} color={colors.background} />
+                <Text className="text-background font-medium">Modifier</Text>
               </Pressable>
 
               <Pressable
                 onPress={() => void handleDelete()}
                 disabled={deleteStudentAttendanceRecordIsPending}
-                className="h-12 rounded-lg border border-red-200 items-center justify-center flex-row gap-2"
+                className="h-12 rounded-lg border border-red-200 dark:border-red-800 items-center justify-center flex-row gap-2"
               >
                 {deleteStudentAttendanceRecordIsPending ? (
                   <ActivityIndicator color="#DC2626" />

@@ -19,11 +19,11 @@ function TransportSubscriptionRowComponent({
   return (
     <Pressable
       onPress={() => onPress?.(subscription)}
-      className="mx-4 mt-3 px-4 py-3 rounded-xl border border-gray-200 bg-white"
+      className="mx-4 mt-3 px-4 py-3 rounded-xl border border-border bg-card"
     >
       <View className="flex-row items-center justify-between gap-3">
         <Text
-          className="flex-1 text-sm font-medium text-black"
+          className="flex-1 text-sm font-medium text-foreground"
           numberOfLines={1}
         >
           {subscription.shift?.name ?? "Vacation"}
@@ -32,12 +32,12 @@ function TransportSubscriptionRowComponent({
       </View>
 
       <View className="flex-row items-baseline justify-between gap-3 mt-2">
-        <Text className="text-xs text-gray-400">
+        <Text className="text-xs text-faint">
           {formatShortDate(subscription.startDate)} →{" "}
           {formatShortDate(subscription.endDate)}
         </Text>
         {amount !== null && (
-          <Text className="text-sm font-semibold text-black">
+          <Text className="text-sm font-semibold text-foreground">
             {formatCurrency(
               amount,
               subscription.pricingPlan?.currency ?? "USD",
@@ -46,7 +46,7 @@ function TransportSubscriptionRowComponent({
         )}
       </View>
 
-      <Text className="text-xs text-gray-400 mt-1">
+      <Text className="text-xs text-faint mt-1">
         Date abonnement : {formatShortDate(subscription.requestedAt)}
       </Text>
     </Pressable>

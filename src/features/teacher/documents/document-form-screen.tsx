@@ -5,6 +5,7 @@ import {
   useCurrentSchoolYear,
   useSchoolYears,
 } from "@/hooks/queries/items/school-year";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { handleApiError } from "@/lib/handle-api-error";
 import { toastNotify } from "@/lib/toast";
 import {
@@ -70,6 +71,7 @@ type PickedFile = {
 };
 
 export function DocumentFormScreen() {
+  const colors = useThemeColors();
   const [file, setFile] = useState<PickedFile | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
 
@@ -210,10 +212,10 @@ export function DocumentFormScreen() {
       <Stack.Screen options={{ title: "Partager un document" }} />
 
       <ScrollView
-        className="flex-1 bg-white"
+        className="flex-1 bg-background"
         contentContainerStyle={{ padding: 16 }}
       >
-        <Text className="text-sm font-medium text-gray-700 mb-2">Titre</Text>
+        <Text className="text-sm font-medium text-foreground-secondary mb-2">Titre</Text>
         <Controller
           control={control}
           name="title"
@@ -222,8 +224,8 @@ export function DocumentFormScreen() {
               value={value}
               onChangeText={onChange}
               placeholder="Titre du document"
-              placeholderTextColor="#9CA3AF"
-              className="h-11 border border-gray-300 rounded-lg px-3 mb-1 bg-white"
+              placeholderTextColor={colors.faint}
+              className="h-11 border border-input rounded-lg px-3 mb-1 bg-card text-foreground"
             />
           )}
         />
@@ -233,32 +235,32 @@ export function DocumentFormScreen() {
           </Text>
         )}
 
-        <Text className="text-sm font-medium text-gray-700 mb-2 mt-1">
+        <Text className="text-sm font-medium text-foreground-secondary mb-2 mt-1">
           Fichier
         </Text>
         <Pressable
           onPress={() => void pickFile()}
-          className="h-11 rounded-lg border border-dashed border-gray-300 items-center justify-center mb-1 flex-row gap-2"
+          className="h-11 rounded-lg border border-dashed border-input items-center justify-center mb-1 flex-row gap-2"
         >
-          <Ionicons name="attach-outline" size={18} color="#374151" />
-          <Text className="text-sm font-medium text-gray-700">
+          <Ionicons name="attach-outline" size={18} color={colors.foregroundSecondary} />
+          <Text className="text-sm font-medium text-foreground-secondary">
             {file ? "Changer de fichier" : "Sélectionner un fichier"}
           </Text>
         </Pressable>
         {file && (
-          <Text className="text-xs text-gray-500 mb-1">
+          <Text className="text-xs text-muted-foreground mb-1">
             {file.name}
             {file.size ? ` · ${formatFileSize(file.size)}` : ""}
           </Text>
         )}
-        <Text className="text-xs text-gray-400 mb-1">
+        <Text className="text-xs text-faint mb-1">
           Formats : PDF, DOC, DOCX, JPG, JPEG, PNG · max 10 Mo.
         </Text>
         {fileError && (
           <Text className="text-xs text-red-500 mb-3">{fileError}</Text>
         )}
 
-        <Text className="text-sm font-medium text-gray-700 mb-2 mt-2">
+        <Text className="text-sm font-medium text-foreground-secondary mb-2 mt-2">
           Catégorie
         </Text>
         <Controller
@@ -269,8 +271,8 @@ export function DocumentFormScreen() {
               value={value ?? ""}
               onChangeText={(text) => onChange(text || null)}
               placeholder="Catégorie (optionnel)"
-              placeholderTextColor="#9CA3AF"
-              className="h-11 border border-gray-300 rounded-lg px-3 mb-2 bg-white"
+              placeholderTextColor={colors.faint}
+              className="h-11 border border-input rounded-lg px-3 mb-2 bg-card text-foreground"
             />
           )}
         />
@@ -313,7 +315,7 @@ export function DocumentFormScreen() {
           )}
         />
 
-        <Text className="text-sm font-medium text-gray-700 mb-2">
+        <Text className="text-sm font-medium text-foreground-secondary mb-2">
           Description
         </Text>
         <Controller
@@ -326,8 +328,8 @@ export function DocumentFormScreen() {
               multiline
               textAlignVertical="top"
               placeholder="Description (optionnel)"
-              placeholderTextColor="#9CA3AF"
-              className="min-h-[80px] border border-gray-300 rounded-lg px-3 py-2 mb-1 bg-white"
+              placeholderTextColor={colors.faint}
+              className="min-h-[80px] border border-input rounded-lg px-3 py-2 mb-1 bg-card text-foreground"
             />
           )}
         />
@@ -337,7 +339,7 @@ export function DocumentFormScreen() {
           </Text>
         )}
 
-        <Text className="text-base font-semibold text-black mt-2 mb-3">
+        <Text className="text-base font-semibold text-foreground mt-2 mb-3">
           Partages
         </Text>
 
@@ -358,9 +360,9 @@ export function DocumentFormScreen() {
 
         <Pressable
           onPress={openAddShare}
-          className="h-11 rounded-lg border border-dashed border-gray-300 items-center justify-center mb-6"
+          className="h-11 rounded-lg border border-dashed border-input items-center justify-center mb-6"
         >
-          <Text className="text-sm font-medium text-gray-600">
+          <Text className="text-sm font-medium text-gray-600 dark:text-zinc-400">
             + Ajouter un partage
           </Text>
         </Pressable>
@@ -369,13 +371,13 @@ export function DocumentFormScreen() {
           onPress={() => void handleSubmit(onSubmit)()}
           disabled={isBusy}
           className={`h-12 rounded-lg items-center justify-center ${
-            isBusy ? "bg-gray-300" : "bg-black"
+            isBusy ? "bg-gray-300 dark:bg-zinc-700" : "bg-foreground"
           }`}
         >
           {isBusy ? (
-            <ActivityIndicator color="#ffffff" />
+            <ActivityIndicator color={colors.background} />
           ) : (
-            <Text className="text-white font-medium">
+            <Text className="text-background font-medium">
               Partager le document
             </Text>
           )}

@@ -13,7 +13,7 @@ export function ConversationRow({ item, isFirst }: ConversationRowProps) {
   return (
     <Pressable
       onPress={() => router.push(`/teacher/messaging/${item.id}`)}
-      className={`flex-row items-center gap-3 px-4 py-4 ${isFirst ? "" : "border-t border-gray-100"}`}
+      className={`flex-row items-center gap-3 px-4 py-4 ${isFirst ? "" : "border-t border-divider"}`}
     >
       <PartyAvatar name={item.party?.name} />
 
@@ -23,7 +23,7 @@ export function ConversationRow({ item, isFirst }: ConversationRowProps) {
             <View className="w-2 h-2 rounded-full bg-blue-600" />
           )}
           <Text
-            className={`text-base flex-1 ${item.isUnread ? "font-bold text-black" : "font-semibold text-gray-800"}`}
+            className={`text-base flex-1 ${item.isUnread ? "font-bold text-foreground" : "font-semibold text-foreground"}`}
             numberOfLines={1}
           >
             {item.party?.name ?? "N/A"}
@@ -31,13 +31,13 @@ export function ConversationRow({ item, isFirst }: ConversationRowProps) {
         </View>
 
         {item.lastMessagePreview && (
-          <Text className="text-sm text-gray-500 mt-0.5" numberOfLines={1}>
+          <Text className="text-sm text-muted-foreground mt-0.5" numberOfLines={1}>
             {item.lastMessagePreview}
           </Text>
         )}
       </View>
 
-      <Text className="text-xs text-gray-400">
+      <Text className="text-xs text-faint">
         {formatDateTime(item.lastMessageAt)}
       </Text>
     </Pressable>

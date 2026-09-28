@@ -18,6 +18,7 @@ import {
 } from "@/hooks/queries/items/teaching-course-evaluation";
 import { useTeachingCourseEvaluationTypes } from "@/hooks/queries/items/teaching-course-evaluation-type";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { handleApiError } from "@/lib/handle-api-error";
 import { toastNotify } from "@/lib/toast";
 import {
@@ -106,6 +107,7 @@ function mapQuestionToFormValues(
 export function EvaluationFormScreen({
   evaluationId,
 }: EvaluationFormScreenProps) {
+  const colors = useThemeColors();
   const isEditing = Boolean(evaluationId);
 
   const {
@@ -472,7 +474,7 @@ export function EvaluationFormScreen({
 
   if (isEditing && teachingCourseEvaluationIsLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
+      <View className="flex-1 items-center justify-center bg-background">
         <ActivityIndicator />
       </View>
     );
@@ -480,8 +482,8 @@ export function EvaluationFormScreen({
 
   if (isEditing && teachingCourseEvaluationError) {
     return (
-      <View className="flex-1 items-center justify-center px-6 bg-white">
-        <Text className="text-sm text-gray-500 text-center">
+      <View className="flex-1 items-center justify-center px-6 bg-background">
+        <Text className="text-sm text-muted-foreground text-center">
           {"Impossible de charger l'évaluation."}
         </Text>
       </View>
@@ -497,7 +499,7 @@ export function EvaluationFormScreen({
       />
 
       <ScrollView
-        className="flex-1 bg-white"
+        className="flex-1 bg-background"
         contentContainerStyle={{ padding: 16 }}
       >
         <Controller
@@ -649,8 +651,8 @@ export function EvaluationFormScreen({
         )}
 
         {isEditing && teachingCourseEvaluation && (
-          <View className="mb-4 px-3 py-3 rounded-lg bg-gray-50">
-            <Text className="text-xs text-gray-500">
+          <View className="mb-4 px-3 py-3 rounded-lg bg-subtle">
+            <Text className="text-xs text-muted-foreground">
               {teachingCourseEvaluation.publishedAt
                 ? `Publiée le ${new Date(
                     teachingCourseEvaluation.publishedAt,
@@ -665,7 +667,7 @@ export function EvaluationFormScreen({
         )}
 
         {isEditing && teachingCourseEvaluation && (
-          <View className="mb-4 px-3 py-3 rounded-lg bg-gray-50">
+          <View className="mb-4 px-3 py-3 rounded-lg bg-subtle">
             <View className="flex-row items-center justify-between">
               <View className="flex-row items-center gap-2">
                 <Ionicons
@@ -677,16 +679,16 @@ export function EvaluationFormScreen({
                   size={18}
                   color={
                     teachingCourseEvaluation.countsTowardsFinal
-                      ? "#000000"
-                      : "#9CA3AF"
+                      ? colors.foreground
+                      : colors.faint
                   }
                 />
-                <Text className="text-sm text-gray-700">
+                <Text className="text-sm text-foreground-secondary">
                   Compte dans la moyenne
                 </Text>
               </View>
               <Pressable onPress={() => setCountsDialogOpen(true)}>
-                <Text className="text-sm font-medium text-black">
+                <Text className="text-sm font-medium text-foreground">
                   Modifier
                 </Text>
               </Pressable>
@@ -695,12 +697,12 @@ export function EvaluationFormScreen({
             {!teachingCourseEvaluation.countsTowardsFinal && (
               <View className="mt-2 gap-0.5">
                 {teachingCourseEvaluation.exclusionReason && (
-                  <Text className="text-xs text-gray-500">
+                  <Text className="text-xs text-muted-foreground">
                     {`Motif : ${teachingCourseEvaluation.exclusionReason}`}
                   </Text>
                 )}
                 {teachingCourseEvaluation.excludedAt && (
-                  <Text className="text-xs text-gray-400">
+                  <Text className="text-xs text-faint">
                     {`Exclue le ${new Date(
                       teachingCourseEvaluation.excludedAt,
                     ).toLocaleDateString("fr-FR")}${
@@ -717,7 +719,7 @@ export function EvaluationFormScreen({
 
         <View className="flex-row gap-3">
           <View className="flex-1">
-            <Text className="text-sm font-medium text-gray-700 mb-2">
+            <Text className="text-sm font-medium text-foreground-secondary mb-2">
               Pondération
             </Text>
             <Controller
@@ -731,8 +733,8 @@ export function EvaluationFormScreen({
                   onChangeText={(text) => onChange(text as unknown as number)}
                   keyboardType="decimal-pad"
                   placeholder="0"
-                  placeholderTextColor="#9CA3AF"
-                  className="h-11 border border-gray-300 rounded-lg px-3 mb-1 bg-white"
+                  placeholderTextColor={colors.faint}
+                  className="h-11 border border-input rounded-lg px-3 mb-1 bg-card text-foreground"
                 />
               )}
             />
@@ -744,7 +746,7 @@ export function EvaluationFormScreen({
           </View>
 
           <View className="flex-1">
-            <Text className="text-sm font-medium text-gray-700 mb-2">
+            <Text className="text-sm font-medium text-foreground-secondary mb-2">
               Noté sur
             </Text>
             <Controller
@@ -758,8 +760,8 @@ export function EvaluationFormScreen({
                   onChangeText={(text) => onChange(text as unknown as number)}
                   keyboardType="decimal-pad"
                   placeholder="0"
-                  placeholderTextColor="#9CA3AF"
-                  className="h-11 border border-gray-300 rounded-lg px-3 mb-1 bg-white"
+                  placeholderTextColor={colors.faint}
+                  className="h-11 border border-input rounded-lg px-3 mb-1 bg-card text-foreground"
                 />
               )}
             />
@@ -771,7 +773,7 @@ export function EvaluationFormScreen({
           </View>
         </View>
 
-        <Text className="text-sm font-medium text-gray-700 mb-2">Libellé</Text>
+        <Text className="text-sm font-medium text-foreground-secondary mb-2">Libellé</Text>
         <Controller
           control={control}
           name="wording"
@@ -780,8 +782,8 @@ export function EvaluationFormScreen({
               value={value}
               onChangeText={onChange}
               placeholder="Libellé de l'évaluation"
-              placeholderTextColor="#9CA3AF"
-              className="h-11 border border-gray-300 rounded-lg px-3 mb-1 bg-white"
+              placeholderTextColor={colors.faint}
+              className="h-11 border border-input rounded-lg px-3 mb-1 bg-card text-foreground"
             />
           )}
         />
@@ -791,7 +793,7 @@ export function EvaluationFormScreen({
           </Text>
         )}
 
-        <Text className="text-sm font-medium text-gray-700 mb-2">
+        <Text className="text-sm font-medium text-foreground-secondary mb-2">
           Commentaires
         </Text>
         <Controller
@@ -803,7 +805,7 @@ export function EvaluationFormScreen({
               onChangeText={(text) => onChange(text || null)}
               multiline
               textAlignVertical="top"
-              className="min-h-[80px] border border-gray-300 rounded-lg px-3 py-2 mb-4 bg-white"
+              className="min-h-[80px] border border-input rounded-lg px-3 py-2 mb-4 bg-card text-foreground"
             />
           )}
         />
@@ -849,7 +851,7 @@ export function EvaluationFormScreen({
           />
         )}
 
-        <Text className="text-base font-semibold text-black mt-2 mb-3">
+        <Text className="text-base font-semibold text-foreground mt-2 mb-3">
           Questions
         </Text>
 
@@ -872,9 +874,9 @@ export function EvaluationFormScreen({
 
         <Pressable
           onPress={openAddQuestion}
-          className="h-11 rounded-lg border border-dashed border-gray-300 items-center justify-center mb-6"
+          className="h-11 rounded-lg border border-dashed border-input items-center justify-center mb-6"
         >
-          <Text className="text-sm font-medium text-gray-600">
+          <Text className="text-sm font-medium text-gray-600 dark:text-zinc-400">
             + Ajouter une question
           </Text>
         </Pressable>
@@ -885,15 +887,15 @@ export function EvaluationFormScreen({
 
         {isEditing && teachingCourseEvaluation && (
           <View className="mb-6">
-            <Text className="text-base font-semibold text-black mb-3">
+            <Text className="text-base font-semibold text-foreground mb-3">
               Résultats
             </Text>
             <Pressable
               onPress={() => setScoringDialogOpen(true)}
-              className="h-11 rounded-lg border border-gray-300 items-center justify-center flex-row gap-2"
+              className="h-11 rounded-lg border border-input items-center justify-center flex-row gap-2"
             >
-              <Ionicons name="create-outline" size={16} color="#000000" />
-              <Text className="text-sm font-medium text-black">
+              <Ionicons name="create-outline" size={16} color={colors.foreground} />
+              <Text className="text-sm font-medium text-foreground">
                 Saisir les notes
               </Text>
             </Pressable>
@@ -903,9 +905,9 @@ export function EvaluationFormScreen({
         {isEditing && !teachingCourseEvaluation?.publishedAt && (
           <Pressable
             onPress={() => setPublishDialogOpen(true)}
-            className="h-12 rounded-lg items-center justify-center border border-gray-300 mb-3"
+            className="h-12 rounded-lg items-center justify-center border border-input mb-3"
           >
-            <Text className="text-black font-medium">Publier</Text>
+            <Text className="text-foreground font-medium">Publier</Text>
           </Pressable>
         )}
 
@@ -914,7 +916,7 @@ export function EvaluationFormScreen({
             <Pressable
               onPress={() => void handleDeleteEvaluation()}
               disabled={deleteTeachingCourseEvaluationIsPending}
-              className="w-12 h-12 rounded-lg items-center justify-center border border-red-300"
+              className="w-12 h-12 rounded-lg items-center justify-center border border-red-300 dark:border-red-700"
             >
               <Ionicons name="trash-outline" size={20} color="#EF4444" />
             </Pressable>
@@ -924,13 +926,13 @@ export function EvaluationFormScreen({
             onPress={() => void handleSubmit(onSubmit)()}
             disabled={isBusy}
             className={`flex-1 h-12 rounded-lg items-center justify-center ${
-              isBusy ? "bg-gray-300" : "bg-black"
+              isBusy ? "bg-gray-300 dark:bg-zinc-700" : "bg-foreground"
             }`}
           >
             {isBusy ? (
-              <ActivityIndicator color="#ffffff" />
+              <ActivityIndicator color={colors.background} />
             ) : (
-              <Text className="text-white font-medium">
+              <Text className="text-background font-medium">
                 {isEditing ? "Enregistrer" : "Créer"}
               </Text>
             )}

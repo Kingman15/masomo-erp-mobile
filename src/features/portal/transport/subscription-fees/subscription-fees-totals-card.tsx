@@ -13,7 +13,7 @@ export function SubscriptionFeesTotalsCard({
   currency,
 }: SubscriptionFeesTotalsCardProps) {
   return (
-    <View className="mx-4 mt-3 px-4 py-1 rounded-xl border border-gray-200 bg-white">
+    <View className="mx-4 mt-3 px-4 py-1 rounded-xl border border-border bg-card">
       <SummaryRow label="Échéances" value={String(totalFees)} />
       <SummaryRow
         label="Total net"
@@ -36,11 +36,11 @@ function SummaryRow({
   return (
     <View
       className={`flex-row items-center justify-between py-2.5 ${
-        last ? "" : "border-b border-gray-100"
+        last ? "" : "border-b border-divider"
       }`}
     >
-      <Text className="text-sm text-gray-500">{label}</Text>
-      <Text className="text-sm font-semibold text-black">{value}</Text>
+      <Text className="text-sm text-muted-foreground">{label}</Text>
+      <Text className="text-sm font-semibold text-foreground">{value}</Text>
     </View>
   );
 }

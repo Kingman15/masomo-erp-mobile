@@ -20,6 +20,7 @@ import {
 } from "@/hooks/queries/items/teaching-schedule";
 import { useActiveCourseSchedule } from "@/hooks/queries/items/course-schedule";
 import { lessonTimesFromWeeklySchedule } from "@/features/teacher/schedule/weekly-schedule";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { formatShortDate } from "@/lib/format";
 import { handleApiError } from "@/lib/handle-api-error";
 import { notifyQueued } from "@/lib/offline/use-offline-mutation";
@@ -59,6 +60,7 @@ function toHoursMinutes(value: string) {
 }
 
 export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
+  const colors = useThemeColors();
   const isEditing = Boolean(lessonId);
 
   const { lesson, lessonIsLoading, lessonError } = useLessonById(lessonId);
@@ -240,7 +242,7 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
 
   if (isEditing && lessonIsLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
+      <View className="flex-1 items-center justify-center bg-background">
         <ActivityIndicator />
       </View>
     );
@@ -248,8 +250,8 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
 
   if (isEditing && lessonError) {
     return (
-      <View className="flex-1 items-center justify-center px-6 bg-white">
-        <Text className="text-sm text-gray-500 text-center">
+      <View className="flex-1 items-center justify-center px-6 bg-background">
+        <Text className="text-sm text-muted-foreground text-center">
           Impossible de charger la leçon.
         </Text>
       </View>
@@ -265,10 +267,10 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
       />
 
       <ScrollView
-        className="flex-1 bg-white"
+        className="flex-1 bg-background"
         contentContainerStyle={{ padding: 16 }}
       >
-        <Text className="text-sm font-medium text-gray-700 mb-2">N° Fiche</Text>
+        <Text className="text-sm font-medium text-foreground-secondary mb-2">N° Fiche</Text>
         <Controller
           control={control}
           name="fileNo"
@@ -277,8 +279,8 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
               value={value}
               onChangeText={onChange}
               placeholder="N° de fiche"
-              placeholderTextColor="#9CA3AF"
-              className="h-11 border border-gray-300 rounded-lg px-3 mb-1 bg-white"
+              placeholderTextColor={colors.faint}
+              className="h-11 border border-input rounded-lg px-3 mb-1 bg-card text-foreground"
             />
           )}
         />
@@ -435,7 +437,7 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
           </Text>
         )}
 
-        <Text className="text-sm font-medium text-gray-700 mb-2">Sujet</Text>
+        <Text className="text-sm font-medium text-foreground-secondary mb-2">Sujet</Text>
         <Controller
           control={control}
           name="subject"
@@ -445,7 +447,7 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
               onChangeText={onChange}
               multiline
               textAlignVertical="top"
-              className="min-h-[60px] border border-gray-300 rounded-lg px-3 py-2 mb-1 bg-white"
+              className="min-h-[60px] border border-input rounded-lg px-3 py-2 mb-1 bg-card text-foreground"
             />
           )}
         />
@@ -455,7 +457,7 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
           </Text>
         )}
 
-        <Text className="text-sm font-medium text-gray-700 mb-2">
+        <Text className="text-sm font-medium text-foreground-secondary mb-2">
           Commentaires
         </Text>
         <Controller
@@ -467,7 +469,7 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
               onChangeText={(text) => onChange(text || null)}
               multiline
               textAlignVertical="top"
-              className="min-h-[80px] border border-gray-300 rounded-lg px-3 py-2 mb-1 bg-white"
+              className="min-h-[80px] border border-input rounded-lg px-3 py-2 mb-1 bg-card text-foreground"
             />
           )}
         />
@@ -481,13 +483,13 @@ export function LessonFormScreen({ lessonId }: LessonFormScreenProps) {
           onPress={() => void handleSubmit(onSubmit)()}
           disabled={isBusy}
           className={`h-12 rounded-lg items-center justify-center mt-6 ${
-            isBusy ? "bg-gray-300" : "bg-black"
+            isBusy ? "bg-gray-300 dark:bg-zinc-700" : "bg-foreground"
           }`}
         >
           {isBusy ? (
-            <ActivityIndicator color="#ffffff" />
+            <ActivityIndicator color={colors.background} />
           ) : (
-            <Text className="text-white font-medium">
+            <Text className="text-background font-medium">
               {isEditing ? "Sauvegarder" : "Créer"}
             </Text>
           )}

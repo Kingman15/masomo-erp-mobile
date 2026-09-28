@@ -1,3 +1,4 @@
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { TeachingCourseEvaluationDocument } from "@/utils/types/TeachingCourseEvaluationDocument";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { openBrowserAsync } from "expo-web-browser";
@@ -20,29 +21,30 @@ type EvaluationDocumentRowProps = {
 };
 
 export function EvaluationDocumentRow({ document }: EvaluationDocumentRowProps) {
+  const colors = useThemeColors();
   return (
     <Pressable
       onPress={() => void openBrowserAsync(document.url)}
-      className="flex-row items-center gap-3 px-3 py-3 border border-gray-200 rounded-lg mb-2 bg-white"
+      className="flex-row items-center gap-3 px-3 py-3 border border-border rounded-lg mb-2 bg-card"
     >
-      <Ionicons name="document-text-outline" size={20} color="#6B7280" />
+      <Ionicons name="document-text-outline" size={20} color={colors.mutedForeground} />
 
       <View className="flex-1">
         {document.documentType && (
-          <Text className="text-xs text-gray-400 mb-0.5">
+          <Text className="text-xs text-faint mb-0.5">
             {DOCUMENT_TYPE_LABELS[document.documentType] ??
               document.documentType}
           </Text>
         )}
-        <Text className="text-sm text-black" numberOfLines={1}>
+        <Text className="text-sm text-foreground" numberOfLines={1}>
           {document.originalName}
         </Text>
-        <Text className="text-xs text-gray-400 mt-0.5">
+        <Text className="text-xs text-faint mt-0.5">
           {formatFileSize(document.size)}
         </Text>
       </View>
 
-      <Ionicons name="chevron-forward" size={16} color="#D1D5DB" />
+      <Ionicons name="chevron-forward" size={16} color={colors.input} />
     </Pressable>
   );
 }

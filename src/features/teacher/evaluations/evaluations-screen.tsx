@@ -2,6 +2,7 @@ import { FilterButton } from "@/components/list/filter-button";
 import { DrawerMenuButton } from "@/features/teacher/drawer-menu-button";
 import { useCurrentSchoolYear } from "@/hooks/queries/items/school-year";
 import { useTeachingCourseEvaluations } from "@/hooks/queries/items/teaching-course-evaluation";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { TeachingCourseEvaluation } from "@/utils/types/TeachingCourseEvaluation";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { FlashList } from "@shopify/flash-list";
@@ -16,6 +17,7 @@ import {
 import { EvaluationRow } from "./evaluation-row";
 
 export function EvaluationsScreen() {
+  const colors = useThemeColors();
   const [filters, setFilters] = useState<EvaluationFiltersForm>(
     emptyEvaluationFilters,
   );
@@ -82,13 +84,13 @@ export function EvaluationsScreen() {
               onPress={() => router.push("/teacher/evaluations/new")}
               hitSlop={8}
             >
-              <Ionicons name="add-outline" size={26} color="#000000" />
+              <Ionicons name="add-outline" size={26} color={colors.foreground} />
             </Pressable>
           ),
         }}
       />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         <View className="flex-row items-center gap-3 px-4 pt-3 pb-2">
           <FilterButton
             fullWidth
@@ -111,14 +113,14 @@ export function EvaluationsScreen() {
           </View>
         ) : teachingCourseEvaluationsError ? (
           <View className="flex-1 items-center justify-center px-6 gap-3">
-            <Text className="text-sm text-gray-500 text-center">
+            <Text className="text-sm text-muted-foreground text-center">
               Impossible de charger les évaluations.
             </Text>
             <Pressable
               onPress={() => loadTeachingCourseEvaluations()}
-              className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+              className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
             >
-              <Text className="text-white font-medium">Réessayer</Text>
+              <Text className="text-background font-medium">Réessayer</Text>
             </Pressable>
           </View>
         ) : (
@@ -129,7 +131,7 @@ export function EvaluationsScreen() {
             contentContainerStyle={{ paddingBottom: 12 }}
             ListHeaderComponent={
               teachingCourseEvaluationsMeta ? (
-                <Text className="px-4 py-2 text-xs text-gray-400">
+                <Text className="px-4 py-2 text-xs text-faint">
                   {teachingCourseEvaluationsMeta.total} évaluation
                   {teachingCourseEvaluationsMeta.total > 1 ? "s" : ""}
                 </Text>
@@ -137,7 +139,7 @@ export function EvaluationsScreen() {
             }
             ListEmptyComponent={
               <View className="items-center justify-center px-6 py-16">
-                <Text className="text-sm text-gray-400 text-center">
+                <Text className="text-sm text-faint text-center">
                   Aucune évaluation ne correspond à ta recherche.
                 </Text>
               </View>

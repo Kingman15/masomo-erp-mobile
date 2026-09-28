@@ -18,35 +18,35 @@ function TransportInvoiceRowComponent({ invoice, onPress }: TransportInvoiceRowP
   return (
     <Pressable
       onPress={() => onPress?.(invoice)}
-      className="mx-4 mt-3 px-4 py-3 rounded-xl border border-gray-200 bg-white"
+      className="mx-4 mt-3 px-4 py-3 rounded-xl border border-border bg-card"
     >
       <View className="flex-row items-center justify-between gap-3">
-        <Text className="flex-1 text-sm font-medium text-black" numberOfLines={1}>
+        <Text className="flex-1 text-sm font-medium text-foreground" numberOfLines={1}>
           {invoice.invoiceNumber ?? invoice.code ?? "Facture"}
         </Text>
         <TransportInvoiceStatusPill status={invoice.status} />
       </View>
 
       <View className="flex-row items-center justify-between gap-3 mt-2">
-        <Text className="text-xs text-gray-400">
+        <Text className="text-xs text-faint">
           Émise le {formatShortDate(invoice.issuedAt)}
         </Text>
-        <Text className="text-xs text-gray-400">
+        <Text className="text-xs text-faint">
           Butoir {formatShortDate(invoice.dueDate)}
         </Text>
       </View>
 
       <View className="flex-row items-baseline justify-between gap-3 mt-1.5">
-        <Text className="text-xs text-gray-400">Montant net</Text>
-        <Text className="text-sm font-semibold text-black">
+        <Text className="text-xs text-faint">Montant net</Text>
+        <Text className="text-sm font-semibold text-foreground">
           {formatCurrency(invoice.netAmount, currency)}
         </Text>
       </View>
 
       {hasRemaining && (
         <View className="flex-row items-center justify-between mt-1">
-          <Text className="text-xs text-gray-400">Restant dû</Text>
-          <Text className="text-xs font-medium text-black">
+          <Text className="text-xs text-faint">Restant dû</Text>
+          <Text className="text-xs font-medium text-foreground">
             {formatCurrency(invoice.amountRemaining, currency)}
           </Text>
         </View>
@@ -54,9 +54,9 @@ function TransportInvoiceRowComponent({ invoice, onPress }: TransportInvoiceRowP
 
       {paymentsCount > 0 && (
         <View className="flex-row items-center justify-between mt-1">
-          <Text className="text-xs text-gray-400">Paiements</Text>
-          <View className="px-2 py-0.5 rounded-full bg-green-100">
-            <Text className="text-[10px] font-medium text-green-700">
+          <Text className="text-xs text-faint">Paiements</Text>
+          <View className="px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/40">
+            <Text className="text-[10px] font-medium text-green-700 dark:text-green-300">
               {paymentsCount} paiement{paymentsCount > 1 ? "s" : ""}
             </Text>
           </View>

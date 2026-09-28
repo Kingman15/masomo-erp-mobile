@@ -15,9 +15,9 @@ export function SubscriptionPlansSummaryCard({
   subscription,
 }: SubscriptionPlansSummaryCardProps) {
   return (
-    <View className="mx-4 mt-3 px-4 py-3 rounded-xl border border-gray-200 bg-white">
+    <View className="mx-4 mt-3 px-4 py-3 rounded-xl border border-border bg-card">
       <View className="flex-row items-center justify-between gap-3">
-        <Text className="text-sm font-medium text-black">
+        <Text className="text-sm font-medium text-foreground">
           {formatShortDate(subscription.startDate)} → {formatShortDate(subscription.endDate)}
         </Text>
         <SubscriptionStatusPill status={subscription.status} />
@@ -34,14 +34,14 @@ export function SubscriptionPlansSummaryCard({
             : null;
 
           return (
-            <View key={index} className="rounded-lg border border-gray-100 px-3 py-2">
-              <Text className="text-xs text-gray-400">{scopeLabel}</Text>
-              <Text className="text-sm font-medium text-black" numberOfLines={1}>
+            <View key={index} className="rounded-lg border border-divider px-3 py-2">
+              <Text className="text-xs text-faint">{scopeLabel}</Text>
+              <Text className="text-sm font-medium text-foreground" numberOfLines={1}>
                 {plan.name}
               </Text>
               <View className="flex-row items-center justify-between mt-0.5">
-                <Text className="text-xs text-gray-400">{billingPeriodLabel ?? "—"}</Text>
-                <Text className="text-sm font-semibold text-black">
+                <Text className="text-xs text-faint">{billingPeriodLabel ?? "—"}</Text>
+                <Text className="text-sm font-semibold text-foreground">
                   {formatCurrency(plan.amount, plan.currency)}
                 </Text>
               </View>

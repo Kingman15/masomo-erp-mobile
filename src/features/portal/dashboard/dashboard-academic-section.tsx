@@ -1,5 +1,6 @@
 import { DonutChart } from "@/components/ui/donut-chart";
 import { AcademicSummary } from "@/utils/types/PortalStudentDashboard";
+import { useColorScheme } from "nativewind";
 import { ActivityIndicator, Text, View } from "react-native";
 import { StatBox } from "./stat-box";
 
@@ -9,6 +10,7 @@ type DashboardAcademicSectionProps = {
 };
 
 export function DashboardAcademicSection({ academic, loading }: DashboardAcademicSectionProps) {
+  const isDark = useColorScheme().colorScheme === "dark";
   if (loading || !academic) {
     return (
       <View className="py-4">
@@ -21,7 +23,7 @@ export function DashboardAcademicSection({ academic, loading }: DashboardAcademi
 
   if (!average && !rank && coursesBelowPassMark.length === 0) {
     return (
-      <Text className="text-sm text-gray-400 py-2.5">
+      <Text className="text-sm text-faint py-2.5">
         Aucune évaluation publiée pour l'instant.
       </Text>
     );
@@ -37,7 +39,7 @@ export function DashboardAcademicSection({ academic, loading }: DashboardAcademi
             <DonutChart
               segments={[
                 { value: averageRate, color: "#2563EB" },
-                { value: 100 - averageRate, color: "#DBEAFE" },
+                { value: 100 - averageRate, color: isDark ? "#172554" : "#DBEAFE" },
               ]}
               centerLabel={`${average.value.toFixed(1)}/${average.scale}`}
               centerSubLabel="moyenne"
@@ -45,7 +47,7 @@ export function DashboardAcademicSection({ academic, loading }: DashboardAcademi
           )}
           <View className="flex-1">
             {average && (
-              <Text className="text-xs text-gray-400 mb-1">
+              <Text className="text-xs text-faint mb-1">
                 {average.basis.evaluationsPublished} évaluations publiées
               </Text>
             )}
@@ -58,16 +60,16 @@ export function DashboardAcademicSection({ academic, loading }: DashboardAcademi
 
       {coursesBelowPassMark.length > 0 && (
         <View>
-          <Text className="text-xs font-semibold text-gray-500 mb-1.5">
+          <Text className="text-xs font-semibold text-muted-foreground mb-1.5">
             Cours sous la moyenne de passage
           </Text>
           <View className="flex-row flex-wrap gap-1.5">
             {coursesBelowPassMark.map((course) => (
               <View
                 key={course.courseId}
-                className="px-2 py-1 rounded-full bg-red-50 border border-red-200"
+                className="px-2 py-1 rounded-full bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800"
               >
-                <Text className="text-[11px] font-medium text-red-700">
+                <Text className="text-[11px] font-medium text-red-700 dark:text-red-300">
                   {course.courseName} · {course.average.toFixed(1)}/{course.passMark}
                 </Text>
               </View>

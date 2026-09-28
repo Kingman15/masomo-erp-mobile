@@ -36,7 +36,7 @@ export function DashboardTodaySection({ today, loading }: DashboardTodaySectionP
 
   if (!today.isSchoolDay && !hasSchedule && !hasEvaluations && !hasAttendance) {
     return (
-      <Text className="text-sm text-gray-400 py-2.5">
+      <Text className="text-sm text-faint py-2.5">
         Aucune information à afficher pour aujourd'hui.
       </Text>
     );
@@ -45,10 +45,10 @@ export function DashboardTodaySection({ today, loading }: DashboardTodaySectionP
   return (
     <View className="gap-3">
       <View>
-        <Text className="text-sm font-medium text-black">
+        <Text className="text-sm font-medium text-foreground">
           {formatShortDate(today.date)}
         </Text>
-        <Text className="text-xs text-gray-400">
+        <Text className="text-xs text-faint">
           {today.isSchoolDay ? "Journée scolaire" : "Pas de cours aujourd'hui"}
         </Text>
       </View>
@@ -66,26 +66,26 @@ export function DashboardTodaySection({ today, loading }: DashboardTodaySectionP
       </View>
 
       <View>
-        <Text className="text-xs font-semibold text-gray-500 mb-1">Cours du jour</Text>
+        <Text className="text-xs font-semibold text-muted-foreground mb-1">Cours du jour</Text>
         {hasSchedule ? (
           (today.schedule ?? []).map((session, index) => (
             <View
               key={index}
-              className={`py-2 ${index > 0 ? "border-t border-gray-100" : ""}`}
+              className={`py-2 ${index > 0 ? "border-t border-divider" : ""}`}
             >
               <View className="flex-row items-center justify-between">
-                <Text className="text-sm text-black flex-1" numberOfLines={1}>
+                <Text className="text-sm text-foreground flex-1" numberOfLines={1}>
                   {session.courseName ?? "Cours"}
                 </Text>
-                <View className="px-2 py-0.5 rounded-full bg-gray-100">
-                  <Text className="text-[10px] font-medium text-gray-600">
+                <View className="px-2 py-0.5 rounded-full bg-muted">
+                  <Text className="text-[10px] font-medium text-gray-600 dark:text-zinc-400">
                     {session.attendanceStatus
                       ? (sessionAttendanceStatusLabels[session.attendanceStatus] ?? "—")
                       : "—"}
                   </Text>
                 </View>
               </View>
-              <Text className="text-xs text-gray-400 mt-0.5">
+              <Text className="text-xs text-faint mt-0.5">
                 {session.startsAt && session.endsAt
                   ? `${session.startsAt} - ${session.endsAt}`
                   : "Horaire à préciser"}
@@ -94,31 +94,31 @@ export function DashboardTodaySection({ today, loading }: DashboardTodaySectionP
             </View>
           ))
         ) : (
-          <Text className="text-sm text-gray-400 py-1">
+          <Text className="text-sm text-faint py-1">
             Aucun cours prévu pour cette journée.
           </Text>
         )}
       </View>
 
       <View>
-        <Text className="text-xs font-semibold text-gray-500 mb-1">Évaluations</Text>
+        <Text className="text-xs font-semibold text-muted-foreground mb-1">Évaluations</Text>
         {hasEvaluations ? (
           (today.evaluations ?? []).map((evaluation, index) => (
             <View
               key={evaluation.id}
-              className={`py-2 ${index > 0 ? "border-t border-gray-100" : ""}`}
+              className={`py-2 ${index > 0 ? "border-t border-divider" : ""}`}
             >
-              <Text className="text-sm text-black" numberOfLines={1}>
+              <Text className="text-sm text-foreground" numberOfLines={1}>
                 {evaluation.title ?? "Évaluation"}
               </Text>
-              <Text className="text-xs text-gray-400 mt-0.5">
+              <Text className="text-xs text-faint mt-0.5">
                 {evaluation.courseName ?? "Cours"}
                 {evaluation.startsAt ? ` · ${evaluation.startsAt}` : ""}
               </Text>
             </View>
           ))
         ) : (
-          <Text className="text-sm text-gray-400 py-1">
+          <Text className="text-sm text-faint py-1">
             Aucune évaluation prévue aujourd'hui.
           </Text>
         )}

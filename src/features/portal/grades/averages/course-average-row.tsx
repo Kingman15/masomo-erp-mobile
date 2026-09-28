@@ -9,17 +9,17 @@ type CourseAverageRowProps = {
 
 function CourseAverageRowComponent({ courseAverage }: CourseAverageRowProps) {
   return (
-    <View className="px-3 py-2.5 border border-gray-200 rounded-lg mb-2 bg-white gap-1">
-      <Text className="text-sm font-medium text-black" numberOfLines={1}>
+    <View className="px-3 py-2.5 border border-border rounded-lg mb-2 bg-card gap-1">
+      <Text className="text-sm font-medium text-foreground" numberOfLines={1}>
         {courseAverage.courseName}
       </Text>
 
       <View className="flex-row items-center justify-between">
-        <Text className="text-sm text-black">
+        <Text className="text-sm text-foreground">
           {formatNumber(courseAverage.totalPoints)} /{" "}
           {formatNumber(courseAverage.totalEffectiveMax)}
         </Text>
-        <Text className="text-sm font-semibold text-black">
+        <Text className="text-sm font-semibold text-foreground">
           {formatNumber(courseAverage.effectivePercentage)}%
         </Text>
       </View>

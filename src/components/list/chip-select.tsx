@@ -21,11 +21,11 @@ export function ChipSelect({
 }: ChipSelectProps) {
   return (
     <View className="mb-4">
-      <Text className="text-sm font-medium text-gray-700 mb-2">{label}</Text>
+      <Text className="text-sm font-medium text-foreground-secondary mb-2">{label}</Text>
       {loading ? (
         <ActivityIndicator />
       ) : options.length === 0 ? (
-        <Text className="text-sm text-gray-400">{emptyLabel}</Text>
+        <Text className="text-sm text-faint">{emptyLabel}</Text>
       ) : (
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View className="flex-row gap-2">
@@ -36,12 +36,12 @@ export function ChipSelect({
                   key={option.id}
                   onPress={() => onChange(selected ? null : option.id)}
                   className={`px-4 h-9 rounded-full items-center justify-center border ${
-                    selected ? "bg-black border-black" : "bg-white border-gray-300"
+                    selected ? "bg-foreground border-foreground" : "bg-card border-input"
                   }`}
                 >
                   <Text
                     className={`text-sm ${
-                      selected ? "text-white font-medium" : "text-gray-700"
+                      selected ? "text-background font-medium" : "text-foreground-secondary"
                     }`}
                   >
                     {option.label}

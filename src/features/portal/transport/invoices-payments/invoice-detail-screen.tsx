@@ -1,4 +1,5 @@
 import { usePortalTransportInvoice } from "@/hooks/queries/items/portal-transport-invoice";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { formatCurrency, formatShortDate } from "@/lib/format";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Stack, useLocalSearchParams } from "expo-router";
@@ -14,20 +15,21 @@ type InfoRowProps = {
 };
 
 function InfoRow({ icon, label, value }: InfoRowProps) {
+  const colors = useThemeColors();
   if (!value) return null;
 
   return (
     <View className="flex-row items-center gap-3 py-2.5">
-      <Ionicons name={icon} size={16} color="#6B7280" />
-      <Text className="text-xs text-gray-500 w-32">{label}</Text>
-      <Text className="flex-1 text-sm text-black">{value}</Text>
+      <Ionicons name={icon} size={16} color={colors.mutedForeground} />
+      <Text className="text-xs text-muted-foreground w-32">{label}</Text>
+      <Text className="flex-1 text-sm text-foreground">{value}</Text>
     </View>
   );
 }
 
 function SectionTitle({ children }: { children: string }) {
   return (
-    <Text className="text-xs font-semibold text-gray-500 uppercase mb-1 mt-4">
+    <Text className="text-xs font-semibold text-muted-foreground uppercase mb-1 mt-4">
       {children}
     </Text>
   );
@@ -52,34 +54,34 @@ export function InvoiceDetailScreen() {
     <>
       <Stack.Screen options={{ headerShown: true, title: "Facture de transport" }} />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         {portalTransportInvoiceIsLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />
           </View>
         ) : portalTransportInvoiceError || !invoice ? (
           <View className="flex-1 items-center justify-center px-6 gap-3">
-            <Text className="text-sm text-gray-500 text-center">
+            <Text className="text-sm text-muted-foreground text-center">
               Cette facture n&apos;est pas accessible.
             </Text>
             <Pressable
               onPress={() => loadPortalTransportInvoice()}
-              className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+              className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
             >
-              <Text className="text-white font-medium">Réessayer</Text>
+              <Text className="text-background font-medium">Réessayer</Text>
             </Pressable>
           </View>
         ) : (
           <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
             <View className="flex-row items-start justify-between gap-3">
-              <Text className="flex-1 text-xl font-semibold text-black" numberOfLines={2}>
+              <Text className="flex-1 text-xl font-semibold text-foreground" numberOfLines={2}>
                 {invoice.invoiceNumber ?? invoice.code ?? "Facture"}
               </Text>
               <TransportInvoiceStatusPill status={invoice.status} />
             </View>
 
             <SectionTitle>Informations</SectionTitle>
-            <View className="border-t border-gray-100 pt-1">
+            <View className="border-t border-divider pt-1">
               <InfoRow
                 icon="calendar-outline"
                 label="Émise le"
@@ -120,7 +122,7 @@ export function InvoiceDetailScreen() {
             {invoice.description && (
               <>
                 <SectionTitle>Description</SectionTitle>
-                <Text className="text-sm text-black">{invoice.description}</Text>
+                <Text className="text-sm text-foreground">{invoice.description}</Text>
               </>
             )}
 
@@ -130,29 +132,29 @@ export function InvoiceDetailScreen() {
                 {lines.map((line) => (
                   <View
                     key={line.id}
-                    className="rounded-xl border border-gray-100 px-4 py-3"
+                    className="rounded-xl border border-divider px-4 py-3"
                   >
-                    <Text className="text-sm font-medium text-black">
+                    <Text className="text-sm font-medium text-foreground">
                       {line.label ?? "—"}
                     </Text>
                     <View className="flex-row flex-wrap items-center gap-x-4 gap-y-1 mt-1.5">
-                      <Text className="text-xs text-gray-400">
+                      <Text className="text-xs text-faint">
                         PU {formatCurrency(line.unitPrice, currency)}
                       </Text>
                       {line.discountAmount !== null && Number(line.discountAmount) > 0 && (
-                        <Text className="text-xs text-gray-400">
+                        <Text className="text-xs text-faint">
                           Remise {formatCurrency(line.discountAmount, currency)}
                         </Text>
                       )}
                       {line.taxAmount !== null && Number(line.taxAmount) > 0 && (
-                        <Text className="text-xs text-gray-400">
+                        <Text className="text-xs text-faint">
                           Taxe {formatCurrency(line.taxAmount, currency)}
                         </Text>
                       )}
                     </View>
                     <View className="flex-row items-center justify-between mt-1.5">
-                      <Text className="text-xs text-gray-500">Total</Text>
-                      <Text className="text-sm font-semibold text-black">
+                      <Text className="text-xs text-muted-foreground">Total</Text>
+                      <Text className="text-sm font-semibold text-foreground">
                         {formatCurrency(line.total, currency)}
                       </Text>
                     </View>
@@ -160,7 +162,7 @@ export function InvoiceDetailScreen() {
                 ))}
               </View>
             ) : (
-              <Text className="text-sm text-gray-400">
+              <Text className="text-sm text-faint">
                 Aucune ligne n&apos;est associée à cette facture.
               </Text>
             )}
@@ -171,11 +173,11 @@ export function InvoiceDetailScreen() {
                 {payments.map((payment) => (
                   <View
                     key={payment.id}
-                    className="rounded-xl border border-gray-100 px-4 py-3"
+                    className="rounded-xl border border-divider px-4 py-3"
                   >
                     <View className="flex-row items-center justify-between gap-3">
                       <Text
-                        className="flex-1 text-sm font-medium text-black"
+                        className="flex-1 text-sm font-medium text-foreground"
                         numberOfLines={1}
                       >
                         {payment.paymentMethod
@@ -184,16 +186,16 @@ export function InvoiceDetailScreen() {
                             ] ?? payment.paymentMethod)
                           : "Paiement"}
                       </Text>
-                      <Text className="text-sm font-semibold text-black">
+                      <Text className="text-sm font-semibold text-foreground">
                         {formatCurrency(payment.amount, payment.currency ?? currency)}
                       </Text>
                     </View>
-                    <Text className="text-xs text-gray-400 mt-1">
+                    <Text className="text-xs text-faint mt-1">
                       {formatShortDate(payment.paymentDate)}
                       {payment.payerName ? ` · ${payment.payerName}` : ""}
                     </Text>
                     {payment.paymentReference && (
-                      <Text className="text-xs text-gray-400 mt-0.5">
+                      <Text className="text-xs text-faint mt-0.5">
                         Réf. {payment.paymentReference}
                       </Text>
                     )}
@@ -201,7 +203,7 @@ export function InvoiceDetailScreen() {
                 ))}
               </View>
             ) : (
-              <Text className="text-sm text-gray-400">
+              <Text className="text-sm text-faint">
                 Aucun paiement n&apos;a été enregistré pour cette facture.
               </Text>
             )}

@@ -1,3 +1,4 @@
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { DocumentShareFormValues } from "@/utils/schemas/document-schema";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Pressable, Text, View } from "react-native";
@@ -14,6 +15,7 @@ export function DocumentShareRow({
   onPress,
   onDelete,
 }: DocumentShareRowProps) {
+  const colors = useThemeColors();
   const typeLabel =
     AUDIENCE_TYPE_OPTIONS.find((option) => option.id === share.audienceType)
       ?.label ?? share.audienceType;
@@ -32,17 +34,17 @@ export function DocumentShareRow({
   return (
     <Pressable
       onPress={onPress}
-      className="flex-row items-center gap-3 px-3 py-3 border border-gray-200 rounded-lg mb-2 bg-white"
+      className="flex-row items-center gap-3 px-3 py-3 border border-border rounded-lg mb-2 bg-card"
     >
-      <View className="w-9 h-9 rounded-lg bg-gray-100 border border-gray-200 items-center justify-center">
-        <Ionicons name="people-outline" size={16} color="#6B7280" />
+      <View className="w-9 h-9 rounded-lg bg-muted border border-border items-center justify-center">
+        <Ionicons name="people-outline" size={16} color={colors.mutedForeground} />
       </View>
 
       <View className="flex-1">
-        <Text className="text-sm font-semibold text-black">
+        <Text className="text-sm font-semibold text-foreground">
           {targetLabel ? `${typeLabel} · ${targetLabel}` : typeLabel}
         </Text>
-        <Text className="text-xs text-gray-400 mt-0.5">
+        <Text className="text-xs text-faint mt-0.5">
           {dateParts.join(" · ")}
         </Text>
       </View>

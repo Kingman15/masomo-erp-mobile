@@ -1,16 +1,24 @@
 import { useUnreadNotificationsCount } from "@/hooks/queries/items/notification";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router/js-tabs";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function PortalLayout() {
+  const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
   const { unreadCount } = useUnreadNotificationsCount({});
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#000000",
-        tabBarInactiveTintColor: "#9CA3AF",
+        // En-têtes des onglets alignés sur les en-têtes natifs du Stack « Menu » (barre de 56, titre en 600).
+        headerTintColor: colors.foreground,
+        headerTitleStyle: { fontWeight: "600" },
+        headerStyle: { height: insets.top + 56 },
+        tabBarActiveTintColor: colors.foreground,
+        tabBarInactiveTintColor: colors.faint,
       }}
     >
       <Tabs.Screen

@@ -1,3 +1,4 @@
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { formatNumber } from "@/lib/format";
 import { StudentAttendanceRecordSummary } from "@/utils/types/StudentAttendanceRecordSummary";
 import { Text, View } from "react-native";
@@ -21,23 +22,24 @@ const JUSTIFICATION_BADGE_COLORS: Record<
   string,
   { bg: string; text: string }
 > = {
-  excused: { bg: "#F9FAFB", text: "#374151" },
-  authorized: { bg: "#FAF5FF", text: "#7E22CE" },
-  unexcused: { bg: "#FEF2F2", text: "#991B1B" },
-  pending: { bg: "#FEF2F2", text: "#B91C1C" },
+  excused: { bg: "bg-subtle", text: "text-foreground-secondary" },
+  authorized: { bg: "bg-purple-50 dark:bg-purple-950", text: "text-purple-700 dark:text-purple-300" },
+  unexcused: { bg: "bg-red-50 dark:bg-red-950", text: "text-red-800 dark:text-red-200" },
+  pending: { bg: "bg-red-50 dark:bg-red-950", text: "text-red-700 dark:text-red-300" },
 };
-const DEFAULT_JUSTIFICATION_BADGE_COLOR = { bg: "#F9FAFB", text: "#374151" };
+const DEFAULT_JUSTIFICATION_BADGE_COLOR = { bg: "bg-subtle", text: "text-foreground-secondary" };
 
 export function AttendanceSummaryStats({
   summary,
 }: AttendanceSummaryStatsProps) {
+  const colors = useThemeColors();
   const { present, absent } = summary;
 
   const tiles: StatTile[] = [
     {
       key: "total",
       label: "Total pointages",
-      dotColor: "#9CA3AF",
+      dotColor: colors.faint,
       value: summary.totalRecords,
     },
     {
@@ -74,56 +76,52 @@ export function AttendanceSummaryStats({
         {tiles.map((tile) => (
           <View
             key={tile.key}
-            className="flex-1 min-w-[45%] gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2.5"
+            className="flex-1 min-w-[45%] gap-1.5 rounded-lg border border-border bg-card px-3 py-2.5"
           >
             <View className="flex-row items-center gap-1.5">
               <View
                 className="h-2 w-2 rounded-full shrink-0"
                 style={{ backgroundColor: tile.dotColor }}
               />
-              <Text className="text-xs text-gray-500">{tile.label}</Text>
+              <Text className="text-xs text-muted-foreground">{tile.label}</Text>
             </View>
-            <Text className="text-xl font-semibold text-black">
+            <Text className="text-xl font-semibold text-foreground">
               {formatNumber(tile.value)}
             </Text>
             {tile.sublabel && (
-              <Text className="text-xs text-gray-400">{tile.sublabel}</Text>
+              <Text className="text-xs text-faint">{tile.sublabel}</Text>
             )}
           </View>
         ))}
       </View>
 
       {absent.count > 0 && (
-        <View className="flex-row flex-wrap items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2.5">
-          <Text className="text-xs font-medium text-gray-500">
+        <View className="flex-row flex-wrap items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5">
+          <Text className="text-xs font-medium text-muted-foreground">
             Détail des absences
           </Text>
 
-          <View className="rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5">
-            <Text className="text-xs text-gray-700">
+          <View className="rounded-full border border-border bg-subtle px-2 py-0.5">
+            <Text className="text-xs text-foreground-secondary">
               Justifiées {formatNumber(absent.justifiedCount)}
             </Text>
           </View>
-          <View className="rounded-full border border-red-200 bg-red-50 px-2 py-0.5">
-            <Text className="text-xs text-red-800">
+          <View className="rounded-full border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950 px-2 py-0.5">
+            <Text className="text-xs text-red-800 dark:text-red-200">
               Non justifiées {formatNumber(absent.unjustifiedCount)}
             </Text>
           </View>
 
           {absent.byJustificationStatus.map((item) => {
-            const colors =
+            const badge =
               JUSTIFICATION_BADGE_COLORS[item.code] ??
               DEFAULT_JUSTIFICATION_BADGE_COLOR;
             return (
               <View
                 key={item.code}
-                className="rounded-full border border-gray-200 px-2 py-0.5"
-                style={{ backgroundColor: colors.bg }}
+                className={`rounded-full border border-border px-2 py-0.5 ${badge.bg}`}
               >
-                <Text
-                  className="text-xs"
-                  style={{ color: colors.text }}
-                >
+                <Text className={`text-xs ${badge.text}`}>
                   {item.label} {formatNumber(item.count)}
                 </Text>
               </View>

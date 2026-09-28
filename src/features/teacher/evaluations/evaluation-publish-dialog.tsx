@@ -1,5 +1,6 @@
 import { DateField } from "@/components/list/date-field";
 import { Toast } from "@/components/toast";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import {
   teachingCourseEvaluationPublishSchema,
   type TeachingCourseEvaluationPublishFormValues,
@@ -29,6 +30,7 @@ export function EvaluationPublishDialog({
   onClose,
   onPublish,
 }: EvaluationPublishDialogProps) {
+  const colors = useThemeColors();
   const { control, handleSubmit, reset } =
     useForm<TeachingCourseEvaluationPublishFormValues>({
       resolver: zodResolver(teachingCourseEvaluationPublishSchema),
@@ -41,18 +43,18 @@ export function EvaluationPublishDialog({
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 bg-white">
-        <View className="flex-row items-center justify-between px-4 pt-14 pb-3 border-b border-gray-100">
-          <Text className="text-base font-semibold">
+      <View className="flex-1 bg-background">
+        <View className="flex-row items-center justify-between px-4 pt-14 pb-3 border-b border-divider">
+          <Text className="text-base font-semibold text-foreground">
             {"Publier l'évaluation"}
           </Text>
           <Pressable onPress={onClose} hitSlop={8}>
-            <Ionicons name="close" size={22} color="#374151" />
+            <Ionicons name="close" size={22} color={colors.foregroundSecondary} />
           </Pressable>
         </View>
 
         <View className="p-4">
-          <Text className="text-sm text-gray-600 mb-4">
+          <Text className="text-sm text-gray-600 dark:text-zinc-400 mb-4">
             {
               "Une fois publiée, l'évaluation devient visible selon les paramètres de visibilité configurés."
             }
@@ -74,13 +76,13 @@ export function EvaluationPublishDialog({
             onPress={() => void handleSubmit(onPublish)()}
             disabled={isPending}
             className={`h-12 rounded-lg items-center justify-center mt-6 ${
-              isPending ? "bg-gray-300" : "bg-black"
+              isPending ? "bg-gray-300 dark:bg-zinc-700" : "bg-foreground"
             }`}
           >
             {isPending ? (
-              <ActivityIndicator color="#ffffff" />
+              <ActivityIndicator color={colors.background} />
             ) : (
-              <Text className="text-white font-medium">Publier</Text>
+              <Text className="text-background font-medium">Publier</Text>
             )}
           </Pressable>
         </View>

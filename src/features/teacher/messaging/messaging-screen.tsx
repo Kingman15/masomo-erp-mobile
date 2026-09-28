@@ -3,6 +3,7 @@ import type { ConversationTab } from "@/api/endpoints/conversation";
 import { DrawerMenuButton } from "@/features/teacher/drawer-menu-button";
 import { useConversations } from "@/hooks/queries/items/conversation";
 import { useServiceDesksMine } from "@/hooks/queries/items/service-desk";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, Stack } from "expo-router";
 import { useState } from "react";
@@ -22,6 +23,7 @@ const TABS: { id: ConversationTab; label: string }[] = [
 ];
 
 export function MessagingScreen() {
+  const colors = useThemeColors();
 
   const [selectedDeskId, setSelectedDeskId] = useState<string | null>(null);
   const [tab, setTab] = useState<ConversationTab>("all");
@@ -58,13 +60,13 @@ export function MessagingScreen() {
                 }
                 hitSlop={8}
               >
-                <Ionicons name="add-outline" size={26} color="#000000" />
+                <Ionicons name="add-outline" size={26} color={colors.foreground} />
               </Pressable>
             ) : null,
         }}
       />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         <View className="px-4 pt-3 pb-2">
           <ComboBox
             label="Guichet"
@@ -80,7 +82,7 @@ export function MessagingScreen() {
             emptyLabel="Vous n'êtes membre d'aucun guichet."
           />
 
-          <View className="flex-row bg-gray-100 rounded-lg p-1">
+          <View className="flex-row bg-muted rounded-lg p-1">
             {TABS.map((t) => {
               const selected = tab === t.id;
               return (
@@ -88,12 +90,12 @@ export function MessagingScreen() {
                   key={t.id}
                   onPress={() => setTab(t.id)}
                   className={`flex-1 h-9 rounded-md items-center justify-center ${
-                    selected ? "bg-white" : ""
+                    selected ? "bg-card" : ""
                   }`}
                 >
                   <Text
                     className={`text-sm ${
-                      selected ? "font-semibold text-black" : "text-gray-500"
+                      selected ? "font-semibold text-foreground" : "text-muted-foreground"
                     }`}
                   >
                     {t.label}
@@ -116,7 +118,7 @@ export function MessagingScreen() {
         >
           {!serviceDesksIsLoading && serviceDesks.length === 0 ? (
             <View className="items-center justify-center px-6 py-16">
-              <Text className="text-sm text-gray-400 text-center">
+              <Text className="text-sm text-faint text-center">
                 Vous n&apos;êtes membre d&apos;aucun guichet.
               </Text>
             </View>
@@ -126,19 +128,19 @@ export function MessagingScreen() {
             </View>
           ) : conversationsError ? (
             <View className="items-center justify-center px-6 py-10 gap-3">
-              <Text className="text-sm text-gray-500 text-center">
+              <Text className="text-sm text-muted-foreground text-center">
                 Impossible de charger les conversations.
               </Text>
               <Pressable
                 onPress={() => loadConversations()}
-                className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+                className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
               >
-                <Text className="text-white font-medium">Réessayer</Text>
+                <Text className="text-background font-medium">Réessayer</Text>
               </Pressable>
             </View>
           ) : conversations.length === 0 ? (
             <View className="items-center justify-center px-6 py-16">
-              <Text className="text-sm text-gray-400 text-center">
+              <Text className="text-sm text-faint text-center">
                 Aucun fil de discussion.
               </Text>
             </View>

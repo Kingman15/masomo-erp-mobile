@@ -1,4 +1,5 @@
 import { useTeachingCourseById } from "@/hooks/queries/items/teaching-course";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Stack, useLocalSearchParams } from "expo-router";
 import {
@@ -26,11 +27,12 @@ type InfoRowProps = {
 };
 
 function InfoRow({ icon, label, value }: InfoRowProps) {
+  const colors = useThemeColors();
   return (
     <View className="flex-row items-center gap-3 py-2.5">
-      <Ionicons name={icon} size={16} color="#6B7280" />
-      <Text className="text-xs text-gray-500 w-28">{label}</Text>
-      <Text className="flex-1 text-sm text-black">{value}</Text>
+      <Ionicons name={icon} size={16} color={colors.mutedForeground} />
+      <Text className="text-xs text-muted-foreground w-28">{label}</Text>
+      <Text className="flex-1 text-sm text-foreground">{value}</Text>
     </View>
   );
 }
@@ -60,21 +62,21 @@ export function TeachingCourseDetailScreen() {
     <>
       <Stack.Screen options={{ title: "Détails du cours" }} />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         {teachingCourseIsLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />
           </View>
         ) : teachingCourseError ? (
           <View className="flex-1 items-center justify-center px-6 gap-3">
-            <Text className="text-sm text-gray-500 text-center">
+            <Text className="text-sm text-muted-foreground text-center">
               Impossible de charger le cours.
             </Text>
             <Pressable
               onPress={() => loadTeachingCourse()}
-              className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+              className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
             >
-              <Text className="text-white font-medium">Réessayer</Text>
+              <Text className="text-background font-medium">Réessayer</Text>
             </Pressable>
           </View>
         ) : teachingCourse ? (
@@ -83,22 +85,22 @@ export function TeachingCourseDetailScreen() {
             contentContainerStyle={{ padding: 16 }}
           >
             {className && (
-              <Text className="text-xs font-medium text-gray-500">
+              <Text className="text-xs font-medium text-muted-foreground">
                 {className}
               </Text>
             )}
-            <Text className="text-xl font-semibold text-black mt-1">
+            <Text className="text-xl font-semibold text-foreground mt-1">
               {course?.name ?? "Cours"}
             </Text>
             <Text
               className={`text-sm mt-0.5 ${
-                teachingCourse.isActive ? "text-green-600" : "text-gray-400"
+                teachingCourse.isActive ? "text-green-600" : "text-faint"
               }`}
             >
               {teachingCourse.isActive ? "Actif" : "Inactif"}
             </Text>
 
-            <View className="mt-4 border-t border-gray-100 pt-1">
+            <View className="mt-4 border-t border-divider pt-1">
               {teachingCourse.classroom && (
                 <InfoRow
                   icon="location-outline"
@@ -122,7 +124,7 @@ export function TeachingCourseDetailScreen() {
               )}
             </View>
 
-            <View className="mt-4 border-t border-gray-100 pt-1">
+            <View className="mt-4 border-t border-divider pt-1">
               {followCourse?.courseTypeStr && (
                 <InfoRow
                   icon="pricetag-outline"
@@ -163,56 +165,56 @@ export function TeachingCourseDetailScreen() {
             {tags.length > 0 && (
               <View className="flex-row flex-wrap gap-2 mt-3">
                 {tags.map((tag) => (
-                  <View key={tag} className="px-2 py-1 rounded-full bg-gray-100">
-                    <Text className="text-xs text-gray-600">{tag}</Text>
+                  <View key={tag} className="px-2 py-1 rounded-full bg-muted">
+                    <Text className="text-xs text-gray-600 dark:text-zinc-400">{tag}</Text>
                   </View>
                 ))}
               </View>
             )}
 
             {followCourse?.prerequisites && (
-              <View className="mt-4 border-t border-gray-100 pt-3">
-                <Text className="text-xs text-gray-500 mb-1">Prérequis</Text>
-                <Text className="text-sm text-black">
+              <View className="mt-4 border-t border-divider pt-3">
+                <Text className="text-xs text-muted-foreground mb-1">Prérequis</Text>
+                <Text className="text-sm text-foreground">
                   {followCourse.prerequisites}
                 </Text>
               </View>
             )}
 
             {followCourse?.description && (
-              <View className="mt-4 border-t border-gray-100 pt-3">
-                <Text className="text-xs text-gray-500 mb-1">
+              <View className="mt-4 border-t border-divider pt-3">
+                <Text className="text-xs text-muted-foreground mb-1">
                   Description du cours
                 </Text>
-                <Text className="text-sm text-black">
+                <Text className="text-sm text-foreground">
                   {followCourse.description}
                 </Text>
               </View>
             )}
 
             {teachingCourse.comments && (
-              <View className="mt-4 border-t border-gray-100 pt-3">
-                <Text className="text-xs text-gray-500 mb-1">
+              <View className="mt-4 border-t border-divider pt-3">
+                <Text className="text-xs text-muted-foreground mb-1">
                   Commentaires
                 </Text>
-                <Text className="text-sm text-black">
+                <Text className="text-sm text-foreground">
                   {teachingCourse.comments}
                 </Text>
               </View>
             )}
 
             {followCourse?.comments && (
-              <View className="mt-4 border-t border-gray-100 pt-3">
-                <Text className="text-xs text-gray-500 mb-1">
+              <View className="mt-4 border-t border-divider pt-3">
+                <Text className="text-xs text-muted-foreground mb-1">
                   Commentaires du cours
                 </Text>
-                <Text className="text-sm text-black">
+                <Text className="text-sm text-foreground">
                   {followCourse.comments}
                 </Text>
               </View>
             )}
 
-            <View className="mt-4 border-t border-gray-100 pt-1">
+            <View className="mt-4 border-t border-divider pt-1">
               <InfoRow
                 icon="person-outline"
                 label="Enseignant"

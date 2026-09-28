@@ -2,6 +2,7 @@ import { ChipSelect } from "@/components/list/chip-select";
 import { FilterPanel } from "@/components/list/filter-panel";
 import { useSchoolClasses } from "@/hooks/queries/items/school-class";
 import { useSchoolYears } from "@/hooks/queries/items/school-year";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
@@ -12,6 +13,7 @@ type StudentSwitcherPanelProps = {
 };
 
 export function StudentSwitcherPanel({ onClose }: StudentSwitcherPanelProps) {
+  const colors = useThemeColors();
   const {
     students,
     studentsIsLoading,
@@ -106,11 +108,11 @@ export function StudentSwitcherPanel({ onClose }: StudentSwitcherPanelProps) {
       {studentsIsLoading ? (
         <ActivityIndicator />
       ) : students.length <= 1 ? (
-        <Text className="text-base text-gray-900 mb-4">
+        <Text className="text-base text-foreground mb-4">
           {students[0]?.fullName ?? "Aucun élève"}
         </Text>
       ) : (
-        <View className="mb-4 border border-gray-200 rounded-xl overflow-hidden">
+        <View className="mb-4 border border-border rounded-xl overflow-hidden">
           {students.map((student, index) => {
             const selected = student.id === draftStudentId;
             const isLast = index === students.length - 1;
@@ -119,13 +121,13 @@ export function StudentSwitcherPanel({ onClose }: StudentSwitcherPanelProps) {
                 key={student.id}
                 onPress={() => handleSelectDraftStudent(student.id)}
                 className={`flex-row items-center justify-between px-3 py-3 ${
-                  isLast ? "" : "border-b border-gray-100"
+                  isLast ? "" : "border-b border-divider"
                 }`}
               >
-                <Text className="text-base text-gray-900" numberOfLines={1}>
+                <Text className="text-base text-foreground" numberOfLines={1}>
                   {student.fullName}
                 </Text>
-                {selected && <Ionicons name="checkmark" size={18} color="#000000" />}
+                {selected && <Ionicons name="checkmark" size={18} color={colors.foreground} />}
               </Pressable>
             );
           })}

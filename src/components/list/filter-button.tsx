@@ -1,3 +1,4 @@
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Pressable, Text, View } from "react-native";
 
@@ -12,6 +13,7 @@ export function FilterButton({
   onPress,
   fullWidth = false,
 }: FilterButtonProps) {
+  const colors = useThemeColors();
   const hasActiveFilters = activeCount > 0;
 
   if (fullWidth) {
@@ -19,17 +21,17 @@ export function FilterButton({
       <Pressable
         onPress={onPress}
         className={`h-11 w-full flex-row items-center justify-center gap-2 rounded-lg ${
-          hasActiveFilters ? "bg-black" : "bg-gray-100"
+          hasActiveFilters ? "bg-foreground" : "bg-muted"
         }`}
       >
         <Ionicons
           name="options-outline"
           size={18}
-          color={hasActiveFilters ? "#FFFFFF" : "#374151"}
+          color={hasActiveFilters ? colors.background : colors.foregroundSecondary}
         />
         <Text
           className={`text-sm font-medium ${
-            hasActiveFilters ? "text-white" : "text-gray-700"
+            hasActiveFilters ? "text-background" : "text-foreground-secondary"
           }`}
         >
           {hasActiveFilters ? `Filtrer (${activeCount})` : "Filtrer"}
@@ -42,13 +44,13 @@ export function FilterButton({
     <Pressable
       onPress={onPress}
       className={`h-11 w-11 items-center justify-center rounded-lg ${
-        hasActiveFilters ? "bg-black" : "bg-gray-100"
+        hasActiveFilters ? "bg-foreground" : "bg-muted"
       }`}
     >
       <Ionicons
         name="options-outline"
         size={20}
-        color={hasActiveFilters ? "#FFFFFF" : "#374151"}
+        color={hasActiveFilters ? colors.background : colors.foregroundSecondary}
       />
       {hasActiveFilters && (
         <View className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 items-center justify-center">

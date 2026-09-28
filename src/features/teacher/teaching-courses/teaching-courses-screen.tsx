@@ -1,5 +1,6 @@
 import { DrawerMenuButton } from "@/features/teacher/drawer-menu-button";
 import { useTeachingCourses } from "@/hooks/queries/items/teaching-course";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { TeachingCourse } from "@/utils/types/TeachingCourse";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { FlashList } from "@shopify/flash-list";
@@ -14,6 +15,7 @@ import {
 import { TeachingCourseRow } from "./teaching-course-row";
 
 export function TeachingCoursesScreen() {
+  const colors = useThemeColors();
   const [filters, setFilters] = useState<TeachingCourseFiltersForm>(
     emptyTeachingCourseFilters,
   );
@@ -53,22 +55,22 @@ export function TeachingCoursesScreen() {
         }}
       />
 
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-background">
         <View className="px-4 pt-3 pb-2">
           <Pressable
             onPress={() => setFiltersOpen((open) => !open)}
             className={`flex-row items-center justify-center gap-2 h-11 rounded-lg ${
-              activeFilterCount > 0 ? "bg-black" : "bg-gray-100"
+              activeFilterCount > 0 ? "bg-foreground" : "bg-muted"
             }`}
           >
             <Ionicons
               name="options-outline"
               size={18}
-              color={activeFilterCount > 0 ? "#FFFFFF" : "#374151"}
+              color={activeFilterCount > 0 ? colors.background : colors.foregroundSecondary}
             />
             <Text
               className={`text-sm font-medium ${
-                activeFilterCount > 0 ? "text-white" : "text-gray-700"
+                activeFilterCount > 0 ? "text-background" : "text-foreground-secondary"
               }`}
             >
               Filtrer les cours
@@ -91,14 +93,14 @@ export function TeachingCoursesScreen() {
           </View>
         ) : teachingCoursesError ? (
           <View className="flex-1 items-center justify-center px-6 gap-3">
-            <Text className="text-sm text-gray-500 text-center">
+            <Text className="text-sm text-muted-foreground text-center">
               Impossible de charger les cours.
             </Text>
             <Pressable
               onPress={() => loadTeachingCourses()}
-              className="h-10 px-4 rounded-lg bg-black items-center justify-center"
+              className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
             >
-              <Text className="text-white font-medium">Réessayer</Text>
+              <Text className="text-background font-medium">Réessayer</Text>
             </Pressable>
           </View>
         ) : (
@@ -109,14 +111,14 @@ export function TeachingCoursesScreen() {
             contentContainerStyle={{ paddingBottom: 12 }}
             ListHeaderComponent={
               teachingCourses ? (
-                <Text className="px-4 py-2 text-xs text-gray-400">
+                <Text className="px-4 py-2 text-xs text-faint">
                   {teachingCourses.length} cours
                 </Text>
               ) : null
             }
             ListEmptyComponent={
               <View className="items-center justify-center px-6 py-16">
-                <Text className="text-sm text-gray-400 text-center">
+                <Text className="text-sm text-faint text-center">
                   Aucun cours pour ces filtres.
                 </Text>
               </View>

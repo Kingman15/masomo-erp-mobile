@@ -6,7 +6,7 @@ const VARIANT_CLASSES = {
   success: "bg-green-600",
   error: "bg-red-600",
   warning: "bg-amber-600",
-  info: "bg-gray-900",
+  info: "bg-gray-900 dark:bg-zinc-700",
 } as const;
 
 export function Toast() {

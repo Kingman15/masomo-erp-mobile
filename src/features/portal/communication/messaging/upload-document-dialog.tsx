@@ -1,5 +1,6 @@
 import { Toast } from "@/components/toast";
 import { useUploadPortalDocument } from "@/hooks/queries/items/portal-document";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { handleApiError } from "@/lib/handle-api-error";
 import type { MessageDocumentDraft } from "@/utils/types/MessageDocument";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -56,6 +57,7 @@ export function UploadDocumentDialog({
   onClose,
   onUploaded,
 }: UploadDocumentDialogProps) {
+  const colors = useThemeColors();
   const [file, setFile] = useState<PickedFile | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
   const [title, setTitle] = useState("");
@@ -127,56 +129,56 @@ export function UploadDocumentDialog({
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={handleClose}>
-      <View className="flex-1 bg-white">
-        <View className="flex-row items-center justify-between px-4 pt-14 pb-3 border-b border-gray-100">
-          <Text className="text-base font-semibold">Téléverser un fichier</Text>
+      <View className="flex-1 bg-background">
+        <View className="flex-row items-center justify-between px-4 pt-14 pb-3 border-b border-divider">
+          <Text className="text-base font-semibold text-foreground">Téléverser un fichier</Text>
           <Pressable onPress={handleClose} hitSlop={8}>
-            <Ionicons name="close" size={22} color="#374151" />
+            <Ionicons name="close" size={22} color={colors.foregroundSecondary} />
           </Pressable>
         </View>
 
         <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
           <Pressable
             onPress={() => void pickFile()}
-            className="h-11 rounded-lg border border-dashed border-gray-300 items-center justify-center mb-1 flex-row gap-2"
+            className="h-11 rounded-lg border border-dashed border-input items-center justify-center mb-1 flex-row gap-2"
           >
-            <Ionicons name="attach-outline" size={18} color="#374151" />
-            <Text className="text-sm font-medium text-gray-700">
+            <Ionicons name="attach-outline" size={18} color={colors.foregroundSecondary} />
+            <Text className="text-sm font-medium text-foreground-secondary">
               {file ? "Changer de fichier" : "Sélectionner un fichier"}
             </Text>
           </Pressable>
           {file && (
-            <Text className="text-xs text-gray-500 mb-1">{file.name}</Text>
+            <Text className="text-xs text-muted-foreground mb-1">{file.name}</Text>
           )}
-          <Text className="text-xs text-gray-400 mb-1">
+          <Text className="text-xs text-faint mb-1">
             Formats : PDF, DOC, DOCX, JPG, JPEG, PNG · max 10 Mo.
           </Text>
           {fileError && (
             <Text className="text-xs text-red-500 mb-3">{fileError}</Text>
           )}
 
-          <Text className="text-sm font-medium text-gray-700 mb-2 mt-2">
+          <Text className="text-sm font-medium text-foreground-secondary mb-2 mt-2">
             Titre
           </Text>
           <TextInput
             value={title}
             onChangeText={setTitle}
             placeholder="Titre (optionnel)"
-            placeholderTextColor="#9CA3AF"
-            className="h-11 border border-gray-300 rounded-lg px-3 mb-4 bg-white"
+            placeholderTextColor={colors.faint}
+            className="h-11 border border-input rounded-lg px-3 mb-4 bg-card text-foreground"
           />
 
           <Pressable
             onPress={() => void handleUpload()}
             disabled={uploadPortalDocumentIsPending}
             className={`h-11 rounded-lg items-center justify-center ${
-              uploadPortalDocumentIsPending ? "bg-gray-300" : "bg-black"
+              uploadPortalDocumentIsPending ? "bg-gray-300 dark:bg-zinc-700" : "bg-foreground"
             }`}
           >
             {uploadPortalDocumentIsPending ? (
-              <ActivityIndicator color="#ffffff" />
+              <ActivityIndicator color={colors.background} />
             ) : (
-              <Text className="text-white font-medium">Téléverser</Text>
+              <Text className="text-background font-medium">Téléverser</Text>
             )}
           </Pressable>
         </ScrollView>

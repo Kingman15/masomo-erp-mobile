@@ -1,5 +1,6 @@
 import { documentIconName } from "@/features/teacher/documents/document-icon";
 import { formatFileSize } from "@/features/teacher/documents/format-file-size";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { MessageDocument } from "@/utils/types/MessageDocument";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { openBrowserAsync } from "expo-web-browser";
@@ -14,6 +15,7 @@ export function MessageAttachments({
   documents,
   tint = "light",
 }: MessageAttachmentsProps) {
+  const colors = useThemeColors();
   if (documents.length === 0) return null;
 
   return (
@@ -33,11 +35,11 @@ export function MessageAttachments({
             <Ionicons
               name={documentIconName(document?.mimeType ?? null)}
               size={14}
-              color={tint === "dark" ? "#D1D5DB" : "#374151"}
+              color={tint === "dark" ? colors.input : colors.foregroundSecondary}
             />
             <Text
               className={`text-xs underline flex-shrink ${
-                tint === "dark" ? "text-gray-200" : "text-gray-700"
+                tint === "dark" ? "text-gray-200 dark:text-zinc-700" : "text-foreground-secondary"
               }`}
               numberOfLines={1}
             >
