@@ -5,5 +5,5 @@ export interface PortalFeePaymentRecordDTO {
   paymentMethodStr: string | null;
   transactionReference: string | null;
   comments: string | null;
-  currency: { isoCode: string | null } | null;
+  currency: string | null;
 }

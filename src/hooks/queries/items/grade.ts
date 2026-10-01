@@ -9,7 +9,7 @@ interface UsePortalGradesParams {
   filters?: {
     schoolYearId?: string | null;
     schoolClassId?: string | null;
-    evaluationPeriodId?: string | null;
+    schoolPeriodId?: string | null;
     courseId?: string | null;
   };
   enabled?: boolean;
@@ -23,7 +23,7 @@ export function usePortalGrades({
   const normalizedFilters = {
     schoolYearId: filters.schoolYearId ?? undefined,
     schoolClassId: filters.schoolClassId ?? undefined,
-    evaluationPeriodId: filters.evaluationPeriodId ?? undefined,
+    schoolPeriodId: filters.schoolPeriodId ?? undefined,
     courseId: filters.courseId ?? undefined,
   };
 

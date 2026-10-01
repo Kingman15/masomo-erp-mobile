@@ -34,6 +34,7 @@ export default function TeacherLayout() {
         <Drawer.Screen name="sanctions" options={{ headerShown: false }} />
         <Drawer.Screen name="attendance" options={{ headerShown: false }} />
         <Drawer.Screen name="schedule" options={{ headerShown: false }} />
+        <Drawer.Screen name="calendar" options={{ headerShown: false }} />
         <Drawer.Screen
           name="internal-regulations"
           options={{ headerShown: false }}

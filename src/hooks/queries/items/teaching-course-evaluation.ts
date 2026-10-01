@@ -31,7 +31,7 @@ interface UseTeachingCourseEvaluationsParams {
     schoolYearId?: string | null;
     schoolClassId?: string | null;
     courseId?: string | null;
-    evaluationPeriodId?: string | null;
+    schoolPeriodId?: string | null;
     teachingCourseEvaluationTypeId?: string | null;
     startDate?: string | null;
     endDate?: string | null;
@@ -47,7 +47,7 @@ export function teachingCourseEvaluationsQuery(
     schoolYearId: filters.schoolYearId ?? undefined,
     schoolClassId: filters.schoolClassId ?? undefined,
     courseId: filters.courseId ?? undefined,
-    evaluationPeriodId: filters.evaluationPeriodId ?? undefined,
+    schoolPeriodId: filters.schoolPeriodId ?? undefined,
     teachingCourseEvaluationTypeId:
       filters.teachingCourseEvaluationTypeId ?? undefined,
     startDate: filters.startDate ?? undefined,
@@ -91,7 +91,7 @@ interface UsePortalTeachingCourseEvaluationsParams {
   filters?: {
     schoolYearId?: string | null;
     schoolClassId?: string | null;
-    evaluationPeriodId?: string | null;
+    schoolPeriodId?: string | null;
     courseId?: string | null;
   };
   enabled?: boolean;
@@ -105,7 +105,7 @@ export function usePortalTeachingCourseEvaluations({
   const normalizedFilters = {
     schoolYearId: filters.schoolYearId ?? undefined,
     schoolClassId: filters.schoolClassId ?? undefined,
-    evaluationPeriodId: filters.evaluationPeriodId ?? undefined,
+    schoolPeriodId: filters.schoolPeriodId ?? undefined,
     courseId: filters.courseId ?? undefined,
   };
 

@@ -1,11 +1,11 @@
 export type EvaluationFiltersForm = {
   courseId: string | null;
-  evaluationPeriodId: string | null;
+  schoolPeriodId: string | null;
   evaluationType: string | null;
 };
 
 export const emptyEvaluationFilters: EvaluationFiltersForm = {
   courseId: null,
-  evaluationPeriodId: null,
+  schoolPeriodId: null,
   evaluationType: null,
 };

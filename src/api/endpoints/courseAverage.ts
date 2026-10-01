@@ -6,8 +6,8 @@ interface PortalCourseAverageFilters {
   studentId?: string;
   schoolYearId?: string;
   schoolClassId?: string;
-  evaluationPeriodId?: string | null;
-  sysyId?: string | null;
+  schoolPeriodId?: string | null;
+  schoolYearTermId?: string | null;
 }
 
 export async function portalIndex(

@@ -54,9 +54,9 @@ export const teachingCourseEvaluationSchema = z
       .string({ required_error: "Le type d'évaluation est requis" })
       .uuid("Le type d'évaluation est invalide"),
 
-    evaluationPeriodId: z
-      .string({ required_error: "La période d'évaluation est requise" })
-      .uuid("La période d'évaluation est invalide"),
+    schoolPeriodId: z
+      .string({ required_error: "La période scolaire est requise" })
+      .uuid("La période scolaire est invalide"),
 
     weight: z.coerce
       .number({ required_error: "Pondération requise" })

@@ -13,7 +13,7 @@ interface TeachingCourseEvaluationFilters {
   schoolYearId?: string | null;
   schoolClassId?: string | null;
   courseId?: string | null;
-  evaluationPeriodId?: string | null;
+  schoolPeriodId?: string | null;
   teachingCourseEvaluationTypeId?: string | null;
   startDate?: string | null;
   endDate?: string | null;
@@ -22,7 +22,7 @@ interface TeachingCourseEvaluationFilters {
 interface PortalTeachingCourseEvaluationFilters {
   schoolYearId?: string;
   schoolClassId?: string;
-  evaluationPeriodId?: string;
+  schoolPeriodId?: string;
   courseId?: string;
 }
 
@@ -70,7 +70,7 @@ function toRequestBody(payload: TeachingCourseEvaluationFormValues) {
     school_class_id: payload.schoolClassId,
     course_id: payload.courseId,
     evaluation_type_id: payload.evaluationTypeId,
-    evaluation_period_id: payload.evaluationPeriodId,
+    school_period_id: payload.schoolPeriodId,
     weight: payload.weight,
     max_score: payload.maxScore,
     evaluation_date: payload.evaluationDate,

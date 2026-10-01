@@ -27,6 +27,6 @@ export interface PortalFeePaymentDTO {
       fee: { designation: string | null } | null;
     } | null;
   } | null;
-  currency: { isoCode: string | null } | null;
+  currency: string | null;
   feePaymentRecords: PortalFeePaymentRecordDTO[] | null;
 }

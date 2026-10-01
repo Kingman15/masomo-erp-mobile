@@ -10,7 +10,7 @@ export interface PortalTeachingCourseEvaluationDTO {
     shortName: string | null;
   };
 
-  evaluationPeriod: {
+  schoolPeriod: {
     id: string;
     name: string;
   };

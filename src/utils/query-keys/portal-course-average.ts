@@ -6,8 +6,8 @@ export const portalCourseAverageKeys = {
     filters: {
       schoolYearId?: string | null;
       schoolClassId?: string | null;
-      evaluationPeriodId?: string | null;
-      sysyId?: string | null;
+      schoolPeriodId?: string | null;
+      schoolYearTermId?: string | null;
     },
   ) => [...portalCourseAverageKeys.all, studentId, "list", filters] as const,
 };

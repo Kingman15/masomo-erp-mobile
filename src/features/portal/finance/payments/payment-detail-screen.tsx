@@ -90,7 +90,7 @@ export function PaymentDetailScreen() {
             <SectionTitle>Informations</SectionTitle>
             <View className="border-t border-divider pt-1">
               <InfoRow icon="receipt-outline" label="N° Reçu" value={feePayment.receiptNumber} />
-              <InfoRow icon="cash-outline" label="Devise" value={feePayment.currency?.isoCode} />
+              <InfoRow icon="cash-outline" label="Devise" value={feePayment.currency} />
               <InfoRow icon="calendar-outline" label="Date butoir" value={formatShortDate(feePayment.dueDate)} />
               <InfoRow icon="pricetag-outline" label="Montant dû" value={feePayment.amountDueStr} />
               <InfoRow icon="checkmark-circle-outline" label="Montant payé" value={feePayment.amountPaidStr} />
@@ -141,7 +141,7 @@ export function PaymentDetailScreen() {
                     <View className="flex-row items-center justify-between gap-3">
                       <Text className="text-sm font-medium text-foreground">
                         {record.amountPaid
-                          ? `${record.amountPaid} ${record.currency?.isoCode ?? ""}`.trim()
+                          ? `${record.amountPaid} ${feePayment.currency ?? ""}`.trim()
                           : "Versement"}
                       </Text>
                       {record.paymentMethodStr && (

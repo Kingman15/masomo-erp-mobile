@@ -8,7 +8,7 @@ type GradeRowProps = {
 };
 
 function GradeRowComponent({ grade }: GradeRowProps) {
-  const label = grade.wording ?? grade.evaluationType ?? grade.evaluationPeriod.name;
+  const label = grade.wording ?? grade.evaluationType ?? grade.schoolPeriod.name;
 
   return (
     <View className="px-3 py-2.5 border border-border rounded-lg mb-2 bg-card">
@@ -32,7 +32,7 @@ function GradeRowComponent({ grade }: GradeRowProps) {
       </View>
 
       <Text className="text-xs text-faint mt-0.5">
-        {grade.evaluationPeriod.name}
+        {grade.schoolPeriod.name}
       </Text>
     </View>
   );

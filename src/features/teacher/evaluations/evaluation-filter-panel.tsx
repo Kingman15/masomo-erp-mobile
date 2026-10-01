@@ -2,7 +2,7 @@ import { ComboBox } from "@/components/list/combo-box";
 import { DateField } from "@/components/list/date-field";
 import { FilterPanel } from "@/components/list/filter-panel";
 import { useCourses } from "@/hooks/queries/items/course";
-import { useEvaluationPeriods } from "@/hooks/queries/items/evaluation-period";
+import { useSchoolPeriods } from "@/hooks/queries/items/school-period";
 import { useSchoolClasses } from "@/hooks/queries/items/school-class";
 import {
   useCurrentSchoolYear,
@@ -46,8 +46,8 @@ export function EvaluationFilterPanel({
     filters: { schoolYearId, schoolClassId },
   });
 
-  const { evaluationPeriods, evaluationPeriodsIsLoading } =
-    useEvaluationPeriods();
+  const { schoolPeriods, schoolPeriodsIsLoading } =
+    useSchoolPeriods();
   const {
     teachingCourseEvaluationTypes,
     teachingCourseEvaluationTypesIsLoading,
@@ -158,18 +158,18 @@ export function EvaluationFilterPanel({
 
       <Controller
         control={control}
-        name="evaluationPeriodId"
+        name="schoolPeriodId"
         render={({ field: { value: fieldValue, onChange } }) => (
           <ComboBox
-            label="Période d'évaluation"
+            label="Période scolaire"
             placeholder="Toutes les périodes"
-            options={(evaluationPeriods ?? []).map((period) => ({
+            options={(schoolPeriods ?? []).map((period) => ({
               id: period.id,
               label: period.name,
             }))}
             value={fieldValue}
             onChange={onChange}
-            loading={evaluationPeriodsIsLoading}
+            loading={schoolPeriodsIsLoading}
           />
         )}
       />

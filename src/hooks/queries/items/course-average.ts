@@ -9,8 +9,8 @@ interface UsePortalCourseAveragesParams {
   filters?: {
     schoolYearId?: string | null;
     schoolClassId?: string | null;
-    evaluationPeriodId?: string | null;
-    sysyId?: string | null;
+    schoolPeriodId?: string | null;
+    schoolYearTermId?: string | null;
   };
   enabled?: boolean;
 }
@@ -20,7 +20,7 @@ export function usePortalCourseAverages({
   filters = {},
   enabled = true,
 }: UsePortalCourseAveragesParams) {
-  const { schoolYearId, schoolClassId, evaluationPeriodId, sysyId } = filters;
+  const { schoolYearId, schoolClassId, schoolPeriodId, schoolYearTermId } = filters;
 
   const query = useListQuery<CourseAverageDTO>({
     queryKey: portalCourseAverageKeys.list(studentId, filters),
@@ -29,8 +29,8 @@ export function usePortalCourseAverages({
         studentId: studentId ?? undefined,
         schoolYearId: schoolYearId ?? undefined,
         schoolClassId: schoolClassId ?? undefined,
-        evaluationPeriodId: evaluationPeriodId ?? undefined,
-        sysyId: sysyId ?? undefined,
+        schoolPeriodId: schoolPeriodId ?? undefined,
+        schoolYearTermId: schoolYearTermId ?? undefined,
       }),
     label: "Moyennes par cours",
     enabled: enabled && Boolean(studentId && schoolYearId && schoolClassId),

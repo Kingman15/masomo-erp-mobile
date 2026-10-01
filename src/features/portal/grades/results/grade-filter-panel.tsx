@@ -2,7 +2,7 @@ import { ChipSelect } from "@/components/list/chip-select";
 import { ComboBox } from "@/components/list/combo-box";
 import { FilterPanel } from "@/components/list/filter-panel";
 import { useFollowedCourses } from "@/hooks/queries/items/course";
-import { useEvaluationPeriods } from "@/hooks/queries/items/evaluation-period";
+import { useSchoolPeriods } from "@/hooks/queries/items/school-period";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { emptyGradeFilters, type GradeFiltersForm } from "./grade-filters";
@@ -33,8 +33,8 @@ export function GradeFilterPanel({
     schoolClassId,
   });
 
-  const { evaluationPeriods, evaluationPeriodsIsLoading } =
-    useEvaluationPeriods();
+  const { schoolPeriods, schoolPeriodsIsLoading } =
+    useSchoolPeriods();
 
   const handleApply = (data: GradeFiltersForm) => {
     onApply(data);
@@ -85,18 +85,18 @@ export function GradeFilterPanel({
 
       <Controller
         control={control}
-        name="evaluationPeriodId"
+        name="schoolPeriodId"
         render={({ field: { value: fieldValue, onChange } }) => (
           <ComboBox
-            label="Période d'évaluation"
+            label="Période scolaire"
             placeholder="Toutes les périodes"
-            options={(evaluationPeriods ?? []).map((period) => ({
+            options={(schoolPeriods ?? []).map((period) => ({
               id: period.id,
               label: period.name,
             }))}
             value={fieldValue}
             onChange={onChange}
-            loading={evaluationPeriodsIsLoading}
+            loading={schoolPeriodsIsLoading}
           />
         )}
       />

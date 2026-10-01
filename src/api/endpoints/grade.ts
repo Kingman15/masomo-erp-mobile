@@ -5,7 +5,7 @@ import { PortalGradeDTO } from "@/utils/types/objects/PortalGradeDTO";
 interface PortalGradeFilters {
   schoolYearId?: string;
   schoolClassId?: string;
-  evaluationPeriodId?: string;
+  schoolPeriodId?: string;
   courseId?: string;
 }
 

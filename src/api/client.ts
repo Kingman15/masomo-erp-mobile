@@ -3,6 +3,7 @@ import axios, {
   AxiosInstance,
   AxiosResponse,
   InternalAxiosRequestConfig,
+  isAxiosError,
 } from "axios";
 import * as SecureStore from "expo-secure-store";
 
@@ -19,7 +20,14 @@ const API_BASE_URL: string =
 const AUTH_STORAGE_KEY = "auth";
 const SCHOOL_CODE_STORAGE_KEY = "school_code"; // code saisi au login, distinct du token
 
-const AUTH_EXCLUDED_PATHS = ["/login", "/auth/refresh"];
+const AUTH_EXCLUDED_PATHS = ["/login", "/refresh"];
+
+// Notifié quand la session ne peut plus être renouvelée (refresh token invalide/expiré)
+let sessionExpiredHandler: (() => void) | null = null;
+
+export const setSessionExpiredHandler = (handler: (() => void) | null) => {
+  sessionExpiredHandler = handler;
+};
 
 const logOperations = Boolean(__DEV__) && false;
 
@@ -103,11 +111,10 @@ async function refreshToken(): Promise<string> {
     console.log("🔄 Refresh token en cours...");
   }
 
+  // axios nu (pas `api`) : l'appel ne doit pas repasser par les intercepteurs
   const response = await axios.post<RefreshTokenResponse>(
-    `${API_BASE_URL}/auth/refresh`,
-    {
-      refreshToken: refresh_token,
-    },
+    `${API_BASE_URL}/refresh`,
+    { refresh_token },
     {
       headers: schoolCode ? { "X-School-Code": schoolCode } : {},
       timeout: READ_TIMEOUT_MS,
@@ -236,7 +243,14 @@ api.interceptors.response.use(
           );
         }
         processQueue(normalizedErr, null);
-        await removeAuth(); // déconnexion propre si le refresh échoue
+
+        // Hors-ligne/timeout pendant le refresh : la session reste valide, la file offline réessaiera
+        const isNetworkError = isAxiosError(err) && !err.response;
+        if (!isNetworkError) {
+          await removeAuth();
+          sessionExpiredHandler?.();
+        }
+
         return await Promise.reject(normalizedErr);
       } finally {
         isRefreshing = false;

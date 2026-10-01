@@ -7,7 +7,7 @@ export interface PortalGradeDTO {
     shortName: string | null;
   };
 
-  evaluationPeriod: {
+  schoolPeriod: {
     id: string;
     name: string;
   };

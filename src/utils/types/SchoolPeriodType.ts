@@ -1,4 +1,4 @@
-export interface EvaluationPeriodType {
+export interface SchoolPeriodType {
   id: string;
   code: string;
   name: string;

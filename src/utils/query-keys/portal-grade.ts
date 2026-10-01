@@ -6,7 +6,7 @@ export const portalGradeKeys = {
     filters: {
       schoolYearId?: string | null;
       schoolClassId?: string | null;
-      evaluationPeriodId?: string | null;
+      schoolPeriodId?: string | null;
       courseId?: string | null;
     },
   ) => [...portalGradeKeys.all, studentId, "list", filters] as const,

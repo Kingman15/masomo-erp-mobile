@@ -5,7 +5,7 @@ export const teachingCourseEvaluationKeys = {
     schoolYearId?: string | null;
     schoolClassId?: string | null;
     courseId?: string | null;
-    evaluationPeriodId?: string | null;
+    schoolPeriodId?: string | null;
     teachingCourseEvaluationTypeId?: string | null;
     startDate?: string | null;
     endDate?: string | null;

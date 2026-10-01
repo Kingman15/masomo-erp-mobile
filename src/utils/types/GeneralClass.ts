@@ -11,7 +11,7 @@ export const GENERAL_CLASS_BULLETIN_TYPES = [
   "maxima",
   "branch",
 ] as const;
-export const GENERAL_CLASS_SCHOOL_PERIODS = ["quarter", "semester"] as const;
+export const GENERAL_CLASS_TERM_TYPES = ["quarter", "semester"] as const;
 
 // -----------------------------------------------------------------------
 // Types
@@ -19,8 +19,8 @@ export const GENERAL_CLASS_SCHOOL_PERIODS = ["quarter", "semester"] as const;
 
 export type GeneralClassBulletinType =
   (typeof GENERAL_CLASS_BULLETIN_TYPES)[number];
-export type GeneralClassSchoolPeriod =
-  (typeof GENERAL_CLASS_SCHOOL_PERIODS)[number];
+export type GeneralClassTermType =
+  (typeof GENERAL_CLASS_TERM_TYPES)[number];
 
 // -----------------------------------------------------------------------
 // Ressource
@@ -38,7 +38,7 @@ export interface GeneralClass {
   isActive: boolean | null;
   displayOrder: number | null;
   bulletinType: GeneralClassBulletinType | null;
-  schoolPeriod: GeneralClassSchoolPeriod | null;
+  termType: GeneralClassTermType | null;
   description: string | null;
   comments: string | null;
 

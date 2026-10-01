@@ -55,7 +55,7 @@ export interface Guardian {
   address: string | null;
   isActive: boolean | null;
   receivesNotifications: boolean | null;
-  comments: string | null;
+  notes: string | null;
   userId: string | null;
 
   // ---

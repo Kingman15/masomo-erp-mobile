@@ -1,5 +1,5 @@
 import { Employee } from "./Employee";
-import { EvaluationPeriod } from "./EvaluationPeriod";
+import { SchoolPeriod } from "./SchoolPeriod";
 import { TeachingCourse } from "./TeachingCourse";
 import { TeachingCourseEvaluationQuestion } from "./TeachingCourseEvaluationQuestion";
 import { TeachingCourseEvaluationType } from "./TeachingCourseEvaluationType";
@@ -9,7 +9,7 @@ export interface TeachingCourseEvaluation {
   id: string;
   code: string | null;
   teachingCourseId: string | null;
-  evaluationPeriodId: string | null;
+  schoolPeriodId: string | null;
   evaluationTypeId: string | null;
   teacherId: string | null;
   evaluationDate: string | null;
@@ -33,7 +33,7 @@ export interface TeachingCourseEvaluation {
   // Relations ===
 
   teachingCourse: TeachingCourse | null;
-  evaluationPeriod: EvaluationPeriod | null;
+  schoolPeriod: SchoolPeriod | null;
   evaluationType: TeachingCourseEvaluationType | null;
   teacher: Employee | null;
   publishedByUser: User | null;

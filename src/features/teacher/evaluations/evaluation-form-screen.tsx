@@ -2,7 +2,7 @@ import { CheckboxRow } from "@/components/list/checkbox-row";
 import { ComboBox } from "@/components/list/combo-box";
 import { DateField } from "@/components/list/date-field";
 import { useFollowedCourses } from "@/hooks/queries/items/course";
-import { useEvaluationPeriods } from "@/hooks/queries/items/evaluation-period";
+import { useSchoolPeriods } from "@/hooks/queries/items/school-period";
 import { useSchoolClasses } from "@/hooks/queries/items/school-class";
 import {
   useCurrentSchoolYear,
@@ -165,8 +165,8 @@ export function EvaluationFormScreen({
     teacherId: null,
   });
 
-  const { evaluationPeriods, evaluationPeriodsIsLoading } =
-    useEvaluationPeriods();
+  const { schoolPeriods, schoolPeriodsIsLoading } =
+    useSchoolPeriods();
   const {
     teachingCourseEvaluationTypes,
     teachingCourseEvaluationTypesIsLoading,
@@ -187,8 +187,8 @@ export function EvaluationFormScreen({
         teachingCourseEvaluation.teachingCourse?.followCourse?.courseId ??
         undefined,
       evaluationTypeId: teachingCourseEvaluation.evaluationTypeId ?? undefined,
-      evaluationPeriodId:
-        teachingCourseEvaluation.evaluationPeriodId ?? undefined,
+      schoolPeriodId:
+        teachingCourseEvaluation.schoolPeriodId ?? undefined,
       weight: teachingCourseEvaluation.weight ?? undefined,
       maxScore: teachingCourseEvaluation.maxScore ?? undefined,
       evaluationDate: teachingCourseEvaluation.evaluationDate
@@ -599,24 +599,24 @@ export function EvaluationFormScreen({
 
         <Controller
           control={control}
-          name="evaluationPeriodId"
+          name="schoolPeriodId"
           render={({ field: { value, onChange } }) => (
             <ComboBox
-              label="Période d'évaluation"
+              label="Période scolaire"
               placeholder="Sélectionner une période"
-              options={(evaluationPeriods ?? []).map((period) => ({
+              options={(schoolPeriods ?? []).map((period) => ({
                 id: period.id,
                 label: period.name,
               }))}
               value={value}
               onChange={onChange}
-              loading={evaluationPeriodsIsLoading}
+              loading={schoolPeriodsIsLoading}
             />
           )}
         />
-        {errors.evaluationPeriodId && (
+        {errors.schoolPeriodId && (
           <Text className="text-xs text-red-500 mb-3">
-            {errors.evaluationPeriodId.message}
+            {errors.schoolPeriodId.message}
           </Text>
         )}
 

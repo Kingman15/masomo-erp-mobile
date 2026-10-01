@@ -56,11 +56,11 @@ function EvaluationRowComponent({ evaluation, onPress }: EvaluationRowProps) {
           </View>
         )}
 
-        {evaluation.evaluationPeriod?.name && (
+        {evaluation.schoolPeriod?.name && (
           <View className="flex-row items-center gap-1">
             <Ionicons name="calendar-outline" size={13} color={colors.mutedForeground} />
             <Text className="text-xs text-muted-foreground">
-              {evaluation.evaluationPeriod.name}
+              {evaluation.schoolPeriod.name}
             </Text>
           </View>
         )}

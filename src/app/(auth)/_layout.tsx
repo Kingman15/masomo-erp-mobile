@@ -12,6 +12,7 @@ export default function AuthLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="school-code" />
       <Stack.Screen name="login" />
+      <Stack.Screen name="parent-activation" />
     </Stack>
   );
 }

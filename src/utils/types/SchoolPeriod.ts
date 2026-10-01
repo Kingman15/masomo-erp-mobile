@@ -1,6 +1,6 @@
-import { EvaluationPeriodType } from "./EvaluationPeriodType";
+import { SchoolPeriodType } from "./SchoolPeriodType";
 
-export interface EvaluationPeriod {
+export interface SchoolPeriod {
   id: string;
   code: string;
   name: string;
@@ -13,5 +13,5 @@ export interface EvaluationPeriod {
 
   // Relations ===
 
-  periodType: EvaluationPeriodType | null;
+  periodType: SchoolPeriodType | null;
 }

@@ -1,34 +1,36 @@
+import {
+  AuthButton,
+  AuthField,
+  AuthFooter,
+  AuthHeader,
+  AuthLink,
+  SchoolLogo,
+} from "@/features/auth/components";
 import { schoolCodeSchema, type SchoolCodeForm } from "@/features/auth/schemas";
-import { useAuthStore } from "@/stores/auth";
-import { BRAND_PRIMARY } from "@/constants/theme";
+import { useConfirm } from "@/hooks/use-confirm";
 import { useThemeColors } from "@/hooks/use-theme-colors";
+import { useAuthStore } from "@/stores/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Image } from "expo-image";
 import { router } from "expo-router";
-import { useColorScheme } from "nativewind";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import {
-  ActivityIndicator,
-  Pressable,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
-const LOGO_LIGHT = require("@/assets/images/logo-primary.png");
-const LOGO_DARK = require("@/assets/images/logo-primary-dark.png");
-
+/**
+ * Choix de l'école : parmi celles où une connexion a déjà réussi sur cet appareil, ou par un nouveau code.
+ * Ouvert d'office sans école connue, ou depuis « Changer » (connexion, activation parent) : on y revient alors.
+ */
 export default function SchoolCodeScreen() {
   const colors = useThemeColors();
-  const isDark = useColorScheme().colorScheme === "dark";
-  // En sombre, la bordure standard (zinc-800) disparaît sur le fond : on prend celle des champs.
-  const fieldBorder = isDark ? colors.input : colors.border;
+  const school = useAuthStore((s) => s.school);
+  const knownSchools = useAuthStore((s) => s.knownSchools);
   const submitSchoolCode = useAuthStore((s) => s.submitSchoolCode);
+  const selectSchool = useAuthStore((s) => s.selectSchool);
+  const forgetSchool = useAuthStore((s) => s.forgetSchool);
+  const { confirm, ConfirmDialog } = useConfirm();
   const [serverError, setServerError] = useState<string | null>(null);
-  const [codeFocused, setCodeFocused] = useState(false);
 
   const {
     control,
@@ -39,17 +41,24 @@ export default function SchoolCodeScreen() {
     defaultValues: { code: "" },
   });
 
+  // Retour à l'écran appelant s'il y en a un, sinon la connexion
+  const done = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/(auth)/login");
+  };
+
   const onSubmit = async (data: SchoolCodeForm) => {
     setServerError(null);
     try {
-      await submitSchoolCode(data.code);
-      router.replace("/(auth)/login");
+      await submitSchoolCode(data.code.trim().toUpperCase());
+      done();
     } catch {
-      setServerError(
-        "Code école introuvable. Veuillez vérifier auprès de votre établissement.",
-      );
+      // Le store fournit le motif (code introuvable, trop de tentatives…)
+      setServerError(useAuthStore.getState().error);
     }
   };
+
+  const hasSchools = knownSchools.length > 0;
 
   return (
     <KeyboardAwareScrollView
@@ -59,112 +68,105 @@ export default function SchoolCodeScreen() {
       // Distance gardée sous le champ actif : assez pour laisser voir le bouton « Continuer » au-dessus du clavier.
       bottomOffset={120}
     >
-      <View className="items-center pt-20 pb-8 px-6">
-        <Image
-          source={isDark ? LOGO_DARK : LOGO_LIGHT}
-          style={{ width: 96, height: 67, marginBottom: 20 }}
-          contentFit="contain"
-        />
+      <AuthHeader
+        title={hasSchools ? "Choisir une école" : "Rejoindre votre école"}
+        subtitle={
+          hasSchools
+            ? "Sélectionnez votre école ou ajoutez-en une."
+            : "Saisissez le code système remis par votre établissement."
+        }
+      />
 
-        <Text className="text-2xl font-semibold text-foreground text-center">
-          Rejoindre votre école
-        </Text>
-
-        <Text className="text-sm text-muted-foreground text-center mt-3 max-w-[280px]">
-          Veuillez saisir le code système de votre établissement scolaire pour
-          continuer.
-        </Text>
-      </View>
-
-      <View className="flex-1 justify-between px-6 pt-4 pb-8">
+      <View className="flex-1 justify-between px-6 pt-2 pb-8">
         <View>
-          <Text className="text-sm font-medium text-foreground-secondary mb-2">
-            Ecole, code système
-          </Text>
+          {hasSchools && (
+            <View className="gap-2 mb-6">
+              {knownSchools.map((known) => {
+                const selected = school?.code.toUpperCase() === known.code.toUpperCase();
+
+                return (
+                  <Pressable
+                    key={known.code}
+                    onPress={() => {
+                      selectSchool(known.code);
+                      done();
+                    }}
+                    className="flex-row items-center gap-3 rounded-2xl border bg-subtle dark:bg-card p-3 active:opacity-70"
+                    style={{ borderColor: selected ? colors.foreground : colors.border }}
+                  >
+                    <SchoolLogo logoUrl={known.logoUrl} />
+                    <View className="flex-1">
+                      <Text numberOfLines={1} className="text-base font-semibold text-foreground">
+                        {known.name}
+                      </Text>
+                      <Text className="text-xs text-muted-foreground mt-0.5">Code {known.code}</Text>
+                    </View>
+                    <Pressable
+                      hitSlop={10}
+                      accessibilityLabel={`Retirer ${known.name} de cet appareil`}
+                      onPress={async () => {
+                        const ok = await confirm({
+                          title: "Retirer cette école ?",
+                          description: `${known.name} ne sera plus proposée sur cet appareil. Vous pourrez la rajouter avec son code.`,
+                          confirmText: "Retirer",
+                          variant: "destructive",
+                        });
+                        if (ok) await forgetSchool(known.code);
+                      }}
+                      className="p-1 active:opacity-60"
+                    >
+                      <Ionicons name="close" size={18} color={colors.faint} />
+                    </Pressable>
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
+
           <Controller
             control={control}
             name="code"
             render={({ field: { onChange, onBlur, value } }) => (
-              <View
-                className="flex-row items-center h-14 rounded-2xl px-4 bg-subtle dark:bg-card border"
-                style={{ borderColor: codeFocused ? BRAND_PRIMARY : fieldBorder }}
-              >
-                <Ionicons
-                  name="school-outline"
-                  size={20}
-                  color={codeFocused ? BRAND_PRIMARY : colors.faint}
-                />
-                <TextInput
-                  value={value}
-                  onChangeText={onChange}
-                  onFocus={() => setCodeFocused(true)}
-                  onBlur={() => {
-                    setCodeFocused(false);
-                    onBlur();
-                  }}
-                  placeholder="Code système de l'école"
-                  placeholderTextColor={colors.faint}
-                  autoCapitalize="characters"
-                  autoCorrect={false}
-                  className="flex-1 text-base text-foreground ml-3 tracking-wide"
-                />
-              </View>
+              <AuthField
+                label={hasSchools ? "Ajouter une école" : "École, code système"}
+                icon="school-outline"
+                value={value}
+                onChangeText={(text) => {
+                  onChange(text);
+                  setServerError(null);
+                }}
+                onBlur={onBlur}
+                placeholder="Ex.: ET123"
+                autoCapitalize="characters"
+                error={errors.code?.message ?? serverError ?? undefined}
+              />
             )}
           />
-          {errors.code && (
-            <Text className="text-red-600 dark:text-red-400 text-xs mt-2">
-              {errors.code.message}
-            </Text>
-          )}
-          {serverError && (
-            <Text className="text-red-600 dark:text-red-400 text-xs mt-2">{serverError}</Text>
-          )}
 
-          {/* Bouton collé au champ : le défilement clavier (bottomOffset) le garde visible. */}
-          <Pressable
-            onPress={handleSubmit(onSubmit)}
-            disabled={isSubmitting}
-            className="h-14 rounded-2xl items-center justify-center flex-row gap-2 mt-8"
-            style={{
-              backgroundColor: BRAND_PRIMARY,
-              opacity: isSubmitting ? 0.7 : 1,
-            }}
-          >
-            {isSubmitting ? (
-              <ActivityIndicator color="white" />
-            ) : (
-              <>
-                <Text className="text-white font-semibold text-base">
-                  Continuer
-                </Text>
-                <Ionicons name="arrow-forward" size={18} color="white" />
-              </>
-            )}
-          </Pressable>
+          <AuthButton label="Continuer" onPress={handleSubmit(onSubmit)} loading={isSubmitting} />
 
           <Text className="text-xs text-faint text-center mt-4">
             Vous ne connaissez pas le code de votre établissement ? Contactez
-            l'administration.
+            {" l'administration."}
           </Text>
+
+          <AuthLink
+            prefix="Parent d'élève ?"
+            label="Activer mon compte avec un code"
+            onPress={() => router.push("/(auth)/parent-activation")}
+          />
+
+          {school && router.canGoBack() && (
+            <Pressable onPress={() => router.back()} hitSlop={8} className="mt-4 self-center active:opacity-60">
+              <Text className="text-sm font-medium text-muted-foreground">Annuler</Text>
+            </Pressable>
+          )}
         </View>
 
-        <View className="mt-10">
-          <View className="flex-row items-center mb-5">
-            <View className="flex-1 h-px bg-border" />
-            <Ionicons
-              name="school-outline"
-              size={14}
-              color={colors.input}
-              style={{ marginHorizontal: 10 }}
-            />
-            <View className="flex-1 h-px bg-border" />
-          </View>
-
-          <Text className="text-sm font-medium text-center text-primary dark:text-violet-400">
-            Masomo ERP — l'école connectée pour tous.
-          </Text>
-        </View>
+        <AuthFooter />
       </View>
+
+      <ConfirmDialog />
     </KeyboardAwareScrollView>
   );
 }

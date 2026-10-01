@@ -1,7 +1,7 @@
 import { SchoolYearSubdivision } from "./objects/SchoolYearSubdivision";
 import { SchoolYear } from "./SchoolYear";
 
-export interface SchoolYearSchoolYearSubdivision {
+export interface SchoolYearTerm {
   id: string;
   code: string;
   schoolYearId: string;

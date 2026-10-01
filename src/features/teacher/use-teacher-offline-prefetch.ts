@@ -2,8 +2,9 @@ import { followedCoursesQuery } from "@/hooks/queries/items/course";
 import { activeCourseScheduleQuery } from "@/hooks/queries/items/course-schedule";
 import { currentTeacherQuery } from "@/hooks/queries/items/employee";
 import { enrollmentsQuery } from "@/hooks/queries/items/enrollment";
-import { evaluationPeriodsQuery } from "@/hooks/queries/items/evaluation-period";
+import { schoolPeriodsQuery } from "@/hooks/queries/items/school-period";
 import { incidentTypesQuery } from "@/hooks/queries/items/incident-type";
+import { schoolCalendarQuery } from "@/hooks/queries/items/school-calendar";
 import { schoolClassesQuery } from "@/hooks/queries/items/school-class";
 import { schoolSpacesQuery } from "@/hooks/queries/items/school-space";
 import {
@@ -87,7 +88,7 @@ async function prefetchTeacherOfflineData(
     load(schoolSpacesQuery()),
     load(incidentTypesQuery()),
     load(studentAttendancePointingChannelsQuery()),
-    load(evaluationPeriodsQuery()),
+    load(schoolPeriodsQuery()),
     load(teachingCourseEvaluationTypesQuery()),
   ]);
 
@@ -121,6 +122,9 @@ async function prefetchTeacherOfflineData(
       }
     })(),
 
+
+    // Calendrier scolaire (dates des périodes des classes de l'enseignant).
+    load(schoolCalendarQuery(schoolYearId)),
 
     // ROI : filtres par défaut de l'écran.
     (async () => {

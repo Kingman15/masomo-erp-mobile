@@ -75,7 +75,7 @@ function RootNavigation() {
   }, []);
 
   // Cache et file d'envois hors ligne propres au compte connecté : restaurés au démarrage (y compris sans réseau), puis sauvegardés en continu.
-  // L'arrêt (sauvegarde + vidage) est fait par signOut / changeSchool.
+  // L'arrêt (sauvegarde + vidage) est fait par signOut.
   const userId = user?.id;
   const schoolCode = school?.code;
   useEffect(() => {

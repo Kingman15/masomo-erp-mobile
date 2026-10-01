@@ -1,8 +1,8 @@
 import { ComboBox } from "@/components/list/combo-box";
 import { FilterPanel } from "@/components/list/filter-panel";
-import { useEvaluationPeriods } from "@/hooks/queries/items/evaluation-period";
-import { useSchoolYearSchoolYearSubdivisions } from "@/hooks/queries/items/school-year-school-year-subdivision";
-import { SchoolYearSchoolYearSubdivision } from "@/utils/types/SchoolYearSchoolYearSubdivision";
+import { useSchoolPeriods } from "@/hooks/queries/items/school-period";
+import { useSchoolYearTerms } from "@/hooks/queries/items/school-year-term";
+import { SchoolYearTerm } from "@/utils/types/SchoolYearTerm";
 import { Controller, useForm } from "react-hook-form";
 import {
   emptyStudentRankingFilters,
@@ -17,7 +17,7 @@ type StudentRankingFilterPanelProps = {
 };
 
 function getSubdivisionLabel(
-  subdivision: SchoolYearSchoolYearSubdivision,
+  subdivision: SchoolYearTerm,
 ): string {
   const subdivisionName =
     subdivision.schoolYearSubdivision?.displayName ??
@@ -34,19 +34,19 @@ export function StudentRankingFilterPanel({
   const { control, handleSubmit, reset, watch, setValue } =
     useForm<StudentRankingFiltersForm>({ defaultValues: value });
 
-  const { evaluationPeriods, evaluationPeriodsIsLoading } =
-    useEvaluationPeriods();
+  const { schoolPeriods, schoolPeriodsIsLoading } =
+    useSchoolPeriods();
 
   const {
-    schoolYearSchoolYearSubdivisions,
-    schoolYearSchoolYearSubdivisionsIsLoading,
-  } = useSchoolYearSchoolYearSubdivisions({
+    schoolYearTerms,
+    schoolYearTermsIsLoading,
+  } = useSchoolYearTerms({
     filters: { schoolYearId },
     enabled: Boolean(schoolYearId),
   });
 
-  const evaluationPeriodId = watch("evaluationPeriodId");
-  const sysyId = watch("sysyId");
+  const schoolPeriodId = watch("schoolPeriodId");
+  const schoolYearTermId = watch("schoolYearTermId");
 
   const handleApply = (data: StudentRankingFiltersForm) => {
     onApply(data);
@@ -70,34 +70,34 @@ export function StudentRankingFilterPanel({
     >
       <Controller
         control={control}
-        name="evaluationPeriodId"
+        name="schoolPeriodId"
         render={({ field: { value: fieldValue, onChange } }) => (
           <ComboBox
-            label="Période d'évaluation"
+            label="Période scolaire"
             placeholder="Toutes les périodes"
-            options={(evaluationPeriods ?? []).map((period) => ({
+            options={(schoolPeriods ?? []).map((period) => ({
               id: period.id,
               label: period.name,
             }))}
             value={fieldValue}
             onChange={(id) => {
               onChange(id);
-              if (id) setValue("sysyId", null);
+              if (id) setValue("schoolYearTermId", null);
             }}
-            loading={evaluationPeriodsIsLoading}
-            disabled={Boolean(sysyId)}
+            loading={schoolPeriodsIsLoading}
+            disabled={Boolean(schoolYearTermId)}
           />
         )}
       />
 
       <Controller
         control={control}
-        name="sysyId"
+        name="schoolYearTermId"
         render={({ field: { value: fieldValue, onChange } }) => (
           <ComboBox
             label="Subdivision"
             placeholder="Toutes les subdivisions"
-            options={(schoolYearSchoolYearSubdivisions ?? []).map(
+            options={(schoolYearTerms ?? []).map(
               (subdivision) => ({
                 id: subdivision.id,
                 label: getSubdivisionLabel(subdivision),
@@ -106,10 +106,10 @@ export function StudentRankingFilterPanel({
             value={fieldValue}
             onChange={(id) => {
               onChange(id);
-              if (id) setValue("evaluationPeriodId", null);
+              if (id) setValue("schoolPeriodId", null);
             }}
-            loading={schoolYearSchoolYearSubdivisionsIsLoading}
-            disabled={Boolean(evaluationPeriodId)}
+            loading={schoolYearTermsIsLoading}
+            disabled={Boolean(schoolPeriodId)}
           />
         )}
       />

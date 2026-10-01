@@ -9,8 +9,8 @@ interface UsePortalStudentRankingsParams {
   filters?: {
     schoolYearId?: string | null;
     schoolClassId?: string | null;
-    evaluationPeriodId?: string | null;
-    sysyId?: string | null;
+    schoolPeriodId?: string | null;
+    schoolYearTermId?: string | null;
   };
   enabled?: boolean;
 }
@@ -20,7 +20,7 @@ export function usePortalStudentRankings({
   filters = {},
   enabled = true,
 }: UsePortalStudentRankingsParams) {
-  const { schoolYearId, schoolClassId, evaluationPeriodId, sysyId } = filters;
+  const { schoolYearId, schoolClassId, schoolPeriodId, schoolYearTermId } = filters;
 
   const query = useSingletonQuery<PortalStudentRankingResultDTO>({
     queryKey: portalStudentRankingKeys.list(studentId, filters),
@@ -29,8 +29,8 @@ export function usePortalStudentRankings({
         studentId: studentId ?? undefined,
         schoolYearId: schoolYearId ?? undefined,
         schoolClassId: schoolClassId ?? undefined,
-        evaluationPeriodId: evaluationPeriodId ?? undefined,
-        sysyId: sysyId ?? undefined,
+        schoolPeriodId: schoolPeriodId ?? undefined,
+        schoolYearTermId: schoolYearTermId ?? undefined,
       }),
     label: "Palmarès scolaire",
     enabled: enabled && Boolean(studentId && schoolClassId && schoolYearId),

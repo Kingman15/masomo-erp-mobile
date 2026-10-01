@@ -42,8 +42,8 @@ export function AveragesScreen() {
     filters: {
       schoolYearId: selectedSchoolYear?.id,
       schoolClassId: selectedSchoolClass?.id,
-      evaluationPeriodId: filters.evaluationPeriodId,
-      sysyId: filters.sysyId,
+      schoolPeriodId: filters.schoolPeriodId,
+      schoolYearTermId: filters.schoolYearTermId,
     },
     enabled: filtersAreComplete,
   });

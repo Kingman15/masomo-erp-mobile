@@ -69,6 +69,12 @@ export const TEACHER_MENU: TeacherMenuItem[] = [
   },
   {
     type: "link",
+    label: "Calendrier",
+    icon: "calendar-outline",
+    href: "/teacher/calendar",
+  },
+  {
+    type: "link",
     label: "Documents",
     icon: "folder-outline",
     href: "/teacher/documents",

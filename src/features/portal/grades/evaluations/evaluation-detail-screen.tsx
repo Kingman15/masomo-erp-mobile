@@ -90,7 +90,7 @@ export function EvaluationDetailScreen() {
               <InfoRow
                 icon="calendar-outline"
                 label="Période"
-                value={evaluation.evaluationPeriod.name}
+                value={evaluation.schoolPeriod.name}
               />
               <InfoRow
                 icon="today-outline"
