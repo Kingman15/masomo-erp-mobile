@@ -1,4 +1,5 @@
 import { BRAND_PRIMARY } from "@/constants/theme";
+import { CurrentPeriodCard } from "@/features/teacher/calendar/current-period-card";
 import type { RoutePath } from "@/features/teacher/menu-config";
 import { buildGreeting } from "@/lib/greeting";
 import { useAuthStore } from "@/stores/auth";
@@ -88,6 +89,8 @@ export default function TeacherHomeScreen() {
           </Text>
           <Text className="text-sm text-muted-foreground mt-1">{greeting}</Text>
         </View>
+
+        <CurrentPeriodCard />
 
         <View className="flex-row flex-wrap gap-3 mt-3">
           {QUICK_ACCESS.map((item) => (

@@ -32,7 +32,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 interface CheckedCode {
   schoolCode: string;
   activationCode: string;
-  guardianName: string;
+  accountHolderName: string;
   suggestedUsername: string;
 }
 
@@ -255,7 +255,7 @@ function AccountStep({
   return (
     <>
       <AuthHeader
-        title={`Bonjour ${checked.guardianName}`}
+        title={`Bonjour ${checked.accountHolderName}`}
         subtitle="Choisissez comment vous vous connecterez."
       />
 

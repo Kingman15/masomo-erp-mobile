@@ -62,16 +62,13 @@ export const TEACHER_MENU: TeacherMenuItem[] = [
     ],
   },
   {
-    type: "link",
-    label: "Horaire",
-    icon: "time-outline",
-    href: "/teacher/schedule",
-  },
-  {
-    type: "link",
-    label: "Calendrier",
+    type: "group",
+    label: "Planning",
     icon: "calendar-outline",
-    href: "/teacher/calendar",
+    children: [
+      { label: "Horaire de cours", href: "/teacher/schedule" },
+      { label: "Calendrier scolaire", href: "/teacher/calendar" },
+    ],
   },
   {
     type: "link",

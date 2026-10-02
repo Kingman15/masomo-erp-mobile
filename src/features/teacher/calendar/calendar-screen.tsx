@@ -1,3 +1,4 @@
+import { formatDate, isOngoing, todayIso } from "@/features/teacher/calendar/utils";
 import { DrawerMenuButton } from "@/features/teacher/drawer-menu-button";
 import { useSchoolCalendar } from "@/hooks/queries/items/school-calendar";
 import { useCurrentSchoolYear } from "@/hooks/queries/items/school-year";
@@ -14,27 +15,6 @@ import {
   Text,
   View,
 } from "react-native";
-
-const DATE_FORMATTER = new Intl.DateTimeFormat("fr-FR", {
-  day: "2-digit",
-  month: "short",
-});
-
-function formatDate(date: string | null): string {
-  if (!date) return "—";
-  const [year, month, day] = date.slice(0, 10).split("-").map(Number);
-  return DATE_FORMATTER.format(new Date(year, month - 1, day));
-}
-
-function todayIso(): string {
-  const now = new Date();
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-}
-
-function isOngoing(startDate: string | null, endDate: string | null, today: string) {
-  return !!startDate && !!endDate && startDate <= today && today <= endDate;
-}
 
 export function CalendarScreen() {
   const [generalClassId, setGeneralClassId] = useState<string | null>(null);
@@ -63,19 +43,22 @@ export function CalendarScreen() {
     return [...byId.entries()].map(([id, label]) => ({ id, label }));
   }, [schoolCalendar]);
 
+  // Filtre classe : on masque aussi les terms sans période pour la classe.
   const terms = useMemo(
     () =>
-      (schoolCalendar?.terms ?? []).map((term) => ({
-        ...term,
-        periods: generalClassId
-          ? term.periods
-              .map((period) => ({
-                ...period,
-                generalClasses: period.generalClasses.filter((gc) => gc.id === generalClassId),
-              }))
-              .filter((period) => period.generalClasses.length > 0)
-          : term.periods,
-      })),
+      generalClassId
+        ? (schoolCalendar?.terms ?? [])
+            .map((term) => ({
+              ...term,
+              periods: term.periods
+                .map((period) => ({
+                  ...period,
+                  generalClasses: period.generalClasses.filter((gc) => gc.id === generalClassId),
+                }))
+                .filter((period) => period.generalClasses.length > 0),
+            }))
+            .filter((term) => term.periods.length > 0)
+        : (schoolCalendar?.terms ?? []),
     [schoolCalendar, generalClassId],
   );
 
