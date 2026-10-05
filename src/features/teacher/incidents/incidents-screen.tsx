@@ -3,6 +3,7 @@ import { SearchBar } from "@/components/list/search-bar";
 import { DrawerMenuButton } from "@/features/teacher/drawer-menu-button";
 import { useCurrentSchoolYear } from "@/hooks/queries/items/school-year";
 import { useStudentIncidents } from "@/hooks/queries/items/student-incident";
+import { useCan } from "@/hooks/use-can";
 import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { StudentIncident } from "@/utils/types/StudentIncident";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -19,10 +20,10 @@ import { IncidentRow } from "./incident-row";
 
 export function IncidentsScreen() {
   const colors = useThemeColors();
+  const canReport = useCan("discipline.incidents.report");
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState<IncidentFiltersForm>(
-    emptyIncidentFilters,
-  );
+  const [filters, setFilters] =
+    useState<IncidentFiltersForm>(emptyIncidentFilters);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const renderIncident = useCallback(
@@ -71,14 +72,20 @@ export function IncidentsScreen() {
         options={{
           title: "Incidents",
           headerLeft: () => <DrawerMenuButton />,
-          headerRight: () => (
-            <Pressable
-              onPress={() => router.push("/teacher/incidents/new")}
-              hitSlop={8}
-            >
-              <Ionicons name="add-outline" size={26} color={colors.foreground} />
-            </Pressable>
-          ),
+          headerRight: canReport
+            ? () => (
+                <Pressable
+                  onPress={() => router.push("/teacher/incidents/new")}
+                  hitSlop={8}
+                >
+                  <Ionicons
+                    name="add-outline"
+                    size={26}
+                    color={colors.foreground}
+                  />
+                </Pressable>
+              )
+            : undefined,
         }}
       />
 

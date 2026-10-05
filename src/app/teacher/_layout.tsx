@@ -30,6 +30,11 @@ export default function TeacherLayout() {
         <Drawer.Screen name="lessons" options={{ headerShown: false }} />
         <Drawer.Screen name="teaching-courses" options={{ headerShown: false }} />
         <Drawer.Screen name="evaluations" options={{ headerShown: false }} />
+        <Drawer.Screen name="course-averages" options={{ headerShown: false }} />
+        <Drawer.Screen name="honor-roll" options={{ headerShown: false }} />
+        <Drawer.Screen name="appraisals" options={{ headerShown: false }} />
+        <Drawer.Screen name="report-cards" options={{ headerShown: false }} />
+        <Drawer.Screen name="deliberation" options={{ headerShown: false }} />
         <Drawer.Screen name="incidents" options={{ headerShown: false }} />
         <Drawer.Screen name="sanctions" options={{ headerShown: false }} />
         <Drawer.Screen name="attendance" options={{ headerShown: false }} />
@@ -39,6 +44,8 @@ export default function TeacherLayout() {
           name="internal-regulations"
           options={{ headerShown: false }}
         />
+        <Drawer.Screen name="notifications" options={{ headerShown: false }} />
+        <Drawer.Screen name="announcements" options={{ headerShown: false }} />
         <Drawer.Screen name="documents" options={{ headerShown: false }} />
         <Drawer.Screen name="messaging" options={{ headerShown: false }} />
         <Drawer.Screen name="sync" options={{ headerShown: false }} />

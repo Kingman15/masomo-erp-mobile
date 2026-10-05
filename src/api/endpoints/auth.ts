@@ -27,6 +27,8 @@ export interface LoginResponse {
     permissions: string[];
     enabledModules: string[];
     accessibleModules: string[];
+    // Titulaire d'au moins une classe : écrans réservés au titulaire (le serveur reste le garde-fou)
+    isHomeroomTeacher?: boolean;
   };
 
   // Identité de l'école : renvoyée seulement après une connexion réussie
@@ -58,6 +60,12 @@ export async function login(payload: LoginPayload): Promise<LoginResponse> {
     deviceName: deviceName(),
   });
   return data;
+}
+
+// Même ressource que le `user` de /login : rafraîchit rôle et permissions sans reconnexion
+export async function me(): Promise<LoginResponse["user"]> {
+  const { data } = await api.get<{ data: LoginResponse["user"] }>("/me");
+  return data.data;
 }
 
 // Révocation au mieux : la déconnexion locale ne doit pas attendre le timeout d'écriture (45 s) sur un réseau lent

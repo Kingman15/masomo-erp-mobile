@@ -32,7 +32,7 @@ export type OfflineSubmitResult<TResult> =
 /**
  * Soumission d'une écriture rejouable.
  *
- * - En ligne et serveur joignable : attend la réponse. Un refus (409, 422…) est rejeté comme OfflineMutationError ; `error.cause` porte l'AxiosError d'origine, pour handleApiError.
+ * - En ligne et serveur joignable : attend la réponse. Un refus (409, 422, 5xx…) est rejeté sans nouvel essai comme OfflineMutationError ; `error.cause` porte l'AxiosError d'origine, pour handleApiError.
  * - Sinon : résout `queued` dès que l'envoi est mis en attente, pour que l'écran se ferme sans attendre le serveur.
  */
 export function useOfflineMutation<

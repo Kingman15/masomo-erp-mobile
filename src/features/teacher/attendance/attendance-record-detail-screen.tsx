@@ -3,6 +3,7 @@ import {
   useDeleteStudentAttendanceRecord,
   useStudentAttendanceRecordById,
 } from "@/hooks/queries/items/student-attendance-record";
+import { useCan } from "@/hooks/use-can";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useThemeColors } from "@/hooks/use-theme-colors";
 import { handleApiError } from "@/lib/handle-api-error";
@@ -55,9 +56,15 @@ export function AttendanceRecordDetailScreen() {
     loadStudentAttendanceRecord,
   } = useStudentAttendanceRecordById(id);
 
-  const { deleteStudentAttendanceRecord, deleteStudentAttendanceRecordIsPending } =
-    useDeleteStudentAttendanceRecord();
+  const {
+    deleteStudentAttendanceRecord,
+    deleteStudentAttendanceRecordIsPending,
+  } = useDeleteStudentAttendanceRecord();
   const { confirm, ConfirmDialog } = useConfirm();
+
+  // Rôle enseignant par défaut : pointage seulement (view + create), correction et suppression réservées à l'administration.
+  const canUpdate = useCan("attendance.records.update");
+  const canDelete = useCan("attendance.records.delete");
 
   const handleDelete = async () => {
     if (!record) return;
@@ -215,32 +222,50 @@ export function AttendanceRecordDetailScreen() {
               </View>
             )}
 
-            <View className="mt-6 gap-3">
-              <Pressable
-                onPress={() =>
-                  router.push(`/teacher/attendance/${record.id}/edit`)
-                }
-                className="h-12 rounded-lg bg-foreground items-center justify-center flex-row gap-2"
-              >
-                <Ionicons name="create-outline" size={18} color={colors.background} />
-                <Text className="text-background font-medium">Modifier</Text>
-              </Pressable>
-
-              <Pressable
-                onPress={() => void handleDelete()}
-                disabled={deleteStudentAttendanceRecordIsPending}
-                className="h-12 rounded-lg border border-red-200 dark:border-red-800 items-center justify-center flex-row gap-2"
-              >
-                {deleteStudentAttendanceRecordIsPending ? (
-                  <ActivityIndicator color="#DC2626" />
-                ) : (
-                  <>
-                    <Ionicons name="trash-outline" size={18} color="#DC2626" />
-                    <Text className="text-red-600 font-medium">Supprimer</Text>
-                  </>
+            {(canUpdate || canDelete) && (
+              <View className="mt-6 gap-3">
+                {canUpdate && (
+                  <Pressable
+                    onPress={() =>
+                      router.push(`/teacher/attendance/${record.id}/edit`)
+                    }
+                    className="h-12 rounded-lg bg-foreground items-center justify-center flex-row gap-2"
+                  >
+                    <Ionicons
+                      name="create-outline"
+                      size={18}
+                      color={colors.background}
+                    />
+                    <Text className="text-background font-medium">
+                      Modifier
+                    </Text>
+                  </Pressable>
                 )}
-              </Pressable>
-            </View>
+
+                {canDelete && (
+                  <Pressable
+                    onPress={() => void handleDelete()}
+                    disabled={deleteStudentAttendanceRecordIsPending}
+                    className="h-12 rounded-lg border border-red-200 dark:border-red-800 items-center justify-center flex-row gap-2"
+                  >
+                    {deleteStudentAttendanceRecordIsPending ? (
+                      <ActivityIndicator color="#DC2626" />
+                    ) : (
+                      <>
+                        <Ionicons
+                          name="trash-outline"
+                          size={18}
+                          color="#DC2626"
+                        />
+                        <Text className="text-red-600 font-medium">
+                          Supprimer
+                        </Text>
+                      </>
+                    )}
+                  </Pressable>
+                )}
+              </View>
+            )}
           </ScrollView>
         ) : null}
       </View>

@@ -7,16 +7,9 @@ import { toastNotify } from "@/lib/toast";
 import type { PortalAnnouncementDTO } from "@/utils/types/objects/PortalAnnouncementDTO";
 import { Stack, router } from "expo-router";
 import { useState } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  Text,
-  View,
-} from "react-native";
+import { Text, View } from "react-native";
 import { usePortalSelection } from "../../use-portal-selection";
-import { AnnouncementRow } from "./announcement-row";
+import { AnnouncementListView } from "./announcement-list-view";
 
 export function AnnouncementsScreen() {
   const { selectedStudent, selectedSchoolYear } = usePortalSelection();
@@ -35,8 +28,7 @@ export function AnnouncementsScreen() {
     enabled: filtersAreComplete,
   });
 
-  const { markAnnouncementAsRead, markAnnouncementAsReadIsPending } =
-    useMarkAnnouncementAsRead();
+  const { markAnnouncementAsRead } = useMarkAnnouncementAsRead();
 
   const handlePressAnnouncement = (announcement: PortalAnnouncementDTO) => {
     router.push(`/portal/menu/communication/announcements/${announcement.id}`);
@@ -74,56 +66,18 @@ export function AnnouncementsScreen() {
               Sélectionnez une année scolaire pour afficher les communiqués.
             </Text>
           </View>
-        ) : portalAnnouncementsIsLoading ? (
-          <View className="flex-1 items-center justify-center">
-            <ActivityIndicator />
-          </View>
-        ) : portalAnnouncementsError ? (
-          <View className="flex-1 items-center justify-center px-6 gap-3">
-            <Text className="text-sm text-muted-foreground text-center">
-              Impossible de charger les communiqués.
-            </Text>
-            <Pressable
-              onPress={() => loadPortalAnnouncements()}
-              className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
-            >
-              <Text className="text-background font-medium">Réessayer</Text>
-            </Pressable>
-          </View>
         ) : (
-          <ScrollView
-            className="flex-1"
-            contentContainerStyle={{ paddingBottom: 24 }}
-            refreshControl={
-              <RefreshControl
-                refreshing={portalAnnouncementsIsFetching}
-                onRefresh={() => void loadPortalAnnouncements()}
-              />
-            }
-          >
-            {portalAnnouncements.length === 0 ? (
-              <View className="items-center justify-center px-6 py-16">
-                <Text className="text-sm text-faint text-center">
-                  Aucun communiqué n&apos;a été publié pour cette année
-                  scolaire.
-                </Text>
-              </View>
-            ) : (
-              portalAnnouncements.map((announcement, index) => (
-                <AnnouncementRow
-                  key={announcement.id}
-                  item={announcement}
-                  onPress={handlePressAnnouncement}
-                  onMarkAsRead={handleMarkAsRead}
-                  isMarkingAsRead={
-                    markAnnouncementAsReadIsPending &&
-                    markingAsReadId === announcement.id
-                  }
-                  isFirst={index === 0}
-                />
-              ))
-            )}
-          </ScrollView>
+          <AnnouncementListView
+            announcements={portalAnnouncements}
+            isLoading={portalAnnouncementsIsLoading}
+            isFetching={portalAnnouncementsIsFetching}
+            error={portalAnnouncementsError}
+            onReload={() => void loadPortalAnnouncements()}
+            onPress={handlePressAnnouncement}
+            onMarkAsRead={(announcement) => void handleMarkAsRead(announcement)}
+            markingAsReadId={markingAsReadId}
+            emptyLabel="Aucun communiqué n'a été publié pour cette année scolaire."
+          />
         )}
       </View>
     </>

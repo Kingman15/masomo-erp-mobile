@@ -1,4 +1,3 @@
-import { Employee } from "./Employee";
 import { GeneralClass } from "./GeneralClass";
 import { SchoolSpace } from "./SchoolSpace";
 
@@ -6,7 +5,6 @@ export interface SchoolClass {
   id: string;
   code: string | null;
   generalClassId: string | null;
-  teacherId: string | null;
   classroomId: string | null;
   distinctive: string | null;
   title: string | null;
@@ -17,6 +15,5 @@ export interface SchoolClass {
   comments: string | null;
 
   generalClass?: GeneralClass | null;
-  teacher?: Employee | null;
   classroom?: SchoolSpace | null;
 }

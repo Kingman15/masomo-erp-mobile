@@ -1,5 +1,6 @@
 import api from "@/api/client";
 import {
+  destroy,
   show as fetchLessonById,
   index,
   update,
@@ -110,5 +111,21 @@ export function useUpdateLesson(id: string | undefined) {
   return {
     updateLesson: mutation.mutateAsync,
     updateLessonIsPending: mutation.isPending,
+  };
+}
+
+export function useDeleteLesson() {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (id: string) => destroy(api, id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: lessonKeys.all });
+    },
+  });
+
+  return {
+    deleteLesson: mutation.mutateAsync,
+    deleteLessonIsPending: mutation.isPending,
   };
 }

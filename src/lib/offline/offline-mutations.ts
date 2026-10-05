@@ -13,6 +13,10 @@ import {
   type TeacherReportStudentIncidentPayload,
 } from "@/api/endpoints/studentIncident";
 import {
+  bulkSave as saveAppraisals,
+  type StudentPeriodAppraisalBulkPayload,
+} from "@/api/endpoints/studentPeriodAppraisal";
+import {
   save as saveEvaluationResults,
   type TeachingCourseEvaluationResultPayload,
   type TeachingCourseEvaluationResultSaveResult,
@@ -22,6 +26,8 @@ import { enrollmentKeys } from "@/utils/query-keys/enrollment";
 import { lessonKeys } from "@/utils/query-keys/lesson";
 import { studentAttendanceRecordKeys } from "@/utils/query-keys/student-attendance-record";
 import { studentIncidentKeys } from "@/utils/query-keys/student-incident";
+import { studentPeriodAppraisalKeys } from "@/utils/query-keys/student-period-appraisal";
+import type { StudentPeriodAppraisalBulkResult } from "@/utils/types/StudentPeriodAppraisal";
 import { teachingCourseEvaluationKeys } from "@/utils/query-keys/teaching-course-evaluation";
 import { teachingCourseEvaluationResultKeys } from "@/utils/query-keys/teaching-course-evaluation-result";
 import type { Mutation, MutationKey, QueryClient } from "@tanstack/react-query";
@@ -49,6 +55,7 @@ export const offlineMutationKeys = {
   attendanceBulk: [OFFLINE_MUTATION_ROOT, "attendance.bulk"],
   gradesSave: [OFFLINE_MUTATION_ROOT, "grades.save"],
   incidentTeacherReport: [OFFLINE_MUTATION_ROOT, "incident.teacherReport"],
+  appraisalsSave: [OFFLINE_MUTATION_ROOT, "appraisals.save"],
 } as const;
 
 export type OfflineMutationKey =
@@ -59,6 +66,7 @@ export interface OfflinePayloads {
   "attendance.bulk": StudentAttendanceBulkRecordPayload;
   "grades.save": TeachingCourseEvaluationResultPayload;
   "incident.teacherReport": TeacherReportStudentIncidentPayload;
+  "appraisals.save": StudentPeriodAppraisalBulkPayload;
 }
 
 /**
@@ -106,6 +114,8 @@ const MAX_RETRY_DELAY_MS = 60_000;
 const MAX_SERVER_ERROR_RETRIES = 8;
 
 function offlineRetry(failureCount: number, error: unknown): boolean {
+  if (error instanceof OfflineMutationError && error.direct) return false;
+
   const failure = getOfflineFailure(error);
   if (!isRetryableFailure(failure)) return false;
 
@@ -188,6 +198,53 @@ function rebaseQueuedGrades(
     });
 }
 
+/**
+ * Même principe que rebaseQueuedGrades, pour les appréciations d'une même classe et période.
+ */
+function rebaseQueuedAppraisals(
+  queryClient: QueryClient,
+  variables: OfflineVariables<StudentPeriodAppraisalBulkPayload>,
+  data: unknown,
+) {
+  const result = data as StudentPeriodAppraisalBulkResult | undefined;
+  if (!result?.written?.length) return;
+
+  const { payload } = variables;
+  const sentVersions = new Map(
+    payload.appraisals.map((row) => [row.enrollmentId, row.expectedUpdatedAt]),
+  );
+  const newVersions = new Map(
+    result.written.map((row) => [row.enrollment_id, row.updated_at]),
+  );
+
+  queryClient
+    .getMutationCache()
+    .findAll({ mutationKey: offlineMutationKeys.appraisalsSave, status: "pending" })
+    .forEach((mutation) => {
+      const queued = mutation.state.variables as
+        | OfflineVariables<StudentPeriodAppraisalBulkPayload>
+        | undefined;
+      if (
+        !queued ||
+        queued.idempotencyKey === variables.idempotencyKey ||
+        queued.payload.schoolClassId !== payload.schoolClassId ||
+        queued.payload.schoolPeriodId !== payload.schoolPeriodId
+      ) {
+        return;
+      }
+
+      queued.payload.appraisals.forEach((row) => {
+        if (
+          newVersions.has(row.enrollmentId) &&
+          row.expectedUpdatedAt !== undefined &&
+          row.expectedUpdatedAt === sentVersions.get(row.enrollmentId)
+        ) {
+          row.expectedUpdatedAt = newVersions.get(row.enrollmentId) ?? null;
+        }
+      });
+    });
+}
+
 const definitions: {
   [K in keyof OfflinePayloads]: OfflineMutationDefinition<OfflinePayloads[K]>;
 } = {
@@ -231,6 +288,16 @@ const definitions: {
     },
     successMessage: "Incident envoyé",
   },
+  "appraisals.save": {
+    send: (payload, options) => saveAppraisals(api, payload, options),
+    invalidate: (queryClient, payload) => {
+      void queryClient.invalidateQueries({
+        queryKey: studentPeriodAppraisalKeys.grid(payload),
+      });
+    },
+    afterSuccess: rebaseQueuedAppraisals,
+    successMessage: "Appréciations envoyées",
+  },
 };
 
 function register<K extends keyof OfflinePayloads>(
@@ -266,7 +333,15 @@ function register<K extends keyof OfflinePayloads>(
           ),
         });
       } catch (error) {
-        throw toOfflineMutationError(error);
+        const offlineError = toOfflineMutationError(error);
+        // Seul un échec réseau fait basculer un envoi direct en file ; une réponse du serveur (même 5xx) revient à l'écran.
+        if (
+          offlineError.failure.kind === "http" &&
+          !isQueued(variables.idempotencyKey)
+        ) {
+          offlineError.direct = true;
+        }
+        throw offlineError;
       }
     },
     // Hors ligne, la tentative est suspendue (isPaused) puis reprise au retour du réseau.
@@ -377,6 +452,9 @@ export function payloadIgnoringConflicts<K extends keyof OfflinePayloads>(
     return { ...payload, conflictStrategy: "skip_existing" };
   }
   if (name === "grades.save" && code === "GRADES_CONFLICT") {
+    return { ...payload, conflictStrategy: "skip_conflicts" };
+  }
+  if (name === "appraisals.save" && code === "APPRAISALS_CONFLICT") {
     return { ...payload, conflictStrategy: "skip_conflicts" };
   }
   return null;

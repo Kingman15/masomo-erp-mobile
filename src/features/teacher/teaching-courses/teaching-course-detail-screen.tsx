@@ -51,7 +51,13 @@ export function TeachingCourseDetailScreen() {
   const schoolClass = teachingCourse?.schoolClass;
   const className = schoolClass?.title ?? schoolClass?.abbreviation ?? null;
   const schoolYear = followCourse?.schoolYear;
-  const teacher = teachingCourse?.teacher;
+  // Enseignants non clôturés à ce jour, principal en premier
+  const today = new Date().toISOString().slice(0, 10);
+  const teacherNames = (teachingCourse?.teachers ?? [])
+    .filter((assignment) => !assignment.endDate || assignment.endDate >= today)
+    .map((assignment) => assignment.teacher?.fullName)
+    .filter(Boolean)
+    .join(", ");
 
   const tags = [
     followCourse?.withoutExam ? "Sans examen" : null,
@@ -217,8 +223,8 @@ export function TeachingCourseDetailScreen() {
             <View className="mt-4 border-t border-divider pt-1">
               <InfoRow
                 icon="person-outline"
-                label="Enseignant"
-                value={teacher?.fullName ?? "—"}
+                label="Enseignants"
+                value={teacherNames || "—"}
               />
               <InfoRow
                 icon="calendar-outline"

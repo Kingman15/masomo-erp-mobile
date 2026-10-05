@@ -35,6 +35,7 @@ import {
   queryMeta,
   type QueryDefinition,
 } from "@/lib/offline/offline-queries";
+import { userCan } from "@/hooks/use-can";
 import { useIsOnline } from "@/lib/offline/use-offline-queue";
 import { useAuthStore } from "@/stores/auth";
 import type { StudentInternalRegulation } from "@/utils/types/StudentInternalRegulation";
@@ -51,6 +52,8 @@ export function useTeacherOfflinePrefetch() {
   const queryClient = useQueryClient();
   const isOnline = useIsOnline();
   const userId = useAuthStore((s) => s.user?.id);
+  // Un droit accordé (relu via /me) déclenche le préchargement des écrans qu'il ouvre ; le reste, déjà frais, n'est pas redemandé.
+  const permissionsKey = useAuthStore((s) => s.user?.permissions.join(","));
 
   useEffect(() => {
     if (!isOnline || !userId) return;
@@ -61,7 +64,7 @@ export function useTeacherOfflinePrefetch() {
     return () => {
       run.cancelled = true;
     };
-  }, [queryClient, isOnline, userId]);
+  }, [queryClient, isOnline, userId, permissionsKey]);
 }
 
 // Évaluations dont la grille est préchargée : les récentes et celles à venir, les plus susceptibles d'être notées.
@@ -81,13 +84,21 @@ async function prefetchTeacherOfflineData(
       ? Promise.resolve(undefined)
       : fetchOfflineQuery(queryClient, definition).catch(() => undefined);
 
+  // Écrans soumis à une permission : sans elle l'API répondrait 403, inutile de la solliciter. Les référentiels restent préchargés.
+  const can = (...permissions: string[]) =>
+    permissions.every((permission) =>
+      userCan(useAuthStore.getState().user, permission),
+    );
+
   const [schoolYear, teacher] = await Promise.all([
     load(currentSchoolYearQuery()),
     load(currentTeacherQuery()),
     load(schoolYearsQuery()),
     load(schoolSpacesQuery()),
     load(incidentTypesQuery()),
-    load(studentAttendancePointingChannelsQuery()),
+    can("attendance.pointingChannels.view")
+      ? load(studentAttendancePointingChannelsQuery())
+      : undefined,
     load(schoolPeriodsQuery()),
     load(teachingCourseEvaluationTypesQuery()),
   ]);
@@ -114,6 +125,7 @@ async function prefetchTeacherOfflineData(
   await Promise.all([
     // Horaire hebdomadaire (écran Horaire, et heures de leçon hors ligne).
     (async () => {
+      if (!can("academics.schedules::teaching.view")) return;
       const courseSchedule = await load(activeCourseScheduleQuery(schoolYearId));
       if (courseSchedule) {
         await load(
@@ -128,6 +140,7 @@ async function prefetchTeacherOfflineData(
 
     // ROI : filtres par défaut de l'écran.
     (async () => {
+      if (!can("discipline.internalRegulations.view")) return;
       const regulations = await load(
         studentInternalRegulationsQuery({ schoolYearId, targetType: "global" }),
       );
@@ -139,7 +152,14 @@ async function prefetchTeacherOfflineData(
 
     // Formulaire de leçon : cours suivis de chaque classe, puis enseignement de chaque cours.
     runWithConcurrency(
-      taughtClasses.map(({ id: schoolClassId }) => async () => {
+      (can(
+        "academics.lessons.create",
+        "academics.followCourses.view",
+        "academics.teachingCourses.view",
+      )
+        ? taughtClasses
+        : []
+      ).map(({ id: schoolClassId }) => async () => {
         const courses = await load(
           followedCoursesQuery({ schoolYearId, schoolClassId, teacherId: null }),
         );
@@ -157,6 +177,7 @@ async function prefetchTeacherOfflineData(
 
     // Pointage : sessions des registres ouverts.
     (async () => {
+      if (!can("attendance.registers.view", "attendance.sessions.view")) return;
       const registers = await load(
         studentAttendanceRegistersQuery({ schoolYearId }),
       );
@@ -179,6 +200,7 @@ async function prefetchTeacherOfflineData(
 
     // Notes : première page des évaluations, puis fiche et grille des récentes.
     (async () => {
+      if (!can("academics.evaluations::courseEvaluations.view")) return;
       const evaluations = await loadFirstEvaluationsPage(
         queryClient,
         schoolYearId,

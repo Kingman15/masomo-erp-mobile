@@ -10,6 +10,7 @@ export const OFFLINE_ITEM_TYPE_LABELS: Record<keyof OfflinePayloads, string> = {
   "attendance.bulk": "Pointage",
   "grades.save": "Notes",
   "incident.teacherReport": "Incident",
+  "appraisals.save": "Appréciations",
 };
 
 export const OFFLINE_ITEM_STATE_LABELS: Record<
@@ -59,6 +60,10 @@ export function describeFailure(failure: OfflineFailure | null): string {
     case "GRADES_CONFLICT": {
       const count = countOf(failure.data, "conflicts");
       return `${count} note(s) modifiée(s) sur le serveur depuis leur chargement. Rien n'a été enregistré.`;
+    }
+    case "APPRAISALS_CONFLICT": {
+      const count = countOf(failure.data, "conflicts");
+      return `${count} appréciation(s) modifiée(s) sur le serveur depuis leur chargement. Rien n'a été enregistré.`;
     }
     case "SESSION_NOT_OPEN":
       return "La session de pointage n'est plus ouverte.";

@@ -143,7 +143,8 @@ function AttendanceBulkStudentRowComponent({
           placeholder="Note de justification"
           placeholderTextColor={colors.faint}
           maxLength={255}
-          className="h-10 border border-input rounded-lg px-3 mt-2 ml-9 bg-card text-sm text-foreground"
+          textAlignVertical="center"
+          className="h-11 border border-input rounded-lg px-3 py-0 mt-2 ml-9 bg-card text-sm text-foreground"
         />
       )}
     </View>

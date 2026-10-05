@@ -20,7 +20,8 @@ import {
 } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "nativewind";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { AppState } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
@@ -61,6 +62,37 @@ export default function RootLayout() {
   );
 }
 
+// Une app laissée ouverte plusieurs jours ne doit pas garder des permissions périmées ; pas plus d'un appel par intervalle.
+const USER_REFRESH_MIN_INTERVAL_MS = 5 * 60 * 1000;
+
+function useRefreshUserOnForeground(signedIn: boolean) {
+  const lastRefreshAt = useRef(0);
+
+  useEffect(() => {
+    if (!signedIn) return;
+
+    const refresh = () => {
+      if (Date.now() - lastRefreshAt.current < USER_REFRESH_MIN_INTERVAL_MS) return;
+      lastRefreshAt.current = Date.now();
+      void useAuthStore.getState().refreshUser();
+    };
+
+    // Au démarrage (ou juste après la connexion), à chaque retour au premier plan, et périodiquement tant que l'app reste ouverte.
+    refresh();
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active") refresh();
+    });
+    const timer = setInterval(() => {
+      if (AppState.currentState === "active") refresh();
+    }, USER_REFRESH_MIN_INTERVAL_MS);
+
+    return () => {
+      sub.remove();
+      clearInterval(timer);
+    };
+  }, [signedIn]);
+}
+
 function RootNavigation() {
   const { status, user, school, hydrate } = useAuthStore();
   const segments = useSegments();
@@ -85,6 +117,8 @@ function RootNavigation() {
       console.log("[offline] restauration impossible", err),
     );
   }, [status, userId, schoolCode]);
+
+  useRefreshUserOnForeground(status === "signedIn");
 
   if (status === "loading") return null; // splash screen ici. TODO.
 

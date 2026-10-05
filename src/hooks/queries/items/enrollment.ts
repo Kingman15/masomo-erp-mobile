@@ -1,9 +1,11 @@
 import api from "@/api/client";
-import { currentEnrollments, index } from "@/api/endpoints/enrollment";
+import { currentEnrollments, index, reportCard } from "@/api/endpoints/enrollment";
 import type { QueryDefinition } from "@/lib/offline/offline-queries";
 import { enrollmentKeys } from "@/utils/query-keys/enrollment";
 import { Enrollment } from "@/utils/types/Enrollment";
+import { StudentReportCardDTO } from "@/utils/types/objects/StudentReportCardDTO";
 import { useListQuery } from "../use-list-query";
+import { useSingletonQuery } from "../use-singleton-query";
 
 interface UseEnrollmentsParams {
   filters: {
@@ -81,5 +83,23 @@ export function useCurrentEnrollments({
     enrollmentsError: query.error,
     enrollmentsIsLoading: query.isLoading,
     loadEnrollments: query.refetch,
+  };
+}
+
+// Bulletin d'un élève : en ligne uniquement (pas de cache hors ligne, les notes et la décision évoluent).
+export function useEnrollmentReportCard(enrollmentId: string | null | undefined) {
+  const query = useSingletonQuery<StudentReportCardDTO>({
+    queryKey: enrollmentKeys.reportCard(enrollmentId),
+    queryFn: () => reportCard(api, enrollmentId!),
+    label: "Bulletin",
+    enabled: Boolean(enrollmentId),
+  });
+
+  return {
+    reportCard: query.data,
+    reportCardError: query.error,
+    reportCardIsLoading: query.isLoading,
+    reportCardIsFetching: query.isFetching,
+    loadReportCard: query.refetch,
   };
 }

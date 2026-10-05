@@ -60,6 +60,17 @@ export async function save(
   return data.data;
 }
 
+// Brouillon -> soumis (pour approbation). En ligne uniquement : pas de file offline.
+export async function submit(
+  api: AxiosInstance,
+  evaluationId: string,
+  resultIds: string[],
+): Promise<void> {
+  await api.post(`/teaching-course-evaluation-results/submit/${evaluationId}`, {
+    resultIds,
+  });
+}
+
 export async function exportResults(
   api: AxiosInstance,
   evaluationId: string,

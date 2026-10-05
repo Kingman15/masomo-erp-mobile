@@ -1,6 +1,9 @@
 import { BRAND_PRIMARY } from "@/constants/theme";
 import { CurrentPeriodCard } from "@/features/teacher/calendar/current-period-card";
-import type { RoutePath } from "@/features/teacher/menu-config";
+import {
+  useCanOpenTeacherRoute,
+  type RoutePath,
+} from "@/features/teacher/menu-config";
 import { buildGreeting } from "@/lib/greeting";
 import { useAuthStore } from "@/stores/auth";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -70,6 +73,8 @@ const QUICK_ACCESS: QuickAccessItem[] = [
 export default function TeacherHomeScreen() {
   const user = useAuthStore((s) => s.user);
   const isDark = useColorScheme().colorScheme === "dark";
+  const canOpen = useCanOpenTeacherRoute();
+  const quickAccess = QUICK_ACCESS.filter((item) => canOpen(item.href));
 
   const greeting = user
     ? buildGreeting(user.name ?? user.username ?? "enseignant", user.id)
@@ -93,7 +98,7 @@ export default function TeacherHomeScreen() {
         <CurrentPeriodCard />
 
         <View className="flex-row flex-wrap gap-3 mt-3">
-          {QUICK_ACCESS.map((item) => (
+          {quickAccess.map((item) => (
             <Link key={item.href} href={item.href} asChild>
               <Pressable
                 accessibilityRole="button"

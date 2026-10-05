@@ -6,6 +6,7 @@ import {
 import {
   login as loginRequest,
   logout as logoutRequest,
+  me as meRequest,
   verifySchoolCode,
   type LoginPayload,
 } from "@/api/endpoints/auth";
@@ -49,7 +50,7 @@ function serverMessage(err: unknown): string | undefined {
   return status === 403 || status === 429 ? err.response?.data?.message : undefined;
 }
 
-interface User {
+export interface User {
   id: string;
   name: string | null;
   username: string | null;
@@ -66,6 +67,8 @@ interface User {
   permissions: string[];
   enabledModules: string[];
   accessibleModules: string[];
+  // Absent d'un utilisateur gardé par une version antérieure de l'app : traité comme false
+  isHomeroomTeacher?: boolean;
 }
 
 const AUTH_STORAGE_KEY = "auth";
@@ -91,6 +94,8 @@ interface AuthState {
   forgetSchool: (code: string) => Promise<void>;
   signIn: (payload: LoginPayload) => Promise<void>;
   signOut: () => Promise<void>;
+  /** Relit /me (rôle, permissions, titulariat) ; sans réseau, l'utilisateur gardé reste en place */
+  refreshUser: () => Promise<void>;
   /** Déconnexion locale uniquement (sans appel à /logout) */
   clearSession: () => Promise<void>;
   clearError: () => void;
@@ -240,6 +245,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
 
     await get().clearSession();
+  },
+
+  refreshUser: async () => {
+    if (get().status !== "signedIn") return;
+
+    try {
+      const user = await meRequest();
+      // Déconnecté (ou changé de compte) pendant l'appel : la réponse ne concerne plus la session courante
+      const current = get().user;
+      if (get().status !== "signedIn" || (current && current.id !== user.id)) return;
+
+      await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+      set({ user });
+    } catch (err) {
+      // Hors ligne ou serveur injoignable : on garde l'utilisateur connu. Une session expirée passe par setSessionExpiredHandler.
+      console.log("[auth] rafraîchissement du profil impossible", err);
+    }
   },
 
   clearSession: async () => {

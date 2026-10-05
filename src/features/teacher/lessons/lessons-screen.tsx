@@ -2,6 +2,7 @@ import { FilterButton } from "@/components/list/filter-button";
 import { SearchBar } from "@/components/list/search-bar";
 import { DrawerMenuButton } from "@/features/teacher/drawer-menu-button";
 import { useLessons } from "@/hooks/queries/items/lesson";
+import { useCan } from "@/hooks/use-can";
 import { useThemeColors } from "@/hooks/use-theme-colors";
 import { useOfflineQueue } from "@/lib/offline/use-offline-queue";
 import type { Lesson } from "@/utils/types/Lesson";
@@ -17,6 +18,7 @@ import { PendingLessonRow } from "./pending-lesson-row";
 
 export function LessonsScreen() {
   const colors = useThemeColors();
+  const canCreate = useCan("academics.lessons.create");
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<LessonFiltersForm>(emptyLessonFilters);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -67,14 +69,20 @@ export function LessonsScreen() {
         options={{
           title: "Leçons",
           headerLeft: () => <DrawerMenuButton />,
-          headerRight: () => (
-            <Pressable
-              onPress={() => router.push("/teacher/lessons/new")}
-              hitSlop={8}
-            >
-              <Ionicons name="add-outline" size={26} color={colors.foreground} />
-            </Pressable>
-          ),
+          headerRight: canCreate
+            ? () => (
+                <Pressable
+                  onPress={() => router.push("/teacher/lessons/new")}
+                  hitSlop={8}
+                >
+                  <Ionicons
+                    name="add-outline"
+                    size={26}
+                    color={colors.foreground}
+                  />
+                </Pressable>
+              )
+            : undefined,
         }}
       />
 

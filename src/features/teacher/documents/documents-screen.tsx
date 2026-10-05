@@ -3,6 +3,7 @@ import { SearchBar } from "@/components/list/search-bar";
 import { DrawerMenuButton } from "@/features/teacher/drawer-menu-button";
 import { useDocuments } from "@/hooks/queries/items/document";
 import { useCurrentSchoolYear } from "@/hooks/queries/items/school-year";
+import { useCan } from "@/hooks/use-can";
 import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { Document } from "@/utils/types/Document";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -57,10 +58,10 @@ function groupDocumentsByCategory(documents: Document[]): DocumentGroup[] {
 
 export function DocumentsScreen() {
   const colors = useThemeColors();
+  const canCreate = useCan("communication.documents.create");
 
-  const [filters, setFilters] = useState<DocumentFiltersForm>(
-    emptyDocumentFilters,
-  );
+  const [filters, setFilters] =
+    useState<DocumentFiltersForm>(emptyDocumentFilters);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -99,14 +100,20 @@ export function DocumentsScreen() {
         options={{
           title: "Documents",
           headerLeft: () => <DrawerMenuButton />,
-          headerRight: () => (
-            <Pressable
-              onPress={() => router.push("/teacher/documents/new")}
-              hitSlop={8}
-            >
-              <Ionicons name="add-outline" size={26} color={colors.foreground} />
-            </Pressable>
-          ),
+          headerRight: canCreate
+            ? () => (
+                <Pressable
+                  onPress={() => router.push("/teacher/documents/new")}
+                  hitSlop={8}
+                >
+                  <Ionicons
+                    name="add-outline"
+                    size={26}
+                    color={colors.foreground}
+                  />
+                </Pressable>
+              )
+            : undefined,
         }}
       />
 

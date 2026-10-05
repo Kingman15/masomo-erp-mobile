@@ -15,6 +15,8 @@ export interface OfflineFailure {
 export class OfflineMutationError extends Error {
   // Propriété énumérable : c'est elle qui survit à la persistance.
   failure: OfflineFailure;
+  // Envoi direct (pas en file) auquel le serveur a répondu : pas de nouvel essai, l'écran affiche l'erreur.
+  direct = false;
 
   constructor(failure: OfflineFailure, cause: unknown) {
     // `cause` (non énumérable, non persisté) garde l'AxiosError d'origine pour handleApiError quand l'écran traite lui-même l'erreur (envoi direct en ligne).

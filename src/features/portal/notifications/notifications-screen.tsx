@@ -10,7 +10,7 @@ import { toastNotify } from "@/lib/toast";
 import type { NotificationDTO } from "@/utils/types/objects/NotificationDTO";
 import { FlashList } from "@shopify/flash-list";
 import { Stack, router, useFocusEffect, type Href } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { NotificationRow } from "./notification-row";
 import { NotificationsFilterPanel } from "./notifications-filter-panel";
@@ -20,7 +20,16 @@ import {
 } from "./notifications-filters";
 import { resolveNotificationRoute } from "./notification-type";
 
-export function NotificationsScreen() {
+// Partagé avec l'espace enseignant : seules la navigation au toucher et l'en-tête diffèrent.
+type NotificationsScreenProps = {
+  resolveRoute?: (notification: NotificationDTO) => string | null;
+  headerLeft?: () => ReactNode;
+};
+
+export function NotificationsScreen({
+  resolveRoute = resolveNotificationRoute,
+  headerLeft,
+}: NotificationsScreenProps = {}) {
   const [filters, setFilters] = useState<NotificationsFiltersForm>(
     defaultNotificationsFilters,
   );
@@ -67,7 +76,7 @@ export function NotificationsScreen() {
 
   const handlePressNotification = useCallback(
     (notification: NotificationDTO) => {
-      const target = resolveNotificationRoute(notification);
+      const target = resolveRoute(notification);
       if (target) {
         router.push(target as Href);
       }
@@ -76,7 +85,7 @@ export function NotificationsScreen() {
         markNotificationAsRead(notification);
       }
     },
-    [markNotificationAsRead],
+    [markNotificationAsRead, resolveRoute],
   );
 
   const handleMarkAllAsRead = async () => {
@@ -97,7 +106,13 @@ export function NotificationsScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: true, title: "Notifications" }} />
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          title: "Notifications",
+          ...(headerLeft ? { headerLeft } : {}),
+        }}
+      />
 
       <View className="flex-1 bg-background">
         <View className="flex-row items-center gap-3 px-4 pt-3 pb-2">

@@ -11,4 +11,7 @@ export const enrollmentKeys = {
 
   currentEnrollments: (filters: { schoolYearId?: string | null }) =>
     [...enrollmentKeys.all, "currentEnrollments", filters] as const,
+
+  reportCard: (enrollmentId: string | null | undefined) =>
+    [...enrollmentKeys.all, "reportCard", enrollmentId ?? null] as const,
 };

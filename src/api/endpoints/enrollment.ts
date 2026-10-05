@@ -1,4 +1,5 @@
 import { Enrollment } from "@/utils/types/Enrollment";
+import { StudentReportCardDTO } from "@/utils/types/objects/StudentReportCardDTO";
 import { AxiosInstance } from "axios";
 import ApiResponse from "../responses/ApiResponse";
 import PaginatedApiResponse from "../responses/PaginatedApiResponse";
@@ -26,6 +27,17 @@ export async function index(
     { params: { ...filters, page, perPage } },
   );
   return data;
+}
+
+// Bulletin (vue de consultation) ; un enseignant n'y accède que pour la classe dont il est titulaire (gate manageReportCards).
+export async function reportCard(
+  api: AxiosInstance,
+  enrollmentId: string,
+): Promise<StudentReportCardDTO> {
+  const { data } = await api.get<ApiResponse<StudentReportCardDTO>>(
+    `/enrollments/${enrollmentId}/report-card`,
+  );
+  return data.data;
 }
 
 export async function currentEnrollments(

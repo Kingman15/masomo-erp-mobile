@@ -5,6 +5,7 @@ import { useCurrentTeacher } from "@/hooks/queries/items/employee";
 import { useSchoolClasses } from "@/hooks/queries/items/school-class";
 import { useCurrentSchoolYear } from "@/hooks/queries/items/school-year";
 import { useStudentAttendanceRecords } from "@/hooks/queries/items/student-attendance-record";
+import { useCan } from "@/hooks/use-can";
 import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { StudentAttendanceRecord } from "@/utils/types/StudentAttendanceRecord";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -24,6 +25,8 @@ import { useAttendanceRegistersSessions } from "./use-attendance-registers-sessi
 
 export function AttendanceRecordsScreen() {
   const colors = useThemeColors();
+  // Secondaire : le pointage revient au directeur de discipline, l'enseignant garde la consultation.
+  const canCreate = useCan("attendance.records.create");
   const [selectedSessionId, setSessionId] = useState<string | null>(null);
   const [selectedSchoolClassId, setSchoolClassId] = useState<string | null>(
     null,
@@ -112,36 +115,42 @@ export function AttendanceRecordsScreen() {
         options={{
           title: "Présences",
           headerLeft: () => <DrawerMenuButton />,
-          headerRight: () => (
-            <View className="flex-row items-center gap-4">
-              <Pressable
-                onPress={() =>
-                  router.push({
-                    pathname: "/teacher/attendance/bulk",
-                    params: selectionParams,
-                  })
-                }
-                hitSlop={8}
-              >
-                <Ionicons
-                  name="checkmark-done-outline"
-                  size={24}
-                  color={colors.foreground}
-                />
-              </Pressable>
-              <Pressable
-                onPress={() =>
-                  router.push({
-                    pathname: "/teacher/attendance/new",
-                    params: selectionParams,
-                  })
-                }
-                hitSlop={8}
-              >
-                <Ionicons name="add-outline" size={26} color={colors.foreground} />
-              </Pressable>
-            </View>
-          ),
+          headerRight: canCreate
+            ? () => (
+                <View className="flex-row items-center gap-4">
+                  <Pressable
+                    onPress={() =>
+                      router.push({
+                        pathname: "/teacher/attendance/bulk",
+                        params: selectionParams,
+                      })
+                    }
+                    hitSlop={8}
+                  >
+                    <Ionicons
+                      name="checkmark-done-outline"
+                      size={24}
+                      color={colors.foreground}
+                    />
+                  </Pressable>
+                  <Pressable
+                    onPress={() =>
+                      router.push({
+                        pathname: "/teacher/attendance/new",
+                        params: selectionParams,
+                      })
+                    }
+                    hitSlop={8}
+                  >
+                    <Ionicons
+                      name="add-outline"
+                      size={26}
+                      color={colors.foreground}
+                    />
+                  </Pressable>
+                </View>
+              )
+            : undefined,
         }}
       />
 
@@ -196,8 +205,8 @@ export function AttendanceRecordsScreen() {
           <View className="flex-1 items-center justify-center px-6 gap-3">
             <Ionicons name="calendar-outline" size={32} color={colors.faint} />
             <Text className="text-sm text-faint text-center">
-              Sélectionnez une session de présences et une classe pour
-              afficher les pointages.
+              Sélectionnez une session de présences et une classe pour afficher
+              les pointages.
             </Text>
           </View>
         ) : studentAttendanceRecordsIsLoading ? (
@@ -227,19 +236,21 @@ export function AttendanceRecordsScreen() {
                 <Text className="text-sm text-faint text-center">
                   Aucun pointage pour cette session.
                 </Text>
-                <Pressable
-                  onPress={() =>
-                    router.push({
-                      pathname: "/teacher/attendance/bulk",
-                      params: selectionParams,
-                    })
-                  }
-                  className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
-                >
-                  <Text className="text-background font-medium">
-                    Pointer les présences
-                  </Text>
-                </Pressable>
+                {canCreate && (
+                  <Pressable
+                    onPress={() =>
+                      router.push({
+                        pathname: "/teacher/attendance/bulk",
+                        params: selectionParams,
+                      })
+                    }
+                    className="h-10 px-4 rounded-lg bg-foreground items-center justify-center"
+                  >
+                    <Text className="text-background font-medium">
+                      Pointer les présences
+                    </Text>
+                  </Pressable>
+                )}
               </View>
             }
             refreshing={

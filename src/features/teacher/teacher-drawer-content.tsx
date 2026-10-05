@@ -1,19 +1,20 @@
 import {
-  TEACHER_MENU,
+  useVisibleTeacherMenu,
   type RoutePath,
   type TeacherMenuGroup,
 } from "@/features/teacher/menu-config";
+import { useUnreadNotificationsCount } from "@/hooks/queries/items/notification";
 import { useThemeColors } from "@/hooks/use-theme-colors";
 import { useOfflineQueueCounts } from "@/lib/offline/use-offline-queue";
 import { useAuthStore } from "@/stores/auth";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
 import type { DrawerContentComponentProps } from "expo-router/drawer";
-import { DrawerContentScrollView } from "expo-router/drawer";
 import { router, usePathname } from "expo-router";
 import { useColorScheme } from "nativewind";
-import { useEffect, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { useState } from "react";
+import { Pressable, ScrollView, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   FadeIn,
   FadeOut,
@@ -101,23 +102,41 @@ function SyncBadge() {
   );
 }
 
+const NOTIFICATIONS_HREF = "/teacher/notifications";
+
+function UnreadNotificationsBadge() {
+  const { unreadCount } = useUnreadNotificationsCount({});
+  if (!unreadCount) return null;
+
+  return (
+    <View className="min-w-5 h-5 px-1.5 rounded-full items-center justify-center bg-blue-600">
+      <Text className="text-[11px] font-semibold text-white">
+        {unreadCount > 99 ? "99+" : unreadCount}
+      </Text>
+    </View>
+  );
+}
+
 export function TeacherDrawerContent(props: DrawerContentComponentProps) {
   const colors = useThemeColors();
   const pathname = usePathname();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  const menu = useVisibleTeacherMenu();
+  const insets = useSafeAreaInsets();
 
-  useEffect(() => {
-    const group = TEACHER_MENU.find(
-      (item): item is TeacherMenuGroup =>
-        item.type === "group" &&
-        item.children.some((child) => child.href === pathname),
-    );
-    if (group) {
-      setOpenGroups((prev) =>
-        prev[group.label] ? prev : { ...prev, [group.label]: true },
-      );
+  // Ouvre le groupe de la page active à chaque navigation, ajusté pendant le rendu plutôt que dans un effet (pas de rendu en cascade).
+  const activeGroup = menu.find(
+    (item): item is TeacherMenuGroup =>
+      item.type === "group" &&
+      item.children.some((child) => child.href === pathname),
+  );
+  const [openedFor, setOpenedFor] = useState<string | null>(null);
+  if (activeGroup && openedFor !== pathname) {
+    setOpenedFor(pathname);
+    if (!openGroups[activeGroup.label]) {
+      setOpenGroups({ ...openGroups, [activeGroup.label]: true });
     }
-  }, [pathname]);
+  }
 
   const goTo = (href: RoutePath) => {
     router.push(href);
@@ -125,10 +144,16 @@ export function TeacherDrawerContent(props: DrawerContentComponentProps) {
   };
 
   return (
-    <DrawerContentScrollView {...props} contentContainerClassName="pb-2">
+    // Safe area appliquée à la main : le paddingTop interne de DrawerContentScrollView est écrasé par NativeWind.
+    <ScrollView
+      contentContainerStyle={{
+        paddingTop: insets.top + 4,
+        paddingBottom: insets.bottom + 8,
+      }}
+    >
       <DrawerHero />
       <View className="py-2">
-        {TEACHER_MENU.map((item) => {
+        {menu.map((item) => {
           if (item.type === "link") {
             const active = pathname === item.href;
             return (
@@ -155,6 +180,7 @@ export function TeacherDrawerContent(props: DrawerContentComponentProps) {
                     {item.label}
                   </Text>
                   {item.href === SYNC_HREF && <SyncBadge />}
+                  {item.href === NOTIFICATIONS_HREF && <UnreadNotificationsBadge />}
                 </Pressable>
               </Animated.View>
             );
@@ -227,6 +253,6 @@ export function TeacherDrawerContent(props: DrawerContentComponentProps) {
           );
         })}
       </View>
-    </DrawerContentScrollView>
+    </ScrollView>
   );
 }

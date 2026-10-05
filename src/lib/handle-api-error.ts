@@ -115,9 +115,12 @@ export function handleApiError(
       toastNotify("Trop de tentatives, patiente quelques instants.", "warning");
       break;
 
+    // Fonctionnalité désactivée côté serveur (message métier précis) ou vraie maintenance (message Laravel générique en anglais)
     case 503:
       toastNotify(
-        "Service indisponible, réessaie dans quelques minutes.",
+        data?.message && data.message !== "Service Unavailable"
+          ? data.message
+          : "Service indisponible, réessaie dans quelques minutes.",
         "warning",
       );
       break;

@@ -83,3 +83,7 @@ export async function update(
   );
   return data.data;
 }
+
+export async function destroy(api: AxiosInstance, id: string): Promise<void> {
+  await api.delete(`/lessons/${id}`);
+}

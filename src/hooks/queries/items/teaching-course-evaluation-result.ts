@@ -3,6 +3,7 @@ import {
   exportResults,
   getByEvaluation,
   importResults,
+  submit,
   type TeachingCourseEvaluationResultSaveResult,
 } from "@/api/endpoints/teachingCourseEvaluationResult";
 import type { QueryDefinition } from "@/lib/offline/offline-queries";
@@ -56,6 +57,31 @@ export function useSaveTeachingCourseEvaluationResults() {
   return {
     saveTeachingCourseEvaluationResults: submit,
     saveTeachingCourseEvaluationResultsIsPending: isPending,
+  };
+}
+
+export function useSubmitTeachingCourseEvaluationResults(
+  evaluationId: string | undefined,
+) {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (resultIds: string[]) => {
+      if (!evaluationId) {
+        return Promise.reject(new Error("ID is required"));
+      }
+      return submit(api, evaluationId, resultIds);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: teachingCourseEvaluationResultKeys.roster(evaluationId),
+      });
+    },
+  });
+
+  return {
+    submitTeachingCourseEvaluationResults: mutation.mutateAsync,
+    submitTeachingCourseEvaluationResultsIsPending: mutation.isPending,
   };
 }
 

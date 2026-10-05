@@ -6,8 +6,10 @@ import {
   useExportTeachingCourseEvaluationResults,
   useImportTeachingCourseEvaluationResults,
   useSaveTeachingCourseEvaluationResults,
+  useSubmitTeachingCourseEvaluationResults,
   useTeachingCourseEvaluationResultRoster,
 } from "@/hooks/queries/items/teaching-course-evaluation-result";
+import { useCan } from "@/hooks/use-can";
 import { useThemeColors } from "@/hooks/use-theme-colors";
 import { handleApiError } from "@/lib/handle-api-error";
 import { getFailureCode, getOfflineFailure } from "@/lib/offline/offline-error";
@@ -56,6 +58,7 @@ type ScoringRow = {
 
   // État chargé : sert à n'envoyer que les lignes modifiées, avec la version vue (contrôle de conflit).
   originalScore: number | null;
+  resultId: string | null;
   status: TeachingCourseEvaluationResultStatus | null;
   updatedAt: string | null;
 };
@@ -86,6 +89,7 @@ function toScoringRow(
     draft: score !== null ? String(score) : "",
     error: null,
     originalScore: score,
+    resultId: entry.id ?? null,
     status: entry.status ?? null,
     updatedAt: entry.updatedAt ?? null,
   };
@@ -131,6 +135,15 @@ export function EvaluationScoringDialog({
     importTeachingCourseEvaluationResults,
     importTeachingCourseEvaluationResultsIsPending,
   } = useImportTeachingCourseEvaluationResults(evaluationId);
+
+  const {
+    submitTeachingCourseEvaluationResults,
+    submitTeachingCourseEvaluationResultsIsPending,
+  } = useSubmitTeachingCourseEvaluationResults(evaluationId);
+
+  const canSubmitResults = useCan(
+    "academics.evaluations::courseEvaluations.submitResults",
+  );
 
   const { confirm, ConfirmDialog } = useConfirm();
 
@@ -190,7 +203,12 @@ export function EvaluationScoringDialog({
 
       return prev.map((r, i) =>
         i === index
-          ? { ...r, score, draft: score !== null ? String(score) : "", error: null }
+          ? {
+              ...r,
+              score,
+              draft: score !== null ? String(score) : "",
+              error: null,
+            }
           : r,
       );
     });
@@ -226,7 +244,10 @@ export function EvaluationScoringDialog({
 
     const asset = result.assets[0];
     if (!IMPORT_ACCEPTED_EXTENSIONS.includes(getExtension(asset.name))) {
-      toastNotify("Format non accepté. Formats autorisés : XLSX, XLS.", "error");
+      toastNotify(
+        "Format non accepté. Formats autorisés : XLSX, XLS.",
+        "error",
+      );
       return;
     }
 
@@ -361,6 +382,7 @@ export function EvaluationScoringDialog({
             ? {
                 ...row,
                 originalScore: row.score,
+                resultId: written.id,
                 status: written.status,
                 updatedAt: written.updated_at,
               }
@@ -402,8 +424,47 @@ export function EvaluationScoringDialog({
     }
   };
 
+  // Seul le brouillon passe à « soumis » (règle serveur) ; une note sans id n'est pas encore enregistrée.
+  const submittableResultIds = rows
+    .filter((row) => row.status === "draft" && row.resultId !== null)
+    .map((row) => row.resultId as string);
+
+  const handleSubmitResults = async () => {
+    // On soumet ce qui est sur le serveur : une saisie en cours doit d'abord être enregistrée.
+    if (rows.some(draftDiffersFromOriginal)) {
+      toastNotify(
+        "Enregistrez d'abord vos modifications avant de soumettre.",
+        "info",
+      );
+      return;
+    }
+
+    const confirmed = await confirm({
+      title: "Soumettre les notes",
+      description: `${submittableResultIds.length} note(s) en brouillon seront soumises pour approbation. Vous pourrez encore les modifier, mais elles repasseront alors en brouillon.`,
+      confirmText: "Soumettre",
+      cancelText: "Annuler",
+    });
+    if (!confirmed) return;
+
+    try {
+      await submitTeachingCourseEvaluationResults(submittableResultIds);
+      setRows((prev) =>
+        prev.map((row) =>
+          row.resultId !== null && submittableResultIds.includes(row.resultId)
+            ? { ...row, status: "submitted" }
+            : row,
+        ),
+      );
+      toastNotify("Notes soumises avec succès.", "success");
+    } catch (error) {
+      handleApiError(error);
+    }
+  };
+
   const isBusy =
     saveTeachingCourseEvaluationResultsIsPending ||
+    submitTeachingCourseEvaluationResultsIsPending ||
     exportTeachingCourseEvaluationResultsIsPending ||
     importTeachingCourseEvaluationResultsIsPending ||
     teachingCourseEvaluationResultRosterIsLoading;
@@ -414,12 +475,21 @@ export function EvaluationScoringDialog({
       <View className="flex-1 bg-background">
         <View className="px-4 pt-14 pb-3 border-b border-divider">
           <View className="flex-row items-center justify-between">
-            <Text className="text-base font-semibold text-foreground">Saisir les notes</Text>
+            <Text className="text-base font-semibold text-foreground">
+              Saisir les notes
+            </Text>
             <Pressable onPress={onClose} hitSlop={8}>
-              <Ionicons name="close" size={22} color={colors.foregroundSecondary} />
+              <Ionicons
+                name="close"
+                size={22}
+                color={colors.foregroundSecondary}
+              />
             </Pressable>
           </View>
-          <Text className="text-xs text-muted-foreground mt-1" numberOfLines={1}>
+          <Text
+            className="text-xs text-muted-foreground mt-1"
+            numberOfLines={1}
+          >
             {`${evaluation.wording ?? "Évaluation"} · Noté sur ${maxScore}`}
           </Text>
 
@@ -432,9 +502,16 @@ export function EvaluationScoringDialog({
               }`}
             >
               {exportTeachingCourseEvaluationResultsIsPending ? (
-                <ActivityIndicator size="small" color={colors.foregroundSecondary} />
+                <ActivityIndicator
+                  size="small"
+                  color={colors.foregroundSecondary}
+                />
               ) : (
-                <Ionicons name="download-outline" size={16} color={colors.foregroundSecondary} />
+                <Ionicons
+                  name="download-outline"
+                  size={16}
+                  color={colors.foregroundSecondary}
+                />
               )}
               <Text className="text-sm font-medium text-foreground-secondary">
                 Exporter
@@ -449,7 +526,10 @@ export function EvaluationScoringDialog({
               }`}
             >
               {importTeachingCourseEvaluationResultsIsPending ? (
-                <ActivityIndicator size="small" color={colors.foregroundSecondary} />
+                <ActivityIndicator
+                  size="small"
+                  color={colors.foregroundSecondary}
+                />
               ) : (
                 <Ionicons
                   name="cloud-upload-outline"
@@ -483,7 +563,9 @@ export function EvaluationScoringDialog({
         ) : (
           <FlatList
             data={rows}
-            keyExtractor={(row, index) => `${row.enrollmentId || "row"}-${index}`}
+            keyExtractor={(row, index) =>
+              `${row.enrollmentId || "row"}-${index}`
+            }
             renderItem={({ item, index }) => (
               <EvaluationScoringRow
                 studentLabel={item.studentLabel}
@@ -510,11 +592,42 @@ export function EvaluationScoringDialog({
           />
         )}
 
-        <View className="p-4 border-t border-divider">
+        <View className="p-4 border-t border-divider flex-row gap-2">
+          {canSubmitResults && (
+            <Pressable
+              onPress={() => void handleSubmitResults()}
+              disabled={isBusy || submittableResultIds.length === 0}
+              accessibilityLabel="Soumettre les notes pour approbation"
+              className={`flex-1 h-12 rounded-lg border items-center justify-center flex-row gap-1.5 ${
+                isBusy || submittableResultIds.length === 0
+                  ? "border-border opacity-50"
+                  : "border-input"
+              }`}
+            >
+              {submitTeachingCourseEvaluationResultsIsPending ? (
+                <ActivityIndicator
+                  size="small"
+                  color={colors.foregroundSecondary}
+                />
+              ) : (
+                <Ionicons
+                  name="send-outline"
+                  size={16}
+                  color={colors.foregroundSecondary}
+                />
+              )}
+              <Text className="text-sm font-medium text-foreground-secondary">
+                {submittableResultIds.length > 0
+                  ? `Soumettre (${submittableResultIds.length})`
+                  : "Soumettre"}
+              </Text>
+            </Pressable>
+          )}
+
           <Pressable
             onPress={() => void handleSave()}
             disabled={saveTeachingCourseEvaluationResultsIsPending}
-            className={`h-12 rounded-lg items-center justify-center ${
+            className={`flex-1 h-12 rounded-lg items-center justify-center ${
               saveTeachingCourseEvaluationResultsIsPending
                 ? "bg-gray-300 dark:bg-zinc-700"
                 : "bg-foreground"
@@ -524,7 +637,7 @@ export function EvaluationScoringDialog({
               <ActivityIndicator color={colors.background} />
             ) : (
               <Text className="text-background font-medium">
-                Enregistrer les notes
+                {canSubmitResults ? "Enregistrer" : "Enregistrer les notes"}
               </Text>
             )}
           </Pressable>

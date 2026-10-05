@@ -2,6 +2,7 @@ import { FilterButton } from "@/components/list/filter-button";
 import { DrawerMenuButton } from "@/features/teacher/drawer-menu-button";
 import { useCurrentSchoolYear } from "@/hooks/queries/items/school-year";
 import { useTeachingCourseEvaluations } from "@/hooks/queries/items/teaching-course-evaluation";
+import { useCan } from "@/hooks/use-can";
 import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { TeachingCourseEvaluation } from "@/utils/types/TeachingCourseEvaluation";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -18,6 +19,7 @@ import { EvaluationRow } from "./evaluation-row";
 
 export function EvaluationsScreen() {
   const colors = useThemeColors();
+  const canCreate = useCan("academics.evaluations::courseEvaluations.create");
   const [filters, setFilters] = useState<EvaluationFiltersForm>(
     emptyEvaluationFilters,
   );
@@ -27,9 +29,7 @@ export function EvaluationsScreen() {
     ({ item }: { item: TeachingCourseEvaluation }) => (
       <EvaluationRow
         evaluation={item}
-        onPress={() =>
-          router.push(`/teacher/evaluations/${item.id}/edit`)
-        }
+        onPress={() => router.push(`/teacher/evaluations/${item.id}/edit`)}
       />
     ),
     [],
@@ -79,14 +79,20 @@ export function EvaluationsScreen() {
         options={{
           title: "Évaluations",
           headerLeft: () => <DrawerMenuButton />,
-          headerRight: () => (
-            <Pressable
-              onPress={() => router.push("/teacher/evaluations/new")}
-              hitSlop={8}
-            >
-              <Ionicons name="add-outline" size={26} color={colors.foreground} />
-            </Pressable>
-          ),
+          headerRight: canCreate
+            ? () => (
+                <Pressable
+                  onPress={() => router.push("/teacher/evaluations/new")}
+                  hitSlop={8}
+                >
+                  <Ionicons
+                    name="add-outline"
+                    size={26}
+                    color={colors.foreground}
+                  />
+                </Pressable>
+              )
+            : undefined,
         }}
       />
 
