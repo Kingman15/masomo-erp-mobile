@@ -9,7 +9,9 @@ import { queryClient } from "@/lib/queryClient";
 import { useAuthStore } from "@/stores/auth";
 import { usePortalSelectionStore } from "@/stores/portal-selection";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import * as Sentry from "@sentry/react-native";
 import { QueryClientProvider } from "@tanstack/react-query";
+import Constants from "expo-constants";
 import {
   DarkTheme,
   DefaultTheme,
@@ -25,13 +27,26 @@ import { AppState } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
+// Remontée des erreurs (JS et crashs natifs) : active seulement si EXPO_PUBLIC_SENTRY_DSN est défini (builds preview/prod), rien en local
+const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
+
+if (sentryDsn) {
+  Sentry.init({
+    dsn: sentryDsn,
+    environment: (Constants.expoConfig?.extra?.appVariant as string | undefined) ?? "development",
+    sendDefaultPii: false,
+  });
+}
+
 const ROLE_HOME = {
   backoffice: "/backoffice",
   teacher: "/teacher",
   portal: "/portal",
 } as const;
 
-export default function RootLayout() {
+export default Sentry.wrap(RootLayout);
+
+function RootLayout() {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
   const colors = ThemeColors[isDark ? "dark" : "light"];

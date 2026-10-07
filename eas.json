@@ -22,14 +22,16 @@
       },
       "env": {
         "APP_VARIANT": "preview",
-        "EXPO_PUBLIC_API_BASE_URL": "https://api-staging.masomo.app/api"
+        "EXPO_PUBLIC_API_BASE_URL": "https://api-staging.masomo.app/api",
+        "EXPO_PUBLIC_SENTRY_DSN": "https://eb4da18af63ac5c11015dafb2ab2be18@o4511992066342912.ingest.us.sentry.io/4512201708863489"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
         "APP_VARIANT": "production",
-        "EXPO_PUBLIC_API_BASE_URL": "https://api.masomo.app/api"
+        "EXPO_PUBLIC_API_BASE_URL": "https://api.masomo.app/api",
+        "EXPO_PUBLIC_SENTRY_DSN": "https://eb4da18af63ac5c11015dafb2ab2be18@o4511992066342912.ingest.us.sentry.io/4512201708863489"
       }
     }
   },

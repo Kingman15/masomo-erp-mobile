@@ -33,10 +33,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ...(config.plugins ?? []),
     "@react-native-community/datetimepicker",
     "expo-sharing",
+    // Envoi des source maps au build : SENTRY_AUTH_TOKEN doit exister en secret EAS.
+    [
+      "@sentry/react-native/expo",
+      { url: "https://sentry.io/", organization: "koncept-lt", project: "masomo-mobile" },
+    ],
   ],
 
   extra: {
     ...config.extra,
     eas: { projectId: "620aca7b-b2e1-4d1e-8299-229f427e68f2" },
+    // Environnement Sentry (development, preview, production).
+    appVariant: process.env.APP_VARIANT ?? "development",
   },
 });
