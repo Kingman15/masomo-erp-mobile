@@ -2,6 +2,7 @@ import "../global.css";
 
 import { checkHealth } from "@/api/endpoints/health";
 import { Toast } from "@/components/toast";
+import { ChangePasswordDialog } from "@/features/portal/profil/change-password-dialog";
 import { ThemeColors } from "@/constants/colors";
 import { BRAND_PRIMARY } from "@/constants/theme";
 import { startOfflinePersistence } from "@/lib/offline/persistence";
@@ -38,13 +39,15 @@ if (sentryDsn) {
   });
 }
 
-const ROLE_HOME = {
-  backoffice: "/backoffice",
-  teacher: "/teacher",
-  portal: "/portal",
+// Un seul espace pour tout le personnel (enseignants, direction, administration), filtré par permissions comme le web.
+const ROLE_SPACE = {
+  backoffice: "staff",
+  teacher: "staff",
+  portal: "portal",
 } as const;
 
-export default Sentry.wrap(RootLayout);
+// Sans init (pas de DSN en local), Sentry.wrap ne peut pas clore son span de démarrage et émet un avertissement.
+export default sentryDsn ? Sentry.wrap(RootLayout) : RootLayout;
 
 function RootLayout() {
   const { colorScheme } = useColorScheme();
@@ -148,15 +151,26 @@ function RootNavigation() {
     );
   }
 
-  if (status === "signedIn" && user && segments[0] !== user.role.roleCategory) {
-    return <Redirect href={ROLE_HOME[user.role.roleCategory]} />;
+  const space = user ? ROLE_SPACE[user.role.roleCategory] : null;
+  if (status === "signedIn" && space && segments[0] !== space) {
+    return <Redirect href={`/${space}`} />;
   }
+
+  // Mot de passe temporaire : écran plein, non fermable, tant qu'il n'est pas remplacé (l'API refuse le reste).
+  // La relecture de /me après le changement lève le blocage.
+  const mustChangePassword = status === "signedIn" && Boolean(user?.mustChangePassword);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
         <Stack screenOptions={{ headerShown: false }} />
         <Toast />
+        <ChangePasswordDialog
+          visible={mustChangePassword}
+          forced
+          onClose={() => void useAuthStore.getState().refreshUser()}
+          onLogout={() => void useAuthStore.getState().signOut()}
+        />
       </BottomSheetModalProvider>
     </GestureHandlerRootView>
   );

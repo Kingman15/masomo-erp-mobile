@@ -1,5 +1,5 @@
-import { IncidentStatusPill } from "@/features/teacher/incidents/incident-status-pill";
-import { SanctionStatusPill } from "@/features/teacher/sanctions/sanction-status-pill";
+import { IncidentStatusPill } from "@/features/staff/incidents/incident-status-pill";
+import { SanctionStatusPill } from "@/features/staff/sanctions/sanction-status-pill";
 import { formatDateTime } from "@/lib/format";
 import { usePortalSanction } from "@/hooks/queries/items/student-incident-sanction";
 import { useThemeColors } from "@/hooks/use-theme-colors";

@@ -1,9 +1,16 @@
 import api from "@/api/client";
-import { currentEnrollments, index, reportCard } from "@/api/endpoints/enrollment";
+import {
+  currentEnrollments,
+  index,
+  reportCard,
+  show,
+} from "@/api/endpoints/enrollment";
 import type { QueryDefinition } from "@/lib/offline/offline-queries";
 import { enrollmentKeys } from "@/utils/query-keys/enrollment";
 import { Enrollment } from "@/utils/types/Enrollment";
 import { StudentReportCardDTO } from "@/utils/types/objects/StudentReportCardDTO";
+import { useDetailQuery } from "../use-detail-query";
+import { useInfiniteScrollQuery } from "../use-infinite-scroll-query";
 import { useListQuery } from "../use-list-query";
 import { useSingletonQuery } from "../use-singleton-query";
 
@@ -101,5 +108,66 @@ export function useEnrollmentReportCard(enrollmentId: string | null | undefined)
     reportCardIsLoading: query.isLoading,
     reportCardIsFetching: query.isFetching,
     loadReportCard: query.refetch,
+  };
+}
+
+interface UseEnrollmentPagesParams {
+  filters: {
+    schoolYearId?: string | null;
+    schoolClassId?: string | null;
+    searchTerm?: string | null;
+  };
+}
+
+// Écran Élèves : liste paginée (défilement infini), triée par nom d'élève.
+export function useEnrollmentPages({ filters }: UseEnrollmentPagesParams) {
+  const normalizedFilters = {
+    schoolYearId: filters.schoolYearId ?? null,
+    schoolClassId: filters.schoolClassId ?? null,
+    searchTerm: filters.searchTerm || null,
+  };
+
+  const query = useInfiniteScrollQuery<Enrollment>({
+    queryKey: enrollmentKeys.pages(normalizedFilters),
+    queryFn: (page, perPage) =>
+      index(
+        api,
+        { ...normalizedFilters, sortBy: "student_name", sortDirection: "asc" },
+        page,
+        perPage,
+      ),
+    label: "Élèves",
+    enabled: Boolean(normalizedFilters.schoolYearId),
+  });
+
+  return {
+    enrollments: query.items,
+    enrollmentsMeta: query.meta,
+    enrollmentsError: query.error,
+    enrollmentsIsLoading: query.isLoading,
+    enrollmentsIsFetchingNextPage: query.isFetchingNextPage,
+    enrollmentsIsRefetching: query.isRefetching,
+    enrollmentsHasNextPage: query.hasNextPage,
+    fetchNextEnrollments: query.fetchNextPage,
+    loadEnrollments: query.refetch,
+  };
+}
+
+export function useEnrollmentById(id: string | undefined) {
+  const query = useDetailQuery<Enrollment>({
+    queryKey: enrollmentKeys.detail(id),
+    queryFn: () => {
+      if (!id) return Promise.reject(new Error("ID is required"));
+      return show(api, id);
+    },
+    label: "Inscription",
+    id,
+  });
+
+  return {
+    enrollment: query.data,
+    enrollmentIsLoading: query.isLoading,
+    enrollmentError: query.error,
+    loadEnrollment: query.refetch,
   };
 }

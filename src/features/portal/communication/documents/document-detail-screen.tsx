@@ -1,5 +1,5 @@
-import { documentIconName } from "@/features/teacher/documents/document-icon";
-import { formatFileSize } from "@/features/teacher/documents/format-file-size";
+import { documentIconName } from "@/features/staff/documents/document-icon";
+import { formatFileSize } from "@/features/staff/documents/format-file-size";
 import { usePortalDocument } from "@/hooks/queries/items/portal-document";
 import { useThemeColors } from "@/hooks/use-theme-colors";
 import { formatDateTime } from "@/lib/format";

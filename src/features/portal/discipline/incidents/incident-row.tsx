@@ -1,4 +1,4 @@
-import { IncidentStatusPill } from "@/features/teacher/incidents/incident-status-pill";
+import { IncidentStatusPill } from "@/features/staff/incidents/incident-status-pill";
 import { formatShortDate } from "@/lib/format";
 import { PortalIncidentDTO } from "@/utils/types/objects/PortalIncidentDTO";
 import { memo } from "react";

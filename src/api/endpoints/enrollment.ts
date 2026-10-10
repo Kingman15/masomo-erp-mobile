@@ -14,6 +14,7 @@ interface EnrollmentFilters {
   sortBy?: string | null;
   sortDirection?: "asc" | "desc" | null;
   withoutAttendanceSessionId?: string | null;
+  searchTerm?: string | null;
 }
 
 export async function index(
@@ -48,5 +49,14 @@ export async function currentEnrollments(
     "/enrollments/current-enrollments",
     { params: filters },
   );
+  return data.data;
+}
+
+// Fiche d'inscription : élève, classe, tuteur principal (consultation du personnel).
+export async function show(
+  api: AxiosInstance,
+  id: string,
+): Promise<Enrollment> {
+  const { data } = await api.get<ApiResponse<Enrollment>>(`/enrollments/${id}`);
   return data.data;
 }

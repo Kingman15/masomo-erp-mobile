@@ -11,5 +11,11 @@ export const lessonKeys = {
     teacherId?: string | null;
   }) => [...lessonKeys.all, "list", filters] as const,
 
+  fileNumbers: (filters: {
+    schoolYearId?: string | null;
+    schoolClassId?: string | null;
+    courseId?: string | null;
+  }) => [...lessonKeys.all, "file-numbers", filters] as const,
+
   detail: (id?: string) => [...lessonKeys.all, "detail", id] as const,
 };

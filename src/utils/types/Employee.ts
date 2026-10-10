@@ -235,3 +235,25 @@ export interface Employee {
   fullDesignation: string | null;
   genderStr: string | null;
 }
+
+/**
+ * Employé réduit à son identité (GET /employees/options) : listes de sélection hors RH.
+ * La fiche complète (Employee) exige la permission hr.employees.view.
+ */
+export type EmployeeOption = Pick<
+  Employee,
+  | "id"
+  | "code"
+  | "employeeTypeId"
+  | "userId"
+  | "registrationNo"
+  | "lastName"
+  | "middleName"
+  | "firstName"
+  | "gender"
+  | "status"
+  | "employeeType"
+  | "fullName"
+  | "fullDesignation"
+  | "genderStr"
+>;

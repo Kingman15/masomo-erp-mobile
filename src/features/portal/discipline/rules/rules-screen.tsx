@@ -1,6 +1,6 @@
 import { FilterButton } from "@/components/list/filter-button";
-import { ArticleAccordionItem } from "@/features/teacher/internal-regulations/article-accordion-item";
-import { RegulationMetaCard } from "@/features/teacher/internal-regulations/regulation-meta-card";
+import { ArticleAccordionItem } from "@/features/staff/internal-regulations/article-accordion-item";
+import { RegulationMetaCard } from "@/features/staff/internal-regulations/regulation-meta-card";
 import { useStudentInternalRegulations } from "@/hooks/queries/items/student-internal-regulation";
 import { useStudentRegulationArticles } from "@/hooks/queries/items/student-regulation-article";
 import { Stack } from "expo-router";

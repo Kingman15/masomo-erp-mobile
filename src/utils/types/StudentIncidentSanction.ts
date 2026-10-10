@@ -18,6 +18,13 @@ export type StudentIncidentSanctionStatus =
 export interface StudentIncidentSanction {
   id: string;
   code: string | null;
+  incidentId: string | null;
+  sanctionTypeId: string | null;
+  regulationArticleId: string | null;
+  incidentStudentId: string | null;
+  studentId: string | null;
+  decidedBy: string | null;
+  parentsNotifiedBy: string | null;
   status: StudentIncidentSanctionStatus | null;
   startsAt: string | null;
   endsAt: string | null;

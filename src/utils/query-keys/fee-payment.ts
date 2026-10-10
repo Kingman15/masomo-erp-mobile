@@ -37,4 +37,18 @@ export const feePaymentKeys = {
         schoolClassId: filters.schoolClassId ?? null,
       },
     ] as const,
+
+  // Consultation du personnel
+  byEnrollment: (enrollmentId?: string | null) =>
+    [...feePaymentKeys.all, "byEnrollment", enrollmentId ?? null] as const,
+  detail: (id?: string) => [...feePaymentKeys.all, "detail", id] as const,
+  derogations: (enrollmentId?: string | null) =>
+    [...feePaymentKeys.all, "derogations", enrollmentId ?? null] as const,
+  collectionFees: (schoolYearId?: string | null, schoolClassId?: string | null) =>
+    [...feePaymentKeys.all, "collectionFees", schoolYearId ?? null, schoolClassId ?? null] as const,
+  collectionList: (filters: {
+    schoolYearId?: string | null;
+    schoolClassId?: string | null;
+    feeIds: string[];
+  }) => [...feePaymentKeys.all, "collectionList", filters] as const,
 };

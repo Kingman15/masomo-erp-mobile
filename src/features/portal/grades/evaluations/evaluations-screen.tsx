@@ -15,6 +15,7 @@ import {
   type EvaluationFiltersForm,
 } from "./evaluation-filters";
 import { EvaluationTypeGroup } from "./evaluation-type-group";
+import { StudentSwitcherEntry } from "../../student-switcher-entry";
 import { usePortalSelection } from "../../use-portal-selection";
 import { PortalTeachingCourseEvaluationDTO } from "@/utils/types/objects/PortalTeachingCourseEvaluationDTO";
 import { usePortalTeachingCourseEvaluations } from "@/hooks/queries/items/teaching-course-evaluation";
@@ -120,6 +121,11 @@ export function EvaluationsScreen() {
       />
 
       <View className="flex-1 bg-background">
+        {/* Élève · Année · Classe : rappel du contexte, touchable pour le changer sans repasser par le Menu. */}
+        <View className="px-4 pt-3 -mb-2">
+          <StudentSwitcherEntry />
+        </View>
+
         {filtersAreComplete && (
           <View className="flex-row items-center gap-3 px-4 pt-3 pb-2">
             <FilterButton

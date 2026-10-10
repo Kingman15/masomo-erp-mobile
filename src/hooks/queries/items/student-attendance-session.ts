@@ -1,5 +1,10 @@
 import api from "@/api/client";
-import { index } from "@/api/endpoints/studentAttendanceSession";
+import {
+  index,
+  store,
+  type StudentAttendanceSessionPayload,
+} from "@/api/endpoints/studentAttendanceSession";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { QueryDefinition } from "@/lib/offline/offline-queries";
 import { studentAttendanceSessionKeys } from "@/utils/query-keys/student-attendance-session";
 import { StudentAttendanceSession } from "@/utils/types/StudentAttendanceSession";
@@ -46,5 +51,23 @@ export function useStudentAttendanceSessions({
     studentAttendanceSessionsIsLoading: query.isLoading,
     loadStudentAttendanceSessions: query.refetch,
     studentAttendanceSessionsIsFetching: query.isFetching,
+  };
+}
+
+export function useCreateStudentAttendanceSession() {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (payload: StudentAttendanceSessionPayload) => store(api, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: studentAttendanceSessionKeys.all,
+      });
+    },
+  });
+
+  return {
+    createStudentAttendanceSession: mutation.mutateAsync,
+    createStudentAttendanceSessionIsPending: mutation.isPending,
   };
 }

@@ -4,8 +4,13 @@ import {
   portalIndex,
   portalShow,
   show as fetchStudentIncidentById,
+  store,
+  update,
   type PortalIncidentDetailDTO,
+  type StudentIncidentPayload,
 } from "@/api/endpoints/studentIncident";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { studentIncidentSanctionKeys } from "@/utils/query-keys/student-incident-sanction";
 import { useOfflineMutation } from "@/lib/offline/use-offline-mutation";
 import { studentIncidentKeys } from "@/utils/query-keys/student-incident";
 import { portalIncidentKeys } from "@/utils/query-keys/portal-incident";
@@ -24,6 +29,7 @@ interface UseStudentIncidentsParams {
     endDate?: string | null;
     searchTerm?: string | null;
     studentId?: string | null;
+    schoolClassId?: string | null;
   };
 
   enabled?: boolean;
@@ -41,6 +47,7 @@ export function useStudentIncidents({
     endDate: filters.endDate ?? undefined,
     searchTerm: filters.searchTerm ?? undefined,
     studentId: filters.studentId ?? undefined,
+    schoolClassId: filters.schoolClassId ?? undefined,
   };
 
   const query = useInfiniteScrollQuery<StudentIncident>({
@@ -158,5 +165,45 @@ export function useTeacherReportStudentIncident() {
   return {
     teacherReportStudentIncident: submit,
     teacherReportStudentIncidentIsPending: isPending,
+  };
+}
+
+// Saisie complète en ligne : listes et fiches d'incidents et de sanctions rafraîchies après coup.
+function useInvalidateIncidents() {
+  const queryClient = useQueryClient();
+  return () => {
+    void queryClient.invalidateQueries({ queryKey: studentIncidentKeys.all });
+    void queryClient.invalidateQueries({
+      queryKey: studentIncidentSanctionKeys.all,
+    });
+  };
+}
+
+export function useCreateStudentIncident() {
+  const invalidate = useInvalidateIncidents();
+
+  const mutation = useMutation({
+    mutationFn: (payload: StudentIncidentPayload) => store(api, payload),
+    onSuccess: invalidate,
+  });
+
+  return {
+    createStudentIncident: mutation.mutateAsync,
+    createStudentIncidentIsPending: mutation.isPending,
+  };
+}
+
+export function useUpdateStudentIncident() {
+  const invalidate = useInvalidateIncidents();
+
+  const mutation = useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: StudentIncidentPayload }) =>
+      update(api, id, payload),
+    onSuccess: invalidate,
+  });
+
+  return {
+    updateStudentIncident: mutation.mutateAsync,
+    updateStudentIncidentIsPending: mutation.isPending,
   };
 }

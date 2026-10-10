@@ -138,5 +138,7 @@ export function handleApiError(
       break;
   }
 
-  console.error(`[API Error ${status}]`, { url: error.config?.url, data });
+  // console.error ouvre la LogBox plein écran en dev : réservé aux incidents serveur, les 4xx sont des erreurs métier attendues.
+  const log = status >= 500 ? console.error : console.log;
+  log(`[API Error ${status}]`, { url: error.config?.url, data });
 }

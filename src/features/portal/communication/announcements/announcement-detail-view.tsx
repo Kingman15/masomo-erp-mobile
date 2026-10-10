@@ -1,4 +1,4 @@
-import { documentIconName } from "@/features/teacher/documents/document-icon";
+import { documentIconName } from "@/features/staff/documents/document-icon";
 import { useThemeColors } from "@/hooks/use-theme-colors";
 import { formatDateTime } from "@/lib/format";
 import type { PortalAnnouncementDTO } from "@/utils/types/objects/PortalAnnouncementDTO";

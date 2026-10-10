@@ -67,10 +67,21 @@ function StudentRow({ student }: { student: Student }) {
 export function ProfilScreen() {
   const colors = useThemeColors();
   const user = useAuthStore((s) => s.user);
+  const school = useAuthStore((s) => s.school);
   const signOut = useAuthStore((s) => s.signOut);
 
   const { students = [], studentsIsLoading } = useCurrentStudents();
   const [changePasswordVisible, setChangePasswordVisible] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    try {
+      await signOut();
+    } finally {
+      setIsSigningOut(false);
+    }
+  };
 
   return (
     <>
@@ -102,6 +113,12 @@ export function ProfilScreen() {
             <InfoRow icon="business-outline" label="Rôle" value={user?.role?.name} />
           </View>
 
+          <SectionTitle>Établissement</SectionTitle>
+          <View className="border-t border-divider pt-1">
+            <InfoRow icon="school-outline" label="École" value={school?.name ?? "—"} />
+            <InfoRow icon="keypad-outline" label="Code système" value={school?.code ?? "—"} />
+          </View>
+
           <SectionTitle>Mes enfants</SectionTitle>
           <View className="border-t border-divider pt-1">
             {studentsIsLoading ? (
@@ -128,10 +145,15 @@ export function ProfilScreen() {
           </Pressable>
 
           <Pressable
-            onPress={signOut}
+            onPress={handleSignOut}
+            disabled={isSigningOut}
             className="h-11 px-6 border border-input rounded-lg items-center justify-center mt-6"
           >
-            <Text className="text-foreground font-medium">Se déconnecter</Text>
+            {isSigningOut ? (
+              <ActivityIndicator color={colors.foreground} />
+            ) : (
+              <Text className="text-foreground font-medium">Se déconnecter</Text>
+            )}
           </Pressable>
         </ScrollView>
       </View>

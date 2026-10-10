@@ -1,3 +1,4 @@
+import type { LessonFileNumber } from "@/lib/lesson-file-numbers";
 import { LessonFormValues } from "@/utils/schemas/lesson-schema";
 import { Lesson } from "@/utils/types/Lesson";
 import { AxiosInstance } from "axios";
@@ -52,6 +53,17 @@ export async function index(
     params: { ...filters, page, perPage },
   });
   return data;
+}
+
+export async function fileNumbers(
+  api: AxiosInstance,
+  filters: Pick<LessonFilters, "schoolYearId" | "schoolClassId" | "courseId">,
+): Promise<LessonFileNumber[]> {
+  const { data } = await api.get<ApiResponse<LessonFileNumber[]>>(
+    "/lessons/file-numbers",
+    { params: filters },
+  );
+  return data.data;
 }
 
 export async function show(api: AxiosInstance, id: string): Promise<Lesson> {

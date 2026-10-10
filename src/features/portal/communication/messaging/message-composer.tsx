@@ -1,5 +1,5 @@
-import { documentIconName } from "@/features/teacher/documents/document-icon";
-import { formatFileSize } from "@/features/teacher/documents/format-file-size";
+import { documentIconName } from "@/features/staff/documents/document-icon";
+import { formatFileSize } from "@/features/staff/documents/format-file-size";
 import { useThemeColors } from "@/hooks/use-theme-colors";
 import type { MessageDocumentDraft } from "@/utils/types/MessageDocument";
 import Ionicons from "@expo/vector-icons/Ionicons";

@@ -22,7 +22,7 @@ export function AuthHeader({ title, subtitle }: { title: string; subtitle?: Reac
   const isDark = useColorScheme().colorScheme === "dark";
 
   return (
-    <View className="items-center pt-20 pb-8 px-6">
+    <View className="items-center pt-12 pb-8 px-6">
       <Image
         source={isDark ? LOGO_DARK : LOGO_LIGHT}
         style={{ width: 96, height: 67, marginBottom: 20 }}

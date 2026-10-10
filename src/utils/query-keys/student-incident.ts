@@ -9,6 +9,7 @@ export const studentIncidentKeys = {
     endDate?: string | null;
     searchTerm?: string | null;
     studentId?: string | null;
+    schoolClassId?: string | null;
   }) => [...studentIncidentKeys.all, "list", filters] as const,
 
   detail: (id?: string) => [...studentIncidentKeys.all, "detail", id] as const,

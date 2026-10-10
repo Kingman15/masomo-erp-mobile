@@ -1,5 +1,5 @@
-import { MessageAttachments } from "@/features/teacher/messaging/message-attachments";
-import { PartyAvatar } from "@/features/teacher/messaging/party-avatar";
+import { MessageAttachments } from "@/features/staff/messaging/message-attachments";
+import { PartyAvatar } from "@/features/staff/messaging/party-avatar";
 import {
   usePortalConversation,
   usePortalConversationMessages,

@@ -24,6 +24,9 @@ import {
 type ChangePasswordDialogProps = {
   visible: boolean;
   onClose: () => void;
+  // Mot de passe temporaire à remplacer (mustChangePassword) : ni fermeture ni retour, seulement la déconnexion.
+  forced?: boolean;
+  onLogout?: () => void;
 };
 
 const EMPTY_VALUES: ChangePasswordFormValues = {
@@ -80,7 +83,7 @@ function PasswordField({
   );
 }
 
-export function ChangePasswordDialog({ visible, onClose }: ChangePasswordDialogProps) {
+export function ChangePasswordDialog({ visible, onClose, forced = false, onLogout }: ChangePasswordDialogProps) {
   const colors = useThemeColors();
   const {
     control,
@@ -117,16 +120,27 @@ export function ChangePasswordDialog({ visible, onClose }: ChangePasswordDialogP
   };
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} animationType="slide" onRequestClose={forced ? () => {} : onClose}>
       <View className="flex-1 bg-background">
         <View className="flex-row items-center justify-between px-4 pt-14 pb-3 border-b border-divider">
-          <Text className="text-base font-semibold text-foreground">Changer le mot de passe</Text>
-          <Pressable onPress={onClose} hitSlop={8}>
-            <Ionicons name="close" size={22} color={colors.foregroundSecondary} />
-          </Pressable>
+          <Text className="text-base font-semibold text-foreground">
+            {forced ? "Choisissez votre mot de passe" : "Changer le mot de passe"}
+          </Text>
+          {!forced && (
+            <Pressable onPress={onClose} hitSlop={8}>
+              <Ionicons name="close" size={22} color={colors.foregroundSecondary} />
+            </Pressable>
+          )}
         </View>
 
         <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
+          {forced && (
+            <Text className="text-sm leading-5 text-muted-foreground mb-4">
+              Vous vous êtes connecté avec un mot de passe temporaire. Remplacez-le par un mot de passe
+              personnel pour continuer.
+            </Text>
+          )}
+
           <Controller
             control={control}
             name="currentPassword"
@@ -185,6 +199,16 @@ export function ChangePasswordDialog({ visible, onClose }: ChangePasswordDialogP
               <Text className="text-background font-medium">Valider</Text>
             )}
           </Pressable>
+
+          {forced && (
+            <Pressable
+              onPress={onLogout}
+              disabled={changePasswordIsPending}
+              className="h-12 rounded-lg items-center justify-center mt-3 border border-input"
+            >
+              <Text className="text-foreground font-medium">Se déconnecter</Text>
+            </Pressable>
+          )}
         </ScrollView>
       </View>
       <Toast />

@@ -21,6 +21,7 @@ type ComboBoxProps = {
   loading?: boolean;
   disabled?: boolean;
   emptyLabel?: string;
+  error?: string;
 };
 
 export function ComboBox({
@@ -32,6 +33,7 @@ export function ComboBox({
   loading,
   disabled,
   emptyLabel = "Aucune option disponible",
+  error,
 }: ComboBoxProps) {
   const colors = useThemeColors();
   const [open, setOpen] = useState(false);
@@ -60,6 +62,7 @@ export function ComboBox({
         )}
         <Ionicons name="chevron-down" size={18} color={colors.faint} />
       </Pressable>
+      {error && <Text className="text-xs text-red-500 mt-1">{error}</Text>}
 
       <Modal
         visible={open}

@@ -1,6 +1,6 @@
 import { ComboBox } from "@/components/list/combo-box";
 import { FilterPanel } from "@/components/list/filter-panel";
-import { TARGET_TYPE_OPTIONS } from "@/features/teacher/internal-regulations/target-type-options";
+import { TARGET_TYPE_OPTIONS } from "@/features/staff/internal-regulations/target-type-options";
 import { useGeneralClasses } from "@/hooks/queries/items/general-class";
 import { useOptions } from "@/hooks/queries/items/option";
 import { useSchoolClasses } from "@/hooks/queries/items/school-class";

@@ -1,4 +1,4 @@
-import { PartyAvatar } from "@/features/teacher/messaging/party-avatar";
+import { PartyAvatar } from "@/features/staff/messaging/party-avatar";
 import { formatDateTime } from "@/lib/format";
 import type { PortalConversationDTO } from "@/utils/types/objects/PortalConversationDTO";
 import { Pressable, Text, View } from "react-native";

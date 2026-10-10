@@ -2,7 +2,10 @@ import { ComboBox } from "@/components/list/combo-box";
 import { FilterPanel } from "@/components/list/filter-panel";
 import { useSchoolPeriods } from "@/hooks/queries/items/school-period";
 import { useSchoolYearTerms } from "@/hooks/queries/items/school-year-term";
-import { SchoolYearTerm } from "@/utils/types/SchoolYearTerm";
+import {
+  countSchoolYearTermSiblings,
+  formatSchoolYearTermLabel,
+} from "@/lib/school-year-term-label";
 import { Controller, useForm } from "react-hook-form";
 import {
   emptyCourseAverageFilters,
@@ -15,15 +18,6 @@ type CourseAverageFilterPanelProps = {
   onApply: (filters: CourseAverageFiltersForm) => void;
   onClose: () => void;
 };
-
-function getSubdivisionLabel(
-  subdivision: SchoolYearTerm,
-): string {
-  const subdivisionName =
-    subdivision.schoolYearSubdivision?.displayName ??
-    `Subdivision ${subdivision.subdivisionNo}`;
-  return `${subdivisionName} ${subdivision.subdivisionNo}`;
-}
 
 export function CourseAverageFilterPanel({
   schoolYearId,
@@ -44,6 +38,8 @@ export function CourseAverageFilterPanel({
     filters: { schoolYearId },
     enabled: Boolean(schoolYearId),
   });
+
+  const termSiblingCounts = countSchoolYearTermSiblings(schoolYearTerms ?? []);
 
   const schoolPeriodId = watch("schoolPeriodId");
   const schoolYearTermId = watch("schoolYearTermId");
@@ -100,7 +96,7 @@ export function CourseAverageFilterPanel({
             options={(schoolYearTerms ?? []).map(
               (subdivision) => ({
                 id: subdivision.id,
-                label: getSubdivisionLabel(subdivision),
+                label: formatSchoolYearTermLabel(subdivision, termSiblingCounts),
               }),
             )}
             value={fieldValue}

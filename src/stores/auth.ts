@@ -58,8 +58,7 @@ export interface User {
   isSuperAdmin: boolean | null;
 
   role: {
-    // TODO: le backend permet la creation des roles, meme si ceux enumérés ici sont des roles systeme
-    code: "admin" | "teacher" | "guardian" | "teacher";
+    code: string;
     name: string | null;
     roleCategory: "backoffice" | "teacher" | "portal";
   };
@@ -69,6 +68,8 @@ export interface User {
   accessibleModules: string[];
   // Absent d'un utilisateur gardé par une version antérieure de l'app : traité comme false
   isHomeroomTeacher?: boolean;
+  // Mot de passe temporaire à remplacer avant tout le reste (l'API répond 403 PASSWORD_CHANGE_REQUIRED ailleurs)
+  mustChangePassword?: boolean;
 }
 
 const AUTH_STORAGE_KEY = "auth";

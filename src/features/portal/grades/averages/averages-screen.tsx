@@ -1,10 +1,15 @@
 import { FilterButton } from "@/components/list/filter-button";
+import {
+  RequiredFiltersNotice,
+  type RequiredFilter,
+} from "@/components/list/required-filters-notice";
 import { usePortalCourseAverages } from "@/hooks/queries/items/course-average";
 import { CourseAverageDTO } from "@/utils/types/objects/CourseAverageDTO";
 import { FlashList } from "@shopify/flash-list";
 import { Stack } from "expo-router";
 import { useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
+import { StudentSwitcherEntry } from "../../student-switcher-entry";
 import { usePortalSelection } from "../../use-portal-selection";
 import { CourseAverageFilterPanel } from "./course-average-filter-panel";
 import {
@@ -27,9 +32,12 @@ export function AveragesScreen() {
     [filters],
   );
 
-  const filtersAreComplete = Boolean(
-    selectedStudent?.id && selectedSchoolYear?.id && selectedSchoolClass?.id,
-  );
+  const requirements: RequiredFilter[] = [
+    { label: "un élève", done: Boolean(selectedStudent?.id) },
+    { label: "une année scolaire", done: Boolean(selectedSchoolYear?.id) },
+    { label: "une classe", done: Boolean(selectedSchoolClass?.id) },
+  ];
+  const filtersAreComplete = requirements.every((requirement) => requirement.done);
 
   const {
     portalCourseAverages = [],
@@ -58,6 +66,11 @@ export function AveragesScreen() {
       />
 
       <View className="flex-1 bg-background">
+        {/* Élève · Année · Classe : rappel du contexte, touchable pour le changer sans repasser par le Menu. */}
+        <View className="px-4 pt-3 -mb-2">
+          <StudentSwitcherEntry />
+        </View>
+
         {filtersAreComplete && (
           <View className="flex-row items-center gap-3 px-4 pt-3 pb-2">
             <FilterButton
@@ -78,14 +91,7 @@ export function AveragesScreen() {
         )}
 
         {!filtersAreComplete ? (
-          <View className="flex-1 items-center justify-center px-6 gap-1">
-            <Text className="text-sm font-medium text-foreground-secondary text-center">
-              Aucun élève sélectionné
-            </Text>
-            <Text className="text-sm text-faint text-center">
-              Sélectionnez un élève pour afficher ses moyennes.
-            </Text>
-          </View>
+          <RequiredFiltersNotice title="Aucune moyenne" requirements={requirements} />
         ) : portalCourseAveragesIsLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />

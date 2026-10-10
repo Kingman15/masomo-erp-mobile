@@ -19,7 +19,8 @@ export interface LoginResponse {
     isSuperAdmin: boolean | null;
 
     role: {
-      code: "admin" | "teacher" | "guardian" | "teacher";
+      // Rôles système ou créés par l'école : le code ne sert pas au routage (voir roleCategory)
+      code: string;
       name: string | null;
       roleCategory: "backoffice" | "teacher" | "portal";
     };
@@ -29,6 +30,8 @@ export interface LoginResponse {
     accessibleModules: string[];
     // Titulaire d'au moins une classe : écrans réservés au titulaire (le serveur reste le garde-fou)
     isHomeroomTeacher?: boolean;
+  // Mot de passe temporaire à remplacer avant tout le reste (l'API répond 403 PASSWORD_CHANGE_REQUIRED ailleurs)
+  mustChangePassword?: boolean;
   };
 
   // Identité de l'école : renvoyée seulement après une connexion réussie

@@ -1,4 +1,4 @@
-import { SanctionStatusPill } from "@/features/teacher/sanctions/sanction-status-pill";
+import { SanctionStatusPill } from "@/features/staff/sanctions/sanction-status-pill";
 import { formatShortDate } from "@/lib/format";
 import { PortalSanctionDTO } from "@/utils/types/objects/PortalSanctionDTO";
 import { memo } from "react";
