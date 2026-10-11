@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { usePortalSelection } from "../../use-portal-selection";
 import { SanctionRow } from "./sanction-row";
+import { PortalSelectionEmpty } from "../../portal-selection-empty";
 
 export function SanctionsScreen() {
   const { selectedStudent, selectedSchoolYear, selectedSchoolClass } =
@@ -50,14 +51,7 @@ export function SanctionsScreen() {
 
       <View className="flex-1 bg-background">
         {!filtersAreComplete ? (
-          <View className="flex-1 items-center justify-center px-6 gap-1">
-            <Text className="text-sm font-medium text-foreground-secondary text-center">
-              Aucun élève sélectionné
-            </Text>
-            <Text className="text-sm text-faint text-center">
-              Sélectionnez un élève pour afficher ses sanctions.
-            </Text>
-          </View>
+          <PortalSelectionEmpty subject="ses sanctions" />
         ) : portalSanctionsIsLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />

@@ -17,6 +17,9 @@ export default function StaffLayout() {
     <View style={{ flex: 1 }}>
       <Drawer
         drawerContent={(props) => <StaffDrawerContent {...props} />}
+        // Retour vers l'écran précédent, même d'une autre entrée du menu (ex. dérogation → frais de l'élève),
+        // et non vers la première entrée du menu.
+        backBehavior="history"
         screenOptions={{
           headerTintColor: colors.foreground,
           headerTitleStyle: { fontWeight: "600" },
@@ -38,6 +41,8 @@ export default function StaffLayout() {
         <Drawer.Screen name="incidents" options={{ headerShown: false }} />
         <Drawer.Screen name="sanctions" options={{ headerShown: false }} />
         <Drawer.Screen name="students" options={{ headerShown: false }} />
+        <Drawer.Screen name="fee-grid" options={{ headerShown: false }} />
+        <Drawer.Screen name="fee-derogations" options={{ headerShown: false }} />
         <Drawer.Screen name="fees" options={{ headerShown: false }} />
         <Drawer.Screen name="attendance" options={{ headerShown: false }} />
         <Drawer.Screen name="schedule" options={{ headerShown: false }} />

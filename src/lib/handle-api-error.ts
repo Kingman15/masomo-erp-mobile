@@ -52,13 +52,13 @@ export function handleApiError(
   } = options;
 
   if (!isAxiosError(error)) {
-    toastNotify("Quelque chose s'est mal passé. Réessaie.", "error");
+    toastNotify("Quelque chose s'est mal passé. Veuillez réessayer.", "error");
     console.error("[Runtime Error]", error);
     return;
   }
 
   if (!error.response) {
-    toastNotify("Vérifie ta connexion internet et réessaie.", "error");
+    toastNotify("Vérifiez votre connexion internet et réessayez.", "error");
     return;
   }
 
@@ -80,7 +80,7 @@ export function handleApiError(
         } else {
           const allErrors = Object.values(errors).flat().join("\n");
           toastNotify(
-            allErrors || "Vérifie les informations saisies.",
+            allErrors || "Vérifiez les informations saisies.",
             "error",
           );
         }
@@ -91,13 +91,13 @@ export function handleApiError(
     }
 
     case 401:
-      toastNotify("Ta session a expiré, reconnecte-toi.", "error");
+      toastNotify("Votre session a expiré, veuillez vous reconnecter.", "error");
       onUnauthorized?.();
       break;
 
     case 403:
       toastNotify(
-        "Tu n'as pas les droits nécessaires pour effectuer cette action.",
+        "Vous n'avez pas les droits nécessaires pour effectuer cette action.",
         "error",
       );
       onForbidden?.();
@@ -112,7 +112,7 @@ export function handleApiError(
       break;
 
     case 429:
-      toastNotify("Trop de tentatives, patiente quelques instants.", "warning");
+      toastNotify("Trop de tentatives, patientez quelques instants.", "warning");
       break;
 
     // Fonctionnalité désactivée côté serveur (message métier précis) ou vraie maintenance (message Laravel générique en anglais)
@@ -120,7 +120,7 @@ export function handleApiError(
       toastNotify(
         data?.message && data.message !== "Service Unavailable"
           ? data.message
-          : "Service indisponible, réessaie dans quelques minutes.",
+          : "Service indisponible, réessayez dans quelques minutes.",
         "warning",
       );
       break;

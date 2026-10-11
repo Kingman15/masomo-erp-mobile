@@ -1,3 +1,4 @@
+import { useFeeRoutes } from "./use-fee-routes";
 import { FeeScheduleCard } from "@/features/portal/finance/fees/fee-schedule-card";
 import { FeeScheduleSummaryCard } from "@/features/portal/finance/fees/fee-schedule-summary-card";
 import { FeePaymentStatusPill } from "@/features/portal/finance/payments/fee-payment-status-pill";
@@ -14,6 +15,7 @@ import type { FeePaymentStatus } from "@/utils/types/objects/PortalFeePaymentDTO
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
 import { getEnrollmentLabel, getSchoolClassLabel } from "../attendance/attendance-labels";
+import { DerogationStatusPill } from "./derogation-status-pill";
 
 function SectionTitle({ children }: { children: string }) {
   return (
@@ -30,12 +32,15 @@ function EmptyLine({ children }: { children: string }) {
 // Situation des frais d'un élève (consultation) : synthèse, échéancier, paiements par tranche, dérogations.
 // Chaque bloc n'apparaît qu'avec la permission correspondante.
 export function StudentFeesScreen() {
+  const feeRoutes = useFeeRoutes();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { enrollment, enrollmentIsLoading } = useEnrollmentById(id);
 
   const canViewSchedule = useCan("schoolFees.payments::schedule.view");
   const canViewPayments = useCan("schoolFees.payments.view");
   const canViewDerogations = useCan("schoolFees.derogations.view");
+  const canRequestDerogation = useCan("schoolFees.derogations.create");
+  const canProcessDerogation = useCan("schoolFees.derogations.process");
 
   const scheduleFilters = {
     studentId: enrollment?.studentId ?? null,
@@ -60,6 +65,17 @@ export function StudentFeesScreen() {
     schoolYearId: enrollment?.schoolYearId,
     enabled: canViewDerogations,
   });
+
+  // Tranches pouvant faire l'objet d'une demande : non soldées et sans demande en attente ni délai accordé.
+  const requestableInstallments = (feeSchedules ?? []).filter(
+    (schedule) =>
+      schedule.status !== "paid" &&
+      !(derogations ?? []).some(
+        (derogation) =>
+          derogation.feeInstallmentId === schedule.feeInstallmentId &&
+          (derogation.status === "pending" || derogation.status === "approved"),
+      ),
+  );
 
   // Seules les tranches ayant reçu au moins un versement ont un reçu à consulter.
   const paidPayments = (feePayments ?? []).filter(
@@ -122,7 +138,7 @@ export function StudentFeesScreen() {
                 paidPayments.map((payment) => (
                   <Pressable
                     key={payment.id}
-                    onPress={() => router.push(`/staff/students/fee-payment/${payment.id}`)}
+                    onPress={() => router.push(feeRoutes.feePayment(payment.id))}
                     className="mx-4 mt-3 px-4 py-3 rounded-xl border border-border bg-card active:bg-subtle"
                   >
                     <View className="flex-row items-center justify-between gap-3">
@@ -155,17 +171,16 @@ export function StudentFeesScreen() {
                 <EmptyLine>Aucune dérogation.</EmptyLine>
               ) : (
                 (derogations ?? []).map((derogation) => (
-                  <View
+                  <Pressable
                     key={derogation.id}
-                    className="mx-4 mt-3 px-4 py-3 rounded-xl border border-border bg-card"
+                    onPress={() => router.push(feeRoutes.derogation(derogation.id))}
+                    className="mx-4 mt-3 px-4 py-3 rounded-xl border border-border bg-card active:bg-subtle"
                   >
                     <View className="flex-row items-center justify-between gap-3">
                       <Text className="flex-1 text-sm font-medium text-foreground" numberOfLines={1}>
                         {derogation.feeInstallment?.fullDesignation ?? "Frais"}
                       </Text>
-                      <Text className="text-xs font-medium text-muted-foreground">
-                        {derogation.statusStr ?? derogation.status ?? "—"}
-                      </Text>
+                      <DerogationStatusPill status={derogation.status} />
                     </View>
                     <Text className="text-xs text-faint mt-1.5">
                       {derogation.expirationDate
@@ -177,8 +192,20 @@ export function StudentFeesScreen() {
                         {derogation.reason}
                       </Text>
                     ) : null}
-                  </View>
+                  </Pressable>
                 ))
+              )}
+
+              {canRequestDerogation && canViewSchedule && requestableInstallments.length > 0 && (
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => router.push(feeRoutes.newDerogation(enrollment.id))}
+                  className="mx-4 mt-3 h-11 rounded-xl border border-border bg-card flex-row items-center justify-center active:bg-subtle"
+                >
+                  <Text className="text-sm font-medium text-foreground">
+                    {canProcessDerogation ? "Ajouter une dérogation" : "Demander une dérogation"}
+                  </Text>
+                </Pressable>
               )}
             </>
           )}

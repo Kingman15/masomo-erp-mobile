@@ -27,6 +27,7 @@ export interface FeePaymentDerogation {
   expirationDate: string | null;
   comments: string | null;
   feeInstallment?: { id: string; fullDesignation: string | null } | null;
+  enrollment?: Enrollment | null;
 }
 
 export interface FeePayment {

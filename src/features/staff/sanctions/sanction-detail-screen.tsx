@@ -262,23 +262,23 @@ export function SanctionDetailScreen() {
               </View>
             )}
 
-            <SectionTitle>Notification des parents</SectionTitle>
+            <SectionTitle>Information des parents</SectionTitle>
             <View className="border-t border-divider pt-1">
               <InfoRow
                 icon="notifications-outline"
-                label="Parents notifiés"
+                label="Parents prévenus"
                 value={sanction.parentsNotified ? "Oui" : "Non"}
               />
               {sanction.parentsNotified && (
                 <>
                   <InfoRow
                     icon="calendar-outline"
-                    label="Date de notification"
+                    label="Prévenus le"
                     value={formatDateTime(sanction.parentsNotifiedAt)}
                   />
                   <InfoRow
                     icon="person-outline"
-                    label="Notifié par"
+                    label="Prévenus par"
                     value={
                       sanction.parentsNotifiedByEmployee?.fullDesignation ??
                       "—"

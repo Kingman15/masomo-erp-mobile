@@ -2,7 +2,10 @@ import { CheckboxRow } from "@/components/list/checkbox-row";
 import { ComboBox } from "@/components/list/combo-box";
 import { DateField } from "@/components/list/date-field";
 import { TimeField } from "@/components/list/time-field";
-import { useCurrentTeacher } from "@/hooks/queries/items/employee";
+import {
+  useCurrentTeacher,
+  useEmployeeOptions,
+} from "@/hooks/queries/items/employee";
 import { useEnrollments } from "@/hooks/queries/items/enrollment";
 import { useSchoolClasses } from "@/hooks/queries/items/school-class";
 import { useCurrentSchoolYear } from "@/hooks/queries/items/school-year";
@@ -84,6 +87,7 @@ export function AttendanceRecordFormScreen({
       sessionId: isEditing ? "" : (params.sessionId ?? ""),
       enrollmentId: "",
       pointingTypeId: "",
+      pointedById: null,
       entryTime: null,
       exitTime: null,
       isLate: false,
@@ -128,6 +132,11 @@ export function AttendanceRecordFormScreen({
     enabled: !isEditing && !currentTeacherIsLoading,
   });
 
+  // Un enseignant est toujours le pointeur : la liste du personnel n'est chargée que pour les autres comptes.
+  const { employees, employeesIsLoading } = useEmployeeOptions({
+    enabled: currentTeacher === null,
+  });
+
   const { enrollments, enrollmentsIsLoading } = useEnrollments({
     filters: {
       schoolYearId,
@@ -157,6 +166,7 @@ export function AttendanceRecordFormScreen({
       sessionId: record.sessionId ?? "",
       enrollmentId: record.enrollmentId ?? "",
       pointingTypeId: record.pointingTypeId ?? "",
+      pointedById: record.pointedById,
       entryTime: toHoursMinutes(record.entryTime),
       exitTime: toHoursMinutes(record.exitTime),
       isLate: record.isLate ?? false,
@@ -171,6 +181,11 @@ export function AttendanceRecordFormScreen({
   }, [record, reset, setRegisterId]);
 
   // --- Auto-remplissages, création uniquement ---
+
+  useEffect(() => {
+    if (isEditing) return;
+    if (currentTeacher) setValue("pointedById", currentTeacher.id);
+  }, [currentTeacher, isEditing, setValue]);
 
   useEffect(() => {
     if (isEditing) return;
@@ -203,14 +218,14 @@ export function AttendanceRecordFormScreen({
       if (isEditing) {
         await updateStudentAttendanceRecord({
           ...data,
-          pointedById: record?.pointedById ?? currentTeacher?.id ?? null,
+          pointedById: data.pointedById ?? currentTeacher?.id ?? null,
           entryPointedAt: record?.entryPointedAt ?? null,
           exitPointedAt: record?.exitPointedAt ?? null,
         });
       } else {
         await createStudentAttendanceRecord({
           ...data,
-          pointedById: currentTeacher?.id ?? null,
+          pointedById: data.pointedById ?? currentTeacher?.id ?? null,
         });
       }
 
@@ -256,6 +271,18 @@ export function AttendanceRecordFormScreen({
           id: enrollment.id,
           label: getEnrollmentLabel(enrollment),
         }));
+
+  // Le pointeur déjà enregistré reste affichable même s'il n'est pas dans la liste chargée (enseignant, employé inactif).
+  const pointers = [
+    ...(employees ?? (currentTeacher ? [currentTeacher] : [])),
+    ...(record?.pointedByEmployee ? [record.pointedByEmployee] : []),
+  ];
+  const pointerOptions = pointers
+    .filter((employee, index) => pointers.findIndex((e) => e.id === employee.id) === index)
+    .map((employee) => ({
+      id: employee.id,
+      label: employee.fullName ?? "Employé",
+    }));
 
   return (
     <>
@@ -351,6 +378,24 @@ export function AttendanceRecordFormScreen({
           )}
         />
         <FieldError message={errors.pointingTypeId?.message} />
+
+        <Controller
+          control={control}
+          name="pointedById"
+          render={({ field: { value, onChange } }) => (
+            <ComboBox
+              label="Pointé par"
+              placeholder="Sélectionner un employé"
+              options={pointerOptions}
+              value={value ?? null}
+              onChange={onChange}
+              loading={currentTeacherIsLoading || employeesIsLoading}
+              disabled={Boolean(currentTeacher)}
+              emptyLabel="—"
+            />
+          )}
+        />
+        <FieldError message={errors.pointedById?.message} />
 
         <View className="flex-row gap-3">
           <Controller

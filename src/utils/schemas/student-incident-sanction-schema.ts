@@ -4,6 +4,7 @@ import { z } from "zod";
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 // Aligné sur StudentIncidentSanctionSchema du web, sans les champs d'appel (conservés tels quels à la modification).
+// L'article du règlement est un champ du formulaire (RegulationArticleField).
 export const studentIncidentSanctionSchema = z
   .object({
     studentId: z
@@ -12,6 +13,11 @@ export const studentIncidentSanctionSchema = z
     sanctionTypeId: z
       .string({ required_error: "Le type de sanction est requis" })
       .uuid("Le type de sanction est requis"),
+    regulationArticleId: z
+      .string()
+      .uuid("L'article du règlement est invalide")
+      .nullable()
+      .optional(),
     status: z.enum(STUDENT_INCIDENT_SANCTION_STATUSES, {
       required_error: "Le statut est requis",
     }),
@@ -25,13 +31,14 @@ export const studentIncidentSanctionSchema = z
     notes: z.string().max(2000).nullable().optional(),
     parentsNotified: z.boolean(),
     parentsNotifiedAt: z.string().regex(DATE_REGEX, "Date invalide").nullable().optional(),
+    parentsNotifiedBy: z.string().uuid("L'employé est invalide").nullable().optional(),
   })
   .refine((data) => !(data.startsAt && data.endsAt && data.endsAt < data.startsAt), {
     message: "La date de fin doit suivre la date de début",
     path: ["endsAt"],
   })
   .refine((data) => !(data.parentsNotified && !data.parentsNotifiedAt), {
-    message: "La date de notification est requise lorsque les parents ont été notifiés",
+    message: "La date est requise lorsque les parents ont été prévenus",
     path: ["parentsNotifiedAt"],
   });
 

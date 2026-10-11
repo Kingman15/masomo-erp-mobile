@@ -160,7 +160,10 @@ export function usePortalIncident({
 
 // Signalement rejouable hors ligne (file offline).
 export function useTeacherReportStudentIncident() {
-  const { submit, isPending } = useOfflineMutation("incident.teacherReport");
+  const { submit, isPending } = useOfflineMutation<
+    "incident.teacherReport",
+    StudentIncident
+  >("incident.teacherReport");
 
   return {
     teacherReportStudentIncident: submit,

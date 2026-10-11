@@ -22,6 +22,12 @@ export const studentAttendanceRecordSchema = z
       .string({ required_error: "Le type de pointage est requis" })
       .uuid("Le type de pointage est requis"),
 
+    pointedById: z
+      .string()
+      .uuid("L'employé pointeur est requis")
+      .nullable()
+      .optional(),
+
     entryTime: z
       .string()
       .regex(TIME_REGEX, "L'heure d'arrivée doit être au format HH:mm")

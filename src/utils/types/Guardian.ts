@@ -62,6 +62,8 @@ export interface Guardian {
 
   fullDesignation: string | null;
   allContacts: string | null;
+  // Coordonnées masquées par l'API (permission core.master::guardians.contact absente)
+  contactsHidden?: boolean;
 
   // ---
 

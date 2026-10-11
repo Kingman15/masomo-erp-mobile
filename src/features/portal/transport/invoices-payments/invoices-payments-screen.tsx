@@ -18,6 +18,7 @@ import { usePortalSelection } from "../../use-portal-selection";
 import { InvoicePaymentsList } from "./invoice-payments-list";
 import { TRANSPORT_INVOICE_PORTAL_STATUS_OPTIONS } from "./transport-invoice-status";
 import { TransportInvoiceRow } from "./transport-invoice-row";
+import { PortalSelectionEmpty } from "../../portal-selection-empty";
 
 type Section = "invoices" | "payments";
 
@@ -98,14 +99,7 @@ export function InvoicesPaymentsScreen() {
 
       <View className="flex-1 bg-subtle">
         {!filtersAreComplete ? (
-          <View className="flex-1 items-center justify-center px-6 gap-1">
-            <Text className="text-sm font-medium text-foreground-secondary text-center">
-              Aucun élève sélectionné
-            </Text>
-            <Text className="text-sm text-faint text-center">
-              Sélectionnez un élève pour afficher ses factures de transport.
-            </Text>
-          </View>
+          <PortalSelectionEmpty subject="ses factures de transport" />
         ) : portalTransportInvoicesIsLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />

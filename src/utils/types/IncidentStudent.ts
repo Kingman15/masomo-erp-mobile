@@ -1,3 +1,4 @@
+import { SchoolClass } from "./SchoolClass";
 import { Student } from "./Student";
 import { StudentIncident } from "./StudentIncident";
 
@@ -26,6 +27,9 @@ export interface IncidentStudent {
   code: string | null;
   incidentId: string | null;
   studentId: string | null;
+  // Inscription de l'année de l'incident et classe figée à l'enregistrement (renseignées par le serveur)
+  enrollmentId?: string | null;
+  schoolClassId?: string | null;
   role: IncidentStudentRole | null;
   notes: string | null;
   createdAt: string | null;
@@ -33,4 +37,7 @@ export interface IncidentStudent {
 
   incident: StudentIncident | null;
   student: Student | null;
+  schoolClass?: SchoolClass | null;
+  // Classe actuelle de la même inscription : différente de schoolClass après un transfert en cours d'année
+  currentSchoolClass?: SchoolClass | null;
 }

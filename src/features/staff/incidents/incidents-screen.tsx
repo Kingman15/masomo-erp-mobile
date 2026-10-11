@@ -20,7 +20,7 @@ import { IncidentRow } from "./incident-row";
 
 export function IncidentsScreen() {
   const colors = useThemeColors();
-  // Signalement (enseignant) ou création complète (direction) : le formulaire choisit la voie selon le droit.
+  // Un seul formulaire court : « Signaler » (enseignant) ou « Ajouter » (direction), le traitement se fait ensuite depuis la fiche.
   const canReportIncident = useCan("discipline.incidents.report");
   const canCreateIncident = useCan("discipline.incidents.create");
   const canReport = canReportIncident || canCreateIncident;

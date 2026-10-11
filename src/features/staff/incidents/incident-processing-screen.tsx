@@ -320,16 +320,19 @@ export function IncidentProcessingScreen() {
           control={control}
           name="parentsNotified"
           render={({ field: { value, onChange } }) => (
-            <CheckboxRow label="Parents notifiés" value={value} onChange={onChange} />
+            <CheckboxRow label="Parents prévenus" value={value} onChange={onChange} />
           )}
         />
+        <Text className="text-xs text-muted-foreground -mt-3 mb-4">
+          À cocher une fois les parents informés (appel, convocation…). Aucun message ne leur est envoyé.
+        </Text>
         {parentsNotified && (
           <>
             <Controller
               control={control}
               name="parentsNotifiedAt"
               render={({ field: { value, onChange } }) => (
-                <DateField label="Date de notification" value={value ?? null} onChange={onChange} />
+                <DateField label="Prévenus le" value={value ?? null} onChange={onChange} />
               )}
             />
             {errors.parentsNotifiedAt && (
@@ -342,7 +345,7 @@ export function IncidentProcessingScreen() {
               name="parentsNotifiedBy"
               render={({ field: { value, onChange } }) => (
                 <ComboBox
-                  label="Notifiés par"
+                  label="Prévenus par"
                   placeholder="Sélectionner un employé"
                   options={employeeOptions}
                   value={value ?? null}

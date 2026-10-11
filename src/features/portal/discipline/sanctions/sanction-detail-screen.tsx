@@ -129,7 +129,7 @@ export function SanctionDetailScreen() {
 
                     {incident.parentsNotifiedAt && (
                       <Text className="text-xs text-faint mt-0.5">
-                        Parents notifiés le : {formatDateTime(incident.parentsNotifiedAt)}
+                        Parents prévenus le : {formatDateTime(incident.parentsNotifiedAt)}
                       </Text>
                     )}
                   </View>

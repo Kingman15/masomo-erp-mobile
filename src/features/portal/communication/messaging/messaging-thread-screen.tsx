@@ -77,7 +77,14 @@ export function MessagingThreadScreen() {
   const colors = useThemeColors();
   const { id: deskId } = useLocalSearchParams<{ id: string }>();
   const scrollRef = useRef<ScrollView>(null);
-  const { selectedSchoolYear } = usePortalSelection();
+  const { selectedSchoolYear, setSelectedSchoolYear, currentSchoolYear } =
+    usePortalSelection();
+
+  // Écriture réservée à l'année courante (même règle côté API) : une année passée se consulte seulement
+  const isArchive =
+    !!currentSchoolYear &&
+    !!selectedSchoolYear &&
+    selectedSchoolYear.id !== currentSchoolYear.id;
 
   const [body, setBody] = useState("");
   const [documents, setDocuments] = useState<MessageDocumentDraft[]>([]);
@@ -155,7 +162,9 @@ export function MessagingThreadScreen() {
                 </Text>
               ) : portalMessages.length === 0 ? (
                 <Text className="text-center text-sm text-faint py-4">
-                  Aucun message pour l&apos;instant — écrivez le premier.
+                  {isArchive
+                    ? "Aucun échange avec ce guichet sur cette année."
+                    : "Aucun message pour l'instant — écrivez le premier."}
                 </Text>
               ) : (
                 portalMessages.map((message) => (
@@ -170,44 +179,65 @@ export function MessagingThreadScreen() {
               </Text>
             )}
 
-            <MessageComposer
-              body={body}
-              onBodyChange={setBody}
-              documents={documents}
-              onDocumentsChange={setDocuments}
-              disabled={sendPortalMessageIsPending}
-              schoolYearId={selectedSchoolYear?.id}
-              placeholder="Écrire un message…"
-              trailing={
+            {isArchive && currentSchoolYear ? (
+              <View className="border-t border-divider px-4 py-3 gap-1">
+                <Text className="text-sm font-medium text-foreground">
+                  Échanges de l&apos;année {selectedSchoolYear?.title}, en
+                  lecture seule
+                </Text>
+                <Text className="text-xs text-muted-foreground">
+                  Pour donner suite à cette discussion, écrivez au guichet sur
+                  l&apos;année en cours.
+                </Text>
                 <Pressable
-                  onPress={() => void handleSend()}
-                  disabled={
-                    (!body.trim() && documents.length === 0) ||
-                    sendPortalMessageIsPending
-                  }
-                  className={`h-10 w-10 rounded-full items-center justify-center ${
-                    (!body.trim() && documents.length === 0) ||
-                    sendPortalMessageIsPending
-                      ? "bg-border"
-                      : "bg-foreground"
-                  }`}
+                  onPress={() => setSelectedSchoolYear(currentSchoolYear)}
+                  hitSlop={8}
                 >
-                  {sendPortalMessageIsPending ? (
-                    <ActivityIndicator size="small" color={colors.background} />
-                  ) : (
-                    <Ionicons
-                      name="arrow-up"
-                      size={20}
-                      color={
-                        !body.trim() && documents.length === 0
-                          ? colors.faint
-                          : colors.background
-                      }
-                    />
-                  )}
+                  <Text className="text-sm font-medium text-foreground underline">
+                    Passer à {currentSchoolYear.title}
+                  </Text>
                 </Pressable>
-              }
-            />
+              </View>
+            ) : (
+              <MessageComposer
+                body={body}
+                onBodyChange={setBody}
+                documents={documents}
+                onDocumentsChange={setDocuments}
+                disabled={sendPortalMessageIsPending}
+                schoolYearId={selectedSchoolYear?.id}
+                placeholder="Écrire un message…"
+                trailing={
+                  <Pressable
+                    onPress={() => void handleSend()}
+                    disabled={
+                      (!body.trim() && documents.length === 0) ||
+                      sendPortalMessageIsPending
+                    }
+                    className={`h-10 w-10 rounded-full items-center justify-center ${
+                      (!body.trim() && documents.length === 0) ||
+                      sendPortalMessageIsPending
+                        ? "bg-border"
+                        : "bg-foreground"
+                    }`}
+                  >
+                    {sendPortalMessageIsPending ? (
+                      <ActivityIndicator size="small" color={colors.background} />
+                    ) : (
+                      <Ionicons
+                        name="arrow-up"
+                        size={20}
+                        color={
+                          !body.trim() && documents.length === 0
+                            ? colors.faint
+                            : colors.background
+                        }
+                      />
+                    )}
+                  </Pressable>
+                }
+              />
+            )}
           </>
         )}
       </KeyboardAvoidingView>

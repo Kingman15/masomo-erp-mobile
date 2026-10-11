@@ -87,7 +87,7 @@ export function IncidentDetailScreen() {
               {incident.parentsNotifiedAt && (
                 <InfoRow
                   icon="notifications-outline"
-                  label="Parents notifiés le"
+                  label="Parents prévenus le"
                   value={formatDateTime(incident.parentsNotifiedAt)}
                 />
               )}

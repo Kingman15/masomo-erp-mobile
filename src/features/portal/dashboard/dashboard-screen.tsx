@@ -5,13 +5,13 @@ import {
   usePortalStudentSummary,
   usePortalStudentToday,
 } from "@/hooks/queries/items/portal-dashboard";
-import { useCurrentSchoolYear, useSchoolYears } from "@/hooks/queries/items/school-year";
 import { useThemeColors } from "@/hooks/use-theme-colors";
 import { Enrollment } from "@/utils/types/Enrollment";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Stack } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from "react-native";
+import { PortalSelectionEmpty } from "../portal-selection-empty";
 import { usePortalSelection } from "../use-portal-selection";
 import { DashboardAcademicSection } from "./dashboard-academic-section";
 import { DashboardAlertsSection } from "./dashboard-alerts-section";
@@ -32,6 +32,8 @@ function SectionTitle({ children }: { children: string }) {
 export function DashboardScreen() {
   const colors = useThemeColors();
   const {
+    schoolYears,
+    schoolYearsIsLoading,
     selectedStudent,
     selectedSchoolYear,
     selectedSchoolClass,
@@ -40,11 +42,9 @@ export function DashboardScreen() {
     setSelectedSchoolClass,
   } = usePortalSelection();
 
-  const { schoolYears = [], schoolYearsIsLoading } = useSchoolYears();
-  const { currentSchoolYear } = useCurrentSchoolYear();
-
-  const [selectedYearId, setSelectedYearId] = useState<string | null>(null);
-  const effectiveYearId = selectedYearId ?? currentSchoolYear?.id ?? null;
+  // Le chip "Année scolaire" pilote directement la sélection globale (année -> élève -> classe) :
+  // l'élève est conservé s'il est inscrit sur la nouvelle année, sinon désélectionné (usePortalSelection).
+  const effectiveYearId = selectedSchoolYear?.id ?? null;
 
   const { enrollments = [], enrollmentsIsLoading, enrollmentsError, loadEnrollments } =
     useCurrentEnrollments({
@@ -61,32 +61,12 @@ export function DashboardScreen() {
   } = usePortalHousehold();
 
   // L'élève sélectionné a-t-il une inscription pour l'année choisie en haut ?
-  // Sert à re-synchroniser automatiquement la sélection globale (même élève,
-  // nouvelle année) quand on change le chip "Année scolaire" sans repasser
-  // par le dialogue de sélection d'élève.
   const activeEnrollmentForStudent = selectedStudent
     ? enrollments.find((enrollment) => enrollment.studentId === selectedStudent.id)
     : undefined;
 
-  useEffect(() => {
-    if (!selectedStudent || !activeEnrollmentForStudent) return;
-    if (selectedSchoolYear?.id === activeEnrollmentForStudent.schoolYearId) return;
-
-    setSelectedSchoolYear({ id: activeEnrollmentForStudent.schoolYearId });
-    if (activeEnrollmentForStudent.schoolClassId) {
-      setSelectedSchoolClass({ id: activeEnrollmentForStudent.schoolClassId });
-    }
-  }, [
-    activeEnrollmentForStudent,
-    selectedStudent,
-    selectedSchoolYear,
-    setSelectedSchoolYear,
-    setSelectedSchoolClass,
-  ]);
-
-  const yearInSync = !effectiveYearId || selectedSchoolYear?.id === effectiveYearId;
   const studentFiltersAreComplete = Boolean(
-    selectedStudent?.id && selectedSchoolYear?.id && yearInSync,
+    selectedStudent?.id && selectedSchoolYear?.id && activeEnrollmentForStudent,
   );
   const todayFiltersAreComplete = Boolean(
     studentFiltersAreComplete && selectedSchoolClass?.id,
@@ -110,12 +90,13 @@ export function DashboardScreen() {
   const [dialogVisible, setDialogVisible] = useState(false);
 
   const handleSelectEnrollment = (enrollment: Enrollment) => {
+    if (enrollment.schoolYearId !== selectedSchoolYear?.id) {
+      setSelectedSchoolYear({ id: enrollment.schoolYearId });
+    }
     setSelectedStudent({ id: enrollment.studentId });
-    setSelectedSchoolYear({ id: enrollment.schoolYearId });
     if (enrollment.schoolClassId) {
       setSelectedSchoolClass({ id: enrollment.schoolClassId });
     }
-    setSelectedYearId(enrollment.schoolYearId);
     setDialogVisible(false);
   };
 
@@ -150,7 +131,7 @@ export function DashboardScreen() {
             label="Année scolaire"
             options={schoolYears.map((sy) => ({ id: sy.id, label: sy.title }))}
             value={effectiveYearId}
-            onChange={(id) => id && setSelectedYearId(id)}
+            onChange={(id) => id && setSelectedSchoolYear({ id })}
             loading={schoolYearsIsLoading}
           />
 
@@ -231,11 +212,9 @@ export function DashboardScreen() {
           )}
 
           {!studentFiltersAreComplete ? (
-            <Text className="text-sm text-faint py-4 mt-2">
-              {selectedStudent && effectiveYearId && !enrollmentsIsLoading && !activeEnrollmentForStudent
-                ? `${selectedStudent.fullName ?? "Cet élève"} n'a pas d'inscription pour cette année scolaire.`
-                : "Sélectionnez un élève pour afficher ses statistiques."}
-            </Text>
+            <View className="py-6 mt-2">
+              <PortalSelectionEmpty subject="ses statistiques" requiresClass={false} />
+            </View>
           ) : (
             <>
               <DashboardAlertsSection

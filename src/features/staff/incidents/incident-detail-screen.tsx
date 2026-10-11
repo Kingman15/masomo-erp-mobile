@@ -1,8 +1,11 @@
-import { formatDateTime, formatShortDate } from "@/lib/format";
 import { useStudentIncidentById } from "@/hooks/queries/items/student-incident";
 import { useCan } from "@/hooks/use-can";
 import { useThemeColors } from "@/hooks/use-theme-colors";
-import { INCIDENT_STUDENT_ROLE_LABELS } from "@/utils/types/IncidentStudent";
+import { formatDateTime, formatShortDate } from "@/lib/format";
+import {
+  INCIDENT_STUDENT_ROLE_LABELS,
+  type IncidentStudent,
+} from "@/utils/types/IncidentStudent";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import {
@@ -19,17 +22,36 @@ type InfoRowProps = {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
   value: string;
+  // Ligne secondaire sous la valeur (ex. classe d'un élève concerné)
+  hint?: string | null;
 };
 
-function InfoRow({ icon, label, value }: InfoRowProps) {
+function InfoRow({ icon, label, value, hint }: InfoRowProps) {
   const colors = useThemeColors();
   return (
     <View className="flex-row items-center gap-3 py-2.5">
       <Ionicons name={icon} size={16} color={colors.mutedForeground} />
       <Text className="text-xs text-muted-foreground w-32">{label}</Text>
-      <Text className="flex-1 text-sm text-foreground">{value}</Text>
+      <View className="flex-1">
+        <Text className="text-sm text-foreground">{value}</Text>
+        {hint && (
+          <Text className="text-xs text-muted-foreground mt-0.5">{hint}</Text>
+        )}
+      </View>
     </View>
   );
+}
+
+// Classe figée à l'enregistrement de l'élève concerné ; un transfert ultérieur dans la même année est signalé.
+function incidentStudentClassLabel(incidentStudent: IncidentStudent): string {
+  const { schoolClass, currentSchoolClass } = incidentStudent;
+  if (!schoolClass) return "Classe : —";
+
+  const label = schoolClass.title ?? schoolClass.abbreviation ?? "—";
+  if (currentSchoolClass && currentSchoolClass.id !== schoolClass.id) {
+    return `${label} · transféré en ${currentSchoolClass.title ?? currentSchoolClass.abbreviation ?? "—"}`;
+  }
+  return label;
 }
 
 function SectionTitle({ children }: { children: string }) {
@@ -113,18 +135,30 @@ export function IncidentDetailScreen() {
               <View className="flex-row gap-3 mt-4">
                 <Pressable
                   accessibilityRole="button"
-                  onPress={() => router.push(`/staff/incidents/process/${incident.id}`)}
+                  onPress={() =>
+                    router.push(`/staff/incidents/process/${incident.id}`)
+                  }
                   className="flex-1 h-11 rounded-lg bg-foreground items-center justify-center flex-row gap-2"
                 >
-                  <Ionicons name="create-outline" size={16} color={colors.background} />
+                  <Ionicons
+                    name="create-outline"
+                    size={16}
+                    color={colors.background}
+                  />
                   <Text className="text-background font-medium">Traiter</Text>
                 </Pressable>
                 <Pressable
                   accessibilityRole="button"
-                  onPress={() => router.push(`/staff/incidents/sanction-form/${incident.id}`)}
+                  onPress={() =>
+                    router.push(`/staff/incidents/sanction-form/${incident.id}`)
+                  }
                   className="flex-1 h-11 rounded-lg border border-input items-center justify-center flex-row gap-2"
                 >
-                  <Ionicons name="add-outline" size={16} color={colors.foreground} />
+                  <Ionicons
+                    name="add-outline"
+                    size={16}
+                    color={colors.foreground}
+                  />
                   <Text className="text-foreground font-medium">Sanction</Text>
                 </Pressable>
               </View>
@@ -170,7 +204,9 @@ export function IncidentDetailScreen() {
 
             {incident.description && (
               <View className="mt-2">
-                <Text className="text-xs text-muted-foreground mb-1">Description</Text>
+                <Text className="text-xs text-muted-foreground mb-1">
+                  Description
+                </Text>
                 <Text className="text-sm text-foreground">
                   {incident.description}
                 </Text>
@@ -209,6 +245,7 @@ export function IncidentDetailScreen() {
                           ? `— (${incidentStudent.notes})`
                           : "—")
                       }
+                      hint={incidentStudentClassLabel(incidentStudent)}
                     />
                   ))}
                 </View>
@@ -261,23 +298,23 @@ export function IncidentDetailScreen() {
                 )}
             </View>
 
-            <SectionTitle>Notification des parents</SectionTitle>
+            <SectionTitle>Information des parents</SectionTitle>
             <View className="border-t border-divider pt-1">
               <InfoRow
                 icon="notifications-outline"
-                label="Parents notifiés"
+                label="Parents prévenus"
                 value={yesNo(incident.parentsNotified)}
               />
               {incident.parentsNotified && (
                 <>
                   <InfoRow
                     icon="calendar-outline"
-                    label="Date de notification"
+                    label="Prévenus le"
                     value={formatDateTime(incident.parentsNotifiedAt)}
                   />
                   <InfoRow
                     icon="person-outline"
-                    label="Notifié par"
+                    label="Prévenus par"
                     value={
                       incident.parentsNotifiedByEmployee?.fullDesignation ?? "—"
                     }
@@ -289,7 +326,11 @@ export function IncidentDetailScreen() {
             {sanctions.length > 0 && (
               <>
                 <View className="flex-row items-center gap-1.5 mt-4 mb-1.5">
-                  <Ionicons name="warning-outline" size={14} color={colors.warning} />
+                  <Ionicons
+                    name="warning-outline"
+                    size={14}
+                    color={colors.warning}
+                  />
                   <Text className="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase">
                     Sanctions liées
                   </Text>
@@ -303,13 +344,18 @@ export function IncidentDetailScreen() {
                           canUpdate
                             ? {
                                 pathname: "/staff/incidents/sanction-form/[id]",
-                                params: { id: incident.id, sanctionId: sanction.id },
+                                params: {
+                                  id: incident.id,
+                                  sanctionId: sanction.id,
+                                },
                               }
                             : `/staff/incidents/sanction/${sanction.id}`,
                         )
                       }
                       className={`px-4 py-3 ${
-                        index > 0 ? "border-t border-amber-200 dark:border-amber-800" : ""
+                        index > 0
+                          ? "border-t border-amber-200 dark:border-amber-800"
+                          : ""
                       }`}
                     >
                       <View className="flex-row items-center justify-between">

@@ -44,6 +44,10 @@ export const feePaymentKeys = {
   detail: (id?: string) => [...feePaymentKeys.all, "detail", id] as const,
   derogations: (enrollmentId?: string | null) =>
     [...feePaymentKeys.all, "derogations", enrollmentId ?? null] as const,
+  derogationList: (schoolYearId?: string | null, status?: string | null) =>
+    [...feePaymentKeys.all, "derogationList", schoolYearId ?? null, status ?? null] as const,
+  derogationDetail: (id?: string | null) =>
+    [...feePaymentKeys.all, "derogationDetail", id ?? null] as const,
   collectionFees: (schoolYearId?: string | null, schoolClassId?: string | null) =>
     [...feePaymentKeys.all, "collectionFees", schoolYearId ?? null, schoolClassId ?? null] as const,
   collectionList: (filters: {

@@ -5,11 +5,19 @@ import {
   derogations,
   feeSchedule,
   feeScheduleSummary,
+  derogationList,
+  derogationShow,
   index,
   portalIndex,
   portalShow,
+  processDerogation,
   show,
+  storeDerogation,
+  type FeePaymentDerogationStatus,
+  type ProcessDerogationPayload,
+  type StoreDerogationPayload,
 } from "@/api/endpoints/feePayment";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { FeePayment, FeePaymentDerogation } from "@/utils/types/FeePayment";
 import type {
   FeeCollectionAvailableFeeDTO,
@@ -219,6 +227,78 @@ export function useEnrollmentDerogations({
   return {
     derogations: query.data,
     derogationsIsLoading: query.isLoading,
+  };
+}
+
+export function useDerogationList({
+  schoolYearId,
+  status,
+}: {
+  schoolYearId: string | null | undefined;
+  status: FeePaymentDerogationStatus | null;
+}) {
+  const query = useListQuery<FeePaymentDerogation>({
+    queryKey: feePaymentKeys.derogationList(schoolYearId, status),
+    queryFn: () => derogationList(api, { schoolYearId: schoolYearId as string, status }),
+    label: "Dérogations",
+    enabled: Boolean(schoolYearId),
+  });
+
+  return {
+    derogations: query.data,
+    derogationsError: query.error,
+    derogationsIsLoading: query.isLoading,
+    derogationsIsRefetching: query.isRefetching,
+    loadDerogations: query.refetch,
+  };
+}
+
+export function useDerogationById(id: string | undefined) {
+  const query = useDetailQuery<FeePaymentDerogation>({
+    queryKey: feePaymentKeys.derogationDetail(id),
+    queryFn: () => derogationShow(api, id as string),
+    label: "Dérogation",
+    id,
+  });
+
+  return {
+    derogation: query.data,
+    derogationIsLoading: query.isLoading,
+    derogationError: query.error,
+    loadDerogation: query.refetch,
+  };
+}
+
+// Une dérogation change l'échéancier, la situation et le contrôle des frais : tout le cache des frais est invalidé.
+export function useStoreDerogation() {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (payload: StoreDerogationPayload) => storeDerogation(api, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: feePaymentKeys.all });
+    },
+  });
+
+  return {
+    storeDerogation: mutation.mutateAsync,
+    storeDerogationIsPending: mutation.isPending,
+  };
+}
+
+export function useProcessDerogation() {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (payload: ProcessDerogationPayload) => processDerogation(api, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: feePaymentKeys.all });
+    },
+  });
+
+  return {
+    processDerogation: mutation.mutateAsync,
+    processDerogationIsPending: mutation.isPending,
   };
 }
 

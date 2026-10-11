@@ -58,7 +58,8 @@ type GuardianContactCardProps = {
 
 export function GuardianContactCard({ guardian, relationship, isPrimary }: GuardianContactCardProps) {
   const colors = useThemeColors();
-  const canViewContacts = useCan("core.master::guardians.view");
+  // Coordonnées : l'API les réserve à core.master::guardians.contact (ou à la gestion des tuteurs) et le signale.
+  const canViewContacts = useCan("core.master::guardians.view") && !guardian.contactsHidden;
   const { contacts, contactsIsLoading } = useGuardianContacts({
     guardianId: guardian.id,
     enabled: canViewContacts,

@@ -182,6 +182,10 @@ export function IncidentReportFormScreen() {
 
   // Signalement (rejouable hors ligne) dès que le compte en a le droit ; sinon création complète, en ligne.
   const canReport = useCan("discipline.incidents.report");
+  // Direction (.create) : même formulaire court, présenté comme un ajout.
+  // TODO : écran de saisie complète comme « Ajouter » du web (statut, mesures, parents prévenus, sanctions en une étape).
+  // Compromis actuel : la direction ajoute l'incident ici, puis arrive sur sa fiche pour « Traiter » et « Sanction ».
+  const canCreate = useCan("discipline.incidents.create");
   const { createStudentIncident, createStudentIncidentIsPending } =
     useCreateStudentIncident();
 
@@ -222,16 +226,27 @@ export function IncidentReportFormScreen() {
     };
 
     try {
+      // Incident créé côté serveur : la direction est ensuite menée sur sa fiche (« Traiter », « Sanction »).
+      let createdIncidentId: string | null = null;
+
       if (canReport) {
         const result = await teacherReportStudentIncident(
           report,
           incidentLabel(data),
         );
-        if (result.status === "queued") notifyQueued();
-        else toastNotify("Incident signalé avec succès.", "success");
+        if (result.status === "queued") {
+          // Pas encore d'identifiant hors ligne : retour à la liste, comme pour l'enseignant.
+          notifyQueued();
+        } else {
+          createdIncidentId = result.data.id;
+          toastNotify(
+            canCreate ? "Incident ajouté avec succès." : "Incident signalé avec succès.",
+            "success",
+          );
+        }
       } else {
         // Même incident ouvert que le signalement ; le traitement se fait ensuite depuis la fiche.
-        await createStudentIncident({
+        const incident = await createStudentIncident({
           ...report,
           status: "open",
           reportedBy: null,
@@ -249,9 +264,15 @@ export function IncidentReportFormScreen() {
           internalNotes: null,
           sanctions: [],
         });
+        createdIncidentId = incident.id;
         toastNotify("Incident enregistré avec succès.", "success");
       }
-      router.back();
+
+      if (canCreate && createdIncidentId) {
+        router.replace(`/staff/incidents/${createdIncidentId}`);
+      } else {
+        router.back();
+      }
     } catch (error) {
       handleApiError(error, {
         setFieldError: (field, message) =>
@@ -264,7 +285,9 @@ export function IncidentReportFormScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: "Signaler un incident" }} />
+      <Stack.Screen
+        options={{ title: canCreate ? "Ajouter un incident" : "Signaler un incident" }}
+      />
 
       <KeyboardAwareScrollView
         className="flex-1 bg-background"
@@ -472,7 +495,9 @@ export function IncidentReportFormScreen() {
           {isBusy ? (
             <ActivityIndicator color={colors.background} />
           ) : (
-            <Text className="text-background font-medium">Signaler l&apos;incident</Text>
+            <Text className="text-background font-medium">
+              {canCreate ? "Ajouter l'incident" : "Signaler l'incident"}
+            </Text>
           )}
         </Pressable>
       </KeyboardAwareScrollView>

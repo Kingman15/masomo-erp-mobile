@@ -38,6 +38,7 @@ import {
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SANCTION_STATUS_CONFIG } from "../sanctions/sanction-status-pill";
+import { RegulationArticleField } from "./regulation-article-field";
 
 function dateOnly(value: string | null | undefined): string | null {
   return value ? value.slice(0, 10) : null;
@@ -56,6 +57,7 @@ function toFormValues(
   return {
     studentId: sanction?.studentId ?? defaultStudentId ?? "",
     sanctionTypeId: sanction?.sanctionTypeId ?? "",
+    regulationArticleId: sanction?.regulationArticleId ?? null,
     status: sanction?.status ?? "pending",
     startsAt: dateOnly(sanction?.startsAt),
     endsAt: dateOnly(sanction?.endsAt),
@@ -65,6 +67,7 @@ function toFormValues(
     notes: sanction?.notes ?? null,
     parentsNotified: sanction?.parentsNotified ?? false,
     parentsNotifiedAt: dateOnly(sanction?.parentsNotifiedAt),
+    parentsNotifiedBy: sanction?.parentsNotifiedBy ?? null,
   };
 }
 
@@ -144,12 +147,12 @@ export function IncidentSanctionFormScreen() {
           id: sanction?.id ?? null,
           studentId: data.studentId,
           sanctionTypeId: data.sanctionTypeId,
+          regulationArticleId: data.regulationArticleId ?? null,
           // Champs non saisis sur mobile : repris de la sanction existante.
-          regulationArticleId: sanction?.regulationArticleId ?? null,
           isAppealed: sanction?.isAppealed ?? false,
           appealedAt: sanction?.appealedAt ?? null,
           appealNotes: sanction?.appealNotes ?? null,
-          parentsNotifiedBy: data.parentsNotified ? (sanction?.parentsNotifiedBy ?? null) : null,
+          parentsNotifiedBy: data.parentsNotified ? (data.parentsNotifiedBy ?? null) : null,
           startsAt: data.startsAt ?? null,
           endsAt: data.endsAt ?? null,
           status: data.status,
@@ -271,6 +274,20 @@ export function IncidentSanctionFormScreen() {
 
         <Controller
           control={control}
+          name="regulationArticleId"
+          render={({ field: { value, onChange } }) => (
+            <RegulationArticleField
+              schoolYearId={studentIncident?.schoolYearId ?? null}
+              value={value ?? null}
+              initialLabel={sanction?.regulationArticle?.title}
+              onChange={onChange}
+              error={errors.regulationArticleId?.message}
+            />
+          )}
+        />
+
+        <Controller
+          control={control}
           name="status"
           render={({ field: { value, onChange } }) => (
             <ChipSelect
@@ -359,16 +376,19 @@ export function IncidentSanctionFormScreen() {
           control={control}
           name="parentsNotified"
           render={({ field: { value, onChange } }) => (
-            <CheckboxRow label="Parents notifiés" value={value} onChange={onChange} />
+            <CheckboxRow label="Parents prévenus" value={value} onChange={onChange} />
           )}
         />
+        <Text className="text-xs text-muted-foreground -mt-3 mb-4">
+          À cocher une fois les parents informés (appel, convocation…). Aucun message ne leur est envoyé.
+        </Text>
         {parentsNotified && (
           <>
             <Controller
               control={control}
               name="parentsNotifiedAt"
               render={({ field: { value, onChange } }) => (
-                <DateField label="Date de notification" value={value ?? null} onChange={onChange} />
+                <DateField label="Prévenus le" value={value ?? null} onChange={onChange} />
               )}
             />
             {errors.parentsNotifiedAt && (
@@ -376,6 +396,23 @@ export function IncidentSanctionFormScreen() {
                 {errors.parentsNotifiedAt.message}
               </Text>
             )}
+            <Controller
+              control={control}
+              name="parentsNotifiedBy"
+              render={({ field: { value, onChange } }) => (
+                <ComboBox
+                  label="Prévenus par"
+                  placeholder="Sélectionner un employé"
+                  options={(employees ?? []).map((employee) => ({
+                    id: employee.id,
+                    label: employee.fullName ?? "Employé",
+                  }))}
+                  value={value ?? null}
+                  onChange={onChange}
+                  loading={employeesIsLoading}
+                />
+              )}
+            />
           </>
         )}
 

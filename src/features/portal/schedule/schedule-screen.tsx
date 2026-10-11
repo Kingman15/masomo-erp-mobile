@@ -15,6 +15,7 @@ import {
 import { usePortalSelection } from "../use-portal-selection";
 import { getRowsForDay, getVisibleDays, jsDayToDayField } from "./schedule-days";
 import { ScheduleSlotRow } from "./schedule-slot-row";
+import { PortalSelectionEmpty } from "../portal-selection-empty";
 
 export function ScheduleScreen() {
   const { selectedStudent, selectedSchoolYear, selectedSchoolClass } =
@@ -101,14 +102,7 @@ export function ScheduleScreen() {
 
       <View className="flex-1 bg-background">
         {!filtersAreComplete ? (
-          <View className="flex-1 items-center justify-center px-6 gap-1">
-            <Text className="text-sm font-medium text-foreground-secondary text-center">
-              Aucun élève sélectionné
-            </Text>
-            <Text className="text-sm text-faint text-center">
-              Sélectionnez un élève pour afficher son emploi du temps.
-            </Text>
-          </View>
+          <PortalSelectionEmpty subject="son emploi du temps" />
         ) : isLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />

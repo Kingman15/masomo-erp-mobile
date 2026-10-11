@@ -16,6 +16,7 @@ import { usePortalSelection } from "../../use-portal-selection";
 import { GradeFilterPanel } from "./grade-filter-panel";
 import { emptyGradeFilters, type GradeFiltersForm } from "./grade-filters";
 import { GradeTypeGroup } from "./grade-type-group";
+import { PortalSelectionEmpty } from "../../portal-selection-empty";
 
 export function ResultsScreen() {
   const { selectedStudent, selectedSchoolYear, selectedSchoolClass } =
@@ -127,14 +128,7 @@ export function ResultsScreen() {
         )}
 
         {!filtersAreComplete ? (
-          <View className="flex-1 items-center justify-center px-6 gap-1">
-            <Text className="text-sm font-medium text-foreground-secondary text-center">
-              Aucun élève sélectionné
-            </Text>
-            <Text className="text-sm text-faint text-center">
-              Sélectionnez un élève pour afficher ses résultats.
-            </Text>
-          </View>
+          <PortalSelectionEmpty subject="ses résultats" />
         ) : portalGradesIsLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />

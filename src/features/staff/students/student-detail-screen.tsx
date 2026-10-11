@@ -1,3 +1,4 @@
+import { useFeeRoutes } from "../fees/use-fee-routes";
 import { useEnrollmentById } from "@/hooks/queries/items/enrollment";
 import { useGuardianAssignments } from "@/hooks/queries/items/guardian";
 import { useCan } from "@/hooks/use-can";
@@ -37,6 +38,7 @@ function SectionTitle({ children }: { children: string }) {
 
 // Fiche élève du personnel, à partir de l'inscription (consultation seule).
 export function StudentDetailScreen() {
+  const feeRoutes = useFeeRoutes();
   const colors = useThemeColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { enrollment, enrollmentIsLoading, enrollmentError, loadEnrollment } =
@@ -140,7 +142,7 @@ export function StudentDetailScreen() {
             {canViewFees && (
               <Pressable
                 accessibilityRole="button"
-                onPress={() => router.push(`/staff/students/fees/${enrollment.id}`)}
+                onPress={() => router.push(feeRoutes.studentFees(enrollment.id))}
                 className="mt-5 h-12 px-4 rounded-xl border border-border bg-card flex-row items-center gap-3 active:bg-subtle"
               >
                 <Ionicons name="wallet-outline" size={18} color={colors.foreground} />

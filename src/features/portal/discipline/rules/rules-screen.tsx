@@ -20,6 +20,7 @@ import {
   targetIdFromFilters,
   type RulesFiltersForm,
 } from "./rules-filters";
+import { PortalSelectionEmpty } from "../../portal-selection-empty";
 
 function countActiveFilters(filters: RulesFiltersForm): number {
   let count = 0;
@@ -132,14 +133,7 @@ export function RulesScreen() {
 
       <View className="flex-1 bg-subtle">
         {!filtersAreComplete ? (
-          <View className="flex-1 items-center justify-center px-6 gap-1">
-            <Text className="text-sm font-medium text-foreground-secondary text-center">
-              Aucun élève sélectionné
-            </Text>
-            <Text className="text-sm text-faint text-center">
-              Sélectionnez un élève pour afficher le règlement.
-            </Text>
-          </View>
+          <PortalSelectionEmpty subject="le règlement" />
         ) : (
           <>
             <View className="flex-row items-center gap-3 px-4 pt-3 pb-2">

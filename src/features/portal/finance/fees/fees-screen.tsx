@@ -18,6 +18,7 @@ import { FeeScheduleCard } from "./fee-schedule-card";
 import { FeeScheduleSummaryCard } from "./fee-schedule-summary-card";
 import { FeesFilterPanel } from "./fees-filter-panel";
 import { emptyFeesFilters, type FeesFiltersForm } from "./fees-filters";
+import { PortalSelectionEmpty } from "../../portal-selection-empty";
 
 export function FeesScreen() {
   const { selectedStudent, selectedSchoolYear, selectedSchoolClass } =
@@ -85,14 +86,7 @@ export function FeesScreen() {
 
       <View className="flex-1 bg-subtle">
         {!filtersAreComplete ? (
-          <View className="flex-1 items-center justify-center px-6 gap-1">
-            <Text className="text-sm font-medium text-foreground-secondary text-center">
-              Aucun élève sélectionné
-            </Text>
-            <Text className="text-sm text-faint text-center">
-              Sélectionnez un élève pour afficher ses frais.
-            </Text>
-          </View>
+          <PortalSelectionEmpty subject="ses frais" />
         ) : (
           <>
             <View className="flex-row items-center gap-3 px-4 pt-3 pb-2">

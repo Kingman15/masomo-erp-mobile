@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { usePortalSelection } from "../../use-portal-selection";
 import { TransportScheduleRow } from "./transport-schedule-row";
+import { PortalSelectionEmpty } from "../../portal-selection-empty";
 
 export function TransportScheduleScreen() {
   const { selectedStudent } = usePortalSelection();
@@ -38,14 +39,7 @@ export function TransportScheduleScreen() {
 
       <View className="flex-1 bg-subtle">
         {!studentIsSelected ? (
-          <View className="flex-1 items-center justify-center px-6 gap-1">
-            <Text className="text-sm font-medium text-foreground-secondary text-center">
-              Aucun élève sélectionné
-            </Text>
-            <Text className="text-sm text-faint text-center">
-              Sélectionnez un élève pour afficher ses horaires de transport.
-            </Text>
-          </View>
+          <PortalSelectionEmpty subject="ses horaires de transport" requiresClass={false} />
         ) : portalTransportSchedulesIsLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />

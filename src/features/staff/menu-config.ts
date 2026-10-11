@@ -8,9 +8,11 @@ import { useMemo } from "react";
 export type RoutePath = Extract<Href, string>;
 
 // permission : code(s) `.view` exigé(s) par l'API de l'écran, tous requis ; absent = toujours visible (accueil, calendrier, synchro, profil).
+// anyPermission : au moins un de ces codes suffit (écran ouvert à plusieurs modules, l'API tranche).
 // homeroomOnly : écran du titulaire, masqué à l'enseignant sans classe (comme homeroomOnly côté web).
 type StaffMenuAccess = {
   permission?: string | string[];
+  anyPermission?: string[];
   homeroomOnly?: boolean;
 };
 
@@ -110,19 +112,38 @@ export const STAFF_MENU: StaffMenuItem[] = [
   },
   {
     // Consultation : élèves inscrits, fiche et tuteurs (l'API limite un enseignant à ses classes).
+    // Comme le web (Données de base › Élèves) : l'enseignant n'a que core.master::students.view.
     type: "link",
     label: "Élèves",
     icon: "people-outline",
     href: "/staff/students",
-    permission: "enrollment.list.view",
+    anyPermission: ["enrollment.list.view", "core.master::students.view"],
   },
   {
-    // Consultation : situation des frais d'une classe ; la fiche élève donne le détail (échéancier, paiements, reçus).
-    type: "link",
-    label: "Contrôle des frais",
+    type: "group",
+    label: "Frais scolaires",
     icon: "wallet-outline",
-    href: "/staff/fees",
-    permission: "schoolFees.reports::collectionList.view",
+    children: [
+      {
+        // Consultation : frais, tranches et échéances d'une classe, pour renseigner un parent (même avant l'inscription).
+        // L'API laisse la lecture ouverte ; l'entrée suit la permission web (Frais scolaires › Frais).
+        label: "Grille des frais",
+        href: "/staff/fee-grid",
+        permission: "schoolFees.fees.view",
+      },
+      {
+        // Consultation : situation des frais d'une classe ; la fiche élève donne le détail (échéancier, paiements, reçus).
+        label: "Contrôle des frais",
+        href: "/staff/fees",
+        permission: "schoolFees.reports::collectionList.view",
+      },
+      {
+        // Délais de paiement, tous statuts ; le traitement (fiche détail) n'apparaît qu'avec schoolFees.derogations.process.
+        label: "Dérogations",
+        href: "/staff/fee-derogations",
+        permission: "schoolFees.derogations.view",
+      },
+    ],
   },
   {
     type: "link",
@@ -214,6 +235,12 @@ function isAllowed(user: User | null, access: StaffMenuAccess | undefined) {
     access?.homeroomOnly &&
     user?.role.roleCategory === "teacher" &&
     !user.isHomeroomTeacher
+  )
+    return false;
+
+  if (
+    access?.anyPermission &&
+    !access.anyPermission.some((permission) => userCan(user, permission))
   )
     return false;
 

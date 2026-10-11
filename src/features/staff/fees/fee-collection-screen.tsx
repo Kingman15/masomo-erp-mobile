@@ -1,3 +1,4 @@
+import { useFeeRoutes } from "./use-fee-routes";
 import { ChipSelect } from "@/components/list/chip-select";
 import { ComboBox } from "@/components/list/combo-box";
 import { DrawerMenuButton } from "@/features/staff/drawer-menu-button";
@@ -33,13 +34,14 @@ const STATUS_STYLES: Record<FeeCollectionStatus, { bg: string; fg: string }> = {
 };
 
 function CollectionRow({ student }: { student: FeeCollectionStudentDTO }) {
+  const feeRoutes = useFeeRoutes();
   const style = STATUS_STYLES[student.status];
   // Solde exigible par devise (négatif = reste à payer), comme la liste de contrôle du web.
   const balances = student.amounts.map((amount) => amount.balanceStr).join(" · ");
 
   return (
     <Pressable
-      onPress={() => router.push(`/staff/students/fees/${student.enrollmentId}`)}
+      onPress={() => router.push(feeRoutes.studentFees(student.enrollmentId))}
       className="px-4 py-3 border-b border-divider bg-card active:bg-subtle"
     >
       <View className="flex-row items-center justify-between gap-2">

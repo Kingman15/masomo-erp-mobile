@@ -132,6 +132,74 @@ export async function derogations(
   return data.data;
 }
 
+export type FeePaymentDerogationStatus = NonNullable<FeePaymentDerogation["status"]>;
+
+// Dérogations de l'année, tous statuts ou un seul.
+export async function derogationList(
+  api: AxiosInstance,
+  filters: { schoolYearId: string; status?: FeePaymentDerogationStatus | null },
+): Promise<FeePaymentDerogation[]> {
+  const { data } = await api.get<PaginatedApiResponse<FeePaymentDerogation>>(
+    "/fee-payment-derogations",
+    { params: { schoolYearId: filters.schoolYearId, status: filters.status ?? undefined } },
+  );
+  return data.data;
+}
+
+export async function derogationShow(api: AxiosInstance, id: string): Promise<FeePaymentDerogation> {
+  const { data } = await api.get<ApiResponse<FeePaymentDerogation>>(`/fee-payment-derogations/${id}`);
+  return data.data;
+}
+
+export interface StoreDerogationPayload {
+  schoolYearId: string;
+  studentId: string;
+  feeInstallmentId: string;
+  requestDate: string;
+  reason: string | null;
+  // Décision prise dès l'ajout (approved / rejected) : l'API l'exige de schoolFees.derogations.process.
+  status: FeePaymentDerogationStatus;
+  expirationDate: string | null;
+  comments: string | null;
+}
+
+export async function storeDerogation(api: AxiosInstance, payload: StoreDerogationPayload) {
+  const { data } = await api.post<{ message: string }>("/fee-payment-derogations", {
+    school_year_id: payload.schoolYearId,
+    student_id: payload.studentId,
+    fee_installment_id: payload.feeInstallmentId,
+    request_date: payload.requestDate,
+    reason: payload.reason,
+    status: payload.status,
+    // Délai demandé par le parent (ou accordé, en cas d'accord immédiat)
+    expiration_date: payload.expirationDate,
+    comments: payload.comments,
+  });
+  return data;
+}
+
+export interface ProcessDerogationPayload {
+  id: string;
+  status: "approved" | "rejected";
+  decisionDate: string;
+  expirationDate: string | null;
+  comments: string | null;
+}
+
+export async function processDerogation(api: AxiosInstance, payload: ProcessDerogationPayload) {
+  const { data } = await api.post<{ message: string }>(
+    `/fee-payment-derogations/${payload.id}/process`,
+    {
+      status: payload.status,
+      decision_date: payload.decisionDate,
+      // Refus : délai omis, l'API garde celui demandé
+      expiration_date: payload.status === "approved" ? payload.expirationDate : null,
+      comments: payload.comments,
+    },
+  );
+  return data;
+}
+
 export async function collectionAvailableFees(
   api: AxiosInstance,
   filters: { schoolYearId: string; schoolClassId: string },

@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { usePortalSelection } from "../../use-portal-selection";
 import { TransportSubscriptionRow } from "./transport-subscription-row";
+import { PortalSelectionEmpty } from "../../portal-selection-empty";
 
 export function SubscriptionsScreen() {
   const { selectedStudent, selectedSchoolYear, selectedSchoolClass } =
@@ -50,14 +51,7 @@ export function SubscriptionsScreen() {
 
       <View className="flex-1 bg-subtle">
         {!filtersAreComplete ? (
-          <View className="flex-1 items-center justify-center px-6 gap-1">
-            <Text className="text-sm font-medium text-foreground-secondary text-center">
-              Aucun élève sélectionné
-            </Text>
-            <Text className="text-sm text-faint text-center">
-              Sélectionnez un élève pour afficher ses abonnements de transport.
-            </Text>
-          </View>
+          <PortalSelectionEmpty subject="ses abonnements de transport" />
         ) : portalTransportSubscriptionsIsLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />

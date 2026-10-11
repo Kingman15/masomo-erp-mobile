@@ -20,6 +20,7 @@ interface PortalSelectionState {
 
   hydrate: () => Promise<void>;
   setSelectedStudent: (student: Pick<Student, "id">) => void;
+  clearSelectedStudent: () => void;
   setSelectedSchoolYear: (schoolYear: Pick<SchoolYear, "id">) => void;
   setSelectedSchoolClass: (schoolClass: Pick<SchoolClass, "id">) => void;
   clearSelection: () => void;
@@ -50,13 +51,20 @@ export const usePortalSelectionStore = create<PortalSelectionState>((set, get) =
     }
   },
 
+  // Ordre de résolution année -> élève -> classe : changer d'élève garde l'année,
+  // changer d'année garde l'élève (désélectionné ensuite s'il n'y est pas inscrit, voir usePortalSelection).
   setSelectedStudent: (student) => {
-    set({
-      selectedStudentId: student.id,
-      selectedSchoolYearId: null,
-      selectedSchoolClassId: null,
+    set({ selectedStudentId: student.id, selectedSchoolClassId: null });
+    persist({
+      studentId: student.id,
+      schoolYearId: get().selectedSchoolYearId,
+      schoolClassId: null,
     });
-    persist({ studentId: student.id, schoolYearId: null, schoolClassId: null });
+  },
+
+  clearSelectedStudent: () => {
+    set({ selectedStudentId: null, selectedSchoolClassId: null });
+    persist({ studentId: null, schoolYearId: get().selectedSchoolYearId, schoolClassId: null });
   },
 
   setSelectedSchoolYear: (schoolYear) => {

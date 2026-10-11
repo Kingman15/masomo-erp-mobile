@@ -71,7 +71,7 @@ export const studentIncidentProcessingSchema = z
     },
   )
   .refine((data) => !(data.parentsNotified && !data.parentsNotifiedAt), {
-    message: "La date de notification est requise lorsque les parents ont été notifiés",
+    message: "La date est requise lorsque les parents ont été prévenus",
     path: ["parentsNotifiedAt"],
   });
 

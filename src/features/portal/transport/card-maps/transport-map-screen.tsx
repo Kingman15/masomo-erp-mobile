@@ -12,6 +12,7 @@ import { lineColor } from "./bus-line-color";
 import { buildTransportMapHtml, type TransportMapPayload } from "./transport-map-html";
 import { TRANSPORT_SUBSCRIPTION_LEG_DIRECTION_LABEL_MAP } from "./transport-subscription-leg-status";
 import { TransportSubscriptionLegStatusPill } from "./transport-subscription-leg-status-pill";
+import { PortalSelectionEmpty } from "../../portal-selection-empty";
 
 type BusLine = NonNullable<TransportSubscriptionLeg["busLine"]>;
 
@@ -146,14 +147,7 @@ export function TransportMapScreen() {
 
       <View className="flex-1 bg-background">
         {!selectedStudent ? (
-          <View className="flex-1 items-center justify-center px-6 gap-1">
-            <Text className="text-sm font-medium text-foreground-secondary text-center">
-              Aucun élève sélectionné
-            </Text>
-            <Text className="text-sm text-faint text-center">
-              Sélectionnez un élève pour afficher sa carte de transport.
-            </Text>
-          </View>
+          <PortalSelectionEmpty subject="sa carte de transport" requiresClass={false} />
         ) : currentTransportSubscriptionIsLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />
