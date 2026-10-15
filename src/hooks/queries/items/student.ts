@@ -51,7 +51,7 @@ export function useCurrentStudents({
   const query = useListQuery<Student>({
     queryKey: studentKeys.currentStudents(),
     queryFn: () => currentStudents(api),
-    label: "Mes enfants",
+    label: "Mes élèves",
     staleTime: Infinity,
     gcTime: 1000 * 60 * 60 * 24,
     enabled,

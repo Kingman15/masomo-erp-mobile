@@ -119,7 +119,7 @@ export function ProfilScreen() {
             <InfoRow icon="keypad-outline" label="Code système" value={school?.code ?? "—"} />
           </View>
 
-          <SectionTitle>Mes enfants</SectionTitle>
+          <SectionTitle>Mes élèves</SectionTitle>
           <View className="border-t border-divider pt-1">
             {studentsIsLoading ? (
               <View className="py-4">
@@ -127,7 +127,7 @@ export function ProfilScreen() {
               </View>
             ) : students.length === 0 ? (
               <Text className="text-sm text-faint py-2.5">
-                Aucun enfant rattaché à ce compte.
+                Aucun élève rattaché à ce compte.
               </Text>
             ) : (
               students.map((student) => <StudentRow key={student.id} student={student} />)

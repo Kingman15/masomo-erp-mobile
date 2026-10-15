@@ -26,7 +26,7 @@ export function StudentEnrollmentDialog({
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View className="flex-1 bg-background">
         <View className="flex-row items-center justify-between px-4 pt-14 pb-3 border-b border-divider">
-          <Text className="text-base font-semibold text-foreground">Choisir un enfant</Text>
+          <Text className="text-base font-semibold text-foreground">Choisir un élève</Text>
           <Pressable onPress={onClose} hitSlop={8}>
             <Ionicons name="close" size={22} color={colors.foregroundSecondary} />
           </Pressable>

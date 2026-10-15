@@ -118,7 +118,7 @@ function CodeStep({ onChecked }: { onChecked: (checked: CheckedCode) => void }) 
     <>
       <AuthHeader
         title="Activer mon compte parent"
-        subtitle="Saisissez le code remis par l'école de votre enfant."
+        subtitle="Saisissez le code remis par l'école."
       />
 
       <View className="flex-1 justify-between px-6 pt-2 pb-8">

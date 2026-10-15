@@ -29,6 +29,9 @@ const JUSTIFICATION_BADGE_COLORS: Record<
 };
 const DEFAULT_JUSTIFICATION_BADGE_COLOR = { bg: "bg-subtle", text: "text-foreground-secondary" };
 
+// Statuts comptés dans « Justifiées » ; les autres le sont dans « Non justifiées »
+const JUSTIFIED_CODES = ["excused", "authorized"];
+
 export function AttendanceSummaryStats({
   summary,
 }: AttendanceSummaryStatsProps) {
@@ -112,7 +115,17 @@ export function AttendanceSummaryStats({
             </Text>
           </View>
 
-          {absent.byJustificationStatus.map((item) => {
+          {/* Un statut seul dans son groupe répéterait le total juste au-dessus */}
+          {absent.byJustificationStatus
+            .filter(
+              (item) =>
+                item.count > 0 &&
+                item.count !==
+                  (JUSTIFIED_CODES.includes(item.code)
+                    ? absent.justifiedCount
+                    : absent.unjustifiedCount),
+            )
+            .map((item) => {
             const badge =
               JUSTIFICATION_BADGE_COLORS[item.code] ??
               DEFAULT_JUSTIFICATION_BADGE_COLOR;

@@ -45,11 +45,11 @@ export function PortalSelectionEmpty({
       return students.some((student) => isStudentEnrolled(student.id))
         ? [
             "Choisissez un élève",
-            `Sélectionnez l'un de vos enfants inscrits en ${selectedSchoolYear.title} pour afficher ${subject}.`,
+            `Sélectionnez l'un de vos élèves inscrits en ${selectedSchoolYear.title} pour afficher ${subject}.`,
           ]
         : [
             `Aucune inscription en ${selectedSchoolYear.title}`,
-            "Aucun de vos enfants n'est inscrit sur cette année. Choisissez une autre année ou rapprochez-vous de l'école.",
+            "Aucun de vos élèves n'est inscrit sur cette année. Choisissez une autre année ou rapprochez-vous de l'école.",
           ];
     }
     if (requiresClass && !selectedSchoolClass) {
