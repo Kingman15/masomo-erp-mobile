@@ -32,6 +32,8 @@ export interface LoginResponse {
     isHomeroomTeacher?: boolean;
   // Mot de passe temporaire à remplacer avant tout le reste (l'API répond 403 PASSWORD_CHANGE_REQUIRED ailleurs)
   mustChangePassword?: boolean;
+  // École de démonstration (données fictives, réinitialisées chaque nuit) : actions sur le compte refusées (403 DEMO_LOCKED)
+  isDemo?: boolean;
   };
 
   // Identité de l'école : renvoyée seulement après une connexion réussie

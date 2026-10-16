@@ -70,6 +70,8 @@ export interface User {
   isHomeroomTeacher?: boolean;
   // Mot de passe temporaire à remplacer avant tout le reste (l'API répond 403 PASSWORD_CHANGE_REQUIRED ailleurs)
   mustChangePassword?: boolean;
+  // École de démonstration (données fictives, réinitialisées chaque nuit) : pastille permanente
+  isDemo?: boolean;
 }
 
 const AUTH_STORAGE_KEY = "auth";
