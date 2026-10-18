@@ -1,5 +1,6 @@
 import { PlaceholderScreen } from "@/components/placeholder-screen";
 import { getMenuCategory } from "@/features/portal/menu-config";
+import { MenuDynamicBadge } from "@/features/portal/menu-dynamic-badge";
 import { useThemeColors } from "@/hooks/use-theme-colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Stack, router, useLocalSearchParams } from "expo-router";
@@ -42,6 +43,7 @@ export default function PortalMenuCategoryScreen() {
           >
             <Ionicons name={item.icon} size={20} color={colors.foreground} />
             <Text className="flex-1 text-base text-foreground">{item.label}</Text>
+            {item.dynamicBadge && <MenuDynamicBadge badge={item.dynamicBadge} />}
             <Ionicons name="chevron-forward" size={18} color={colors.faint} />
           </Pressable>
         ))}

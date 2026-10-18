@@ -1,5 +1,6 @@
 import { useCurrentEnrollments } from "@/hooks/queries/items/enrollment";
-import { useSchoolClasses } from "@/hooks/queries/items/school-class";
+import type { Enrollment } from "@/utils/types/Enrollment";
+import type { SchoolClass } from "@/utils/types/SchoolClass";
 import {
   useCurrentSchoolYear,
   useSchoolYears,
@@ -7,6 +8,22 @@ import {
 import { useCurrentStudents } from "@/hooks/queries/items/student";
 import { usePortalSelectionStore } from "@/stores/portal-selection";
 import { useCallback, useEffect, useMemo } from "react";
+
+// Classes de l'élève sur l'année, dans l'ordre des inscriptions (la plus récente d'abord) ; une seule dans l'immense majorité des cas.
+export function schoolClassesOfStudent(
+  enrollments: Enrollment[],
+  studentId: string,
+): SchoolClass[] {
+  const schoolClasses: SchoolClass[] = [];
+
+  for (const { studentId: enrollmentStudentId, schoolClass } of enrollments) {
+    if (enrollmentStudentId !== studentId || !schoolClass) continue;
+    if (schoolClasses.some((sc) => sc.id === schoolClass.id)) continue;
+    schoolClasses.push(schoolClass);
+  }
+
+  return schoolClasses;
+}
 
 // Ordre de résolution : année -> élève -> classe (idem web). L'année vient en premier car tout en dépend
 // (la messagerie et les annonces ne dépendent même que d'elle) ; l'élève se choisit parmi les inscrits de l'année.
@@ -55,7 +72,7 @@ export function usePortalSelection() {
     [schoolYears, selectedSchoolYearId],
   );
 
-  const { enrollments = [], enrollmentsIsLoading } = useCurrentEnrollments({
+  const { enrollments = [], enrollmentsIsLoading, enrollmentsError } = useCurrentEnrollments({
     filters: { schoolYearId: selectedSchoolYear?.id },
     enabled: !!selectedSchoolYear,
   });
@@ -76,17 +93,13 @@ export function usePortalSelection() {
     [students, selectedStudentId],
   );
 
-  const {
-    schoolClasses = [],
-    schoolClassesError,
-    schoolClassesIsLoading,
-  } = useSchoolClasses({
-    filters: {
-      studentId: selectedStudent?.id,
-      schoolYearId: selectedSchoolYear?.id,
-    },
-    enabled: !!selectedStudent && !!selectedSchoolYear,
-  });
+  // Classes de l'élève sur l'année, tirées des inscriptions déjà chargées (classe incluse) : pas de requête dédiée.
+  const schoolClasses = useMemo(
+    () => (selectedStudent ? schoolClassesOfStudent(enrollments, selectedStudent.id) : []),
+    [enrollments, selectedStudent],
+  );
+  const schoolClassesIsLoading = enrollmentsIsLoading;
+  const schoolClassesError = enrollmentsError;
 
   const selectedSchoolClass = useMemo(
     () => schoolClasses.find((sc) => sc.id === selectedSchoolClassId) ?? null,
@@ -142,22 +155,17 @@ export function usePortalSelection() {
   ]);
 
   // Résolution classe, dépendante de l'élève + l'année sélectionnés : classe choisie conservée si toujours proposée,
-  // sinon -> classe de la dernière inscription de l'élève sur l'année (enrollments triées de la plus récente à la plus ancienne).
+  // sinon -> classe de la dernière inscription de l'élève sur l'année (schoolClasses suit l'ordre des inscriptions, la plus récente d'abord).
   useEffect(() => {
     if (!selectedSchoolYear || !selectedStudent || !schoolClasses.length) return;
     if (selectedSchoolClassId && schoolClasses.some((sc) => sc.id === selectedSchoolClassId)) return;
 
-    const latestClassId = enrollments.find(
-      (enrollment) => enrollment.studentId === selectedStudent.id,
-    )?.schoolClassId;
-
-    setSelectedSchoolClass(schoolClasses.find((sc) => sc.id === latestClassId) ?? schoolClasses[0]);
+    setSelectedSchoolClass(schoolClasses[0]);
   }, [
     selectedSchoolYear,
     selectedStudent,
     schoolClasses,
     selectedSchoolClassId,
-    enrollments,
     setSelectedSchoolClass,
   ]);
 

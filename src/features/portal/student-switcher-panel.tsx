@@ -1,12 +1,11 @@
 import { ChipSelect } from "@/components/list/chip-select";
 import { FilterPanel } from "@/components/list/filter-panel";
 import { useCurrentEnrollments } from "@/hooks/queries/items/enrollment";
-import { useSchoolClasses } from "@/hooks/queries/items/school-class";
 import { useThemeColors } from "@/hooks/use-theme-colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
-import { usePortalSelection } from "./use-portal-selection";
+import { schoolClassesOfStudent, usePortalSelection } from "./use-portal-selection";
 
 type StudentSwitcherPanelProps = {
   onClose: () => void;
@@ -63,21 +62,19 @@ export function StudentSwitcherPanel({ onClose }: StudentSwitcherPanelProps) {
     return students.find((student) => draftEnrolledStudentIds.has(student.id))?.id ?? null;
   }, [draftSchoolYearId, draftEnrollmentsIsLoading, draftEnrolledStudentIds, draftStudentId, students]);
 
-  const {
-    schoolClasses: draftSchoolClasses = [],
-    schoolClassesIsLoading: draftSchoolClassesIsLoading,
-  } = useSchoolClasses({
-    filters: { studentId: resolvedDraftStudentId, schoolYearId: draftSchoolYearId },
-    enabled: !!resolvedDraftStudentId && !!draftSchoolYearId,
-  });
+  // Classes tirées des inscriptions de l'année du brouillon (classe incluse) : pas de requête dédiée.
+  const draftSchoolClasses = useMemo(
+    () =>
+      resolvedDraftStudentId
+        ? schoolClassesOfStudent(draftEnrollments, resolvedDraftStudentId)
+        : [],
+    [draftEnrollments, resolvedDraftStudentId],
+  );
 
   // Classe : celle du brouillon si toujours proposée, sinon celle de la dernière inscription de l'élève sur l'année.
-  const latestDraftClassId = draftEnrollments.find(
-    (enrollment) => enrollment.studentId === resolvedDraftStudentId,
-  )?.schoolClassId;
   const resolvedDraftSchoolClassId = draftSchoolClasses.some((sc) => sc.id === draftSchoolClassId)
     ? draftSchoolClassId
-    : (draftSchoolClasses.find((sc) => sc.id === latestDraftClassId) ?? draftSchoolClasses[0])?.id ?? null;
+    : (draftSchoolClasses[0]?.id ?? null);
 
   const handleSelectDraftStudent = (id: string) => {
     setDraftStudentId(id);
@@ -153,7 +150,14 @@ export function StudentSwitcherPanel({ onClose }: StudentSwitcherPanelProps) {
                   >
                     {student.fullName}
                   </Text>
-                  {!enrolled && (
+                  {enrolled ? (
+                    <Text className="text-xs text-muted-foreground" numberOfLines={1}>
+                      {schoolClassesOfStudent(draftEnrollments, student.id)
+                        .map((sc) => sc.title ?? sc.abbreviation)
+                        .filter(Boolean)
+                        .join(", ")}
+                    </Text>
+                  ) : (
                     <Text className="text-xs text-faint">
                       Non inscrit cette année
                     </Text>
@@ -181,7 +185,6 @@ export function StudentSwitcherPanel({ onClose }: StudentSwitcherPanelProps) {
           }))}
           value={resolvedDraftSchoolClassId}
           onChange={setDraftSchoolClassId}
-          loading={draftSchoolClassesIsLoading}
         />
       )}
     </FilterPanel>

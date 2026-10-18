@@ -10,6 +10,7 @@ export const portalFeePaymentDerogationKeys = {
       schoolYearId?: string | null;
       status?: FeePaymentDerogationStatus | null;
       inProgress?: boolean | null;
+      includePending?: boolean | null;
     },
   ) => [...portalFeePaymentDerogationKeys.all, studentId, "list", filters] as const,
 

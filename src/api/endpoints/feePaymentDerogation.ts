@@ -10,6 +10,7 @@ interface PortalFeePaymentDerogationFilters {
   schoolClassId?: string | null;
   status?: FeePaymentDerogationStatus | null;
   inProgress?: boolean | null;
+  includePending?: boolean | null;
 }
 
 export async function portalIndex(
@@ -26,6 +27,7 @@ export async function portalIndex(
         schoolClassId: filters.schoolClassId ?? undefined,
         status: filters.status ?? undefined,
         inProgress: filters.inProgress ?? undefined,
+        includePending: filters.includePending ?? undefined,
       },
     },
   );

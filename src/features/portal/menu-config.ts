@@ -1,9 +1,13 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 
+/** Badge calculé à l'affichage (ex: nombre de fils non lus de la messagerie) */
+export type MenuDynamicBadge = "portalUnreadConversations";
+
 export type MenuSubItem = {
   slug: string;
   label: string;
   icon: keyof typeof Ionicons.glyphMap;
+  dynamicBadge?: MenuDynamicBadge;
 };
 
 export type MenuCategory = {
@@ -12,6 +16,7 @@ export type MenuCategory = {
   description: string;
   icon: keyof typeof Ionicons.glyphMap;
   color: string;
+  dynamicBadge?: MenuDynamicBadge;
   subItems?: MenuSubItem[];
 };
 
@@ -86,6 +91,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
     description: "Messagerie, documents partagés, communiqués",
     icon: "chatbubbles-outline",
     color: "#7c3aed",
+    dynamicBadge: "portalUnreadConversations",
     subItems: [
       {
         slug: "documents",
@@ -101,6 +107,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
         slug: "messaging",
         label: "Messagerie",
         icon: "chatbubble-ellipses-outline",
+        dynamicBadge: "portalUnreadConversations",
       },
     ],
   },

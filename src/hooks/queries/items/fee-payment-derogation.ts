@@ -15,6 +15,7 @@ interface UsePortalFeePaymentDerogationsParams {
     schoolYearId?: string | null;
     status?: FeePaymentDerogationStatus | null;
     inProgress?: boolean | null;
+    includePending?: boolean | null;
   };
   enabled?: boolean;
 }
@@ -29,6 +30,7 @@ export function usePortalFeePaymentDerogations({
     schoolYearId: filters.schoolYearId ?? undefined,
     status: filters.status ?? undefined,
     inProgress: filters.inProgress ?? undefined,
+    includePending: filters.includePending ?? undefined,
   };
 
   const query = useListQuery<PortalFeePaymentDerogationDTO>({

@@ -18,6 +18,13 @@ export async function index(
   return data.data;
 }
 
+export async function unreadCount(api: AxiosInstance): Promise<number> {
+  const { data } = await api.get<ApiResponse<{ count: number }>>(
+    "/portal/conversations/unread-count",
+  );
+  return data.data.count;
+}
+
 export async function show(
   api: AxiosInstance,
   serviceDeskId: string,

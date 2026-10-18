@@ -4,6 +4,7 @@ import {
   useCanOpenStaffRoute,
   type RoutePath,
 } from "@/features/staff/menu-config";
+import { NoAssignmentAlert } from "@/features/staff/no-assignment-alert";
 import { buildGreeting } from "@/lib/greeting";
 import { useAuthStore } from "@/stores/auth";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -95,6 +96,7 @@ export default function StaffHomeScreen() {
           <Text className="text-sm text-muted-foreground mt-1">{greeting}</Text>
         </View>
 
+        <NoAssignmentAlert />
         <CurrentPeriodCard />
 
         <View className="flex-row flex-wrap gap-3 mt-3">

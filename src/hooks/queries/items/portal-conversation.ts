@@ -4,16 +4,33 @@ import {
   messages,
   sendMessage,
   show,
+  unreadCount,
   type SendPortalMessagePayload,
 } from "@/api/endpoints/portal-conversation";
 import { portalConversationKeys } from "@/utils/query-keys/portal-conversation";
 import type { Message } from "@/utils/types/Message";
 import type { PortalConversationDTO } from "@/utils/types/objects/PortalConversationDTO";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { useListQuery } from "../use-list-query";
 import { useSingletonQuery } from "../use-singleton-query";
 
 const MESSAGES_POLL_INTERVAL = 10_000;
+const UNREAD_COUNT_POLL_INTERVAL = 45_000;
+
+export function usePortalConversationsUnreadCount() {
+  const query = useSingletonQuery<number>({
+    queryKey: portalConversationKeys.unreadCount(),
+    queryFn: () => unreadCount(api),
+    label: "Fils non lus",
+    refetchInterval: UNREAD_COUNT_POLL_INTERVAL,
+  });
+
+  return {
+    portalUnreadCount: query.data ?? 0,
+    loadPortalUnreadCount: query.refetch,
+  };
+}
 
 interface UsePortalConversationsParams {
   filters: { schoolYearId?: string | null };
@@ -85,6 +102,14 @@ export function usePortalConversationMessages(
     refetchOnReconnect: true,
     meta: { label: "Messages" },
   });
+
+  // L'ouverture du fil le marque comme lu côté API : on rafraîchit le badge une fois les messages chargés
+  const queryClient = useQueryClient();
+  const messagesLoaded = query.isSuccess;
+  useEffect(() => {
+    if (!conversationId || !messagesLoaded) return;
+    void queryClient.invalidateQueries({ queryKey: portalConversationKeys.unreadCount() });
+  }, [conversationId, messagesLoaded, queryClient]);
 
   return {
     portalMessages: query.data ?? [],

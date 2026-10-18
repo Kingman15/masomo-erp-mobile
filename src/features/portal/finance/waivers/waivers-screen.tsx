@@ -41,6 +41,7 @@ export function WaiversScreen() {
       schoolClassId: selectedSchoolClass?.id,
       status: filters.status,
       inProgress: filters.inProgress,
+      includePending: filters.inProgress === true && filters.includePending,
     },
     enabled: filtersAreComplete,
   });
@@ -48,7 +49,10 @@ export function WaiversScreen() {
   const activeFilterCount = useMemo(
     () =>
       (filters.status ? 1 : 0) +
-      (filters.inProgress !== defaultWaiversFilters.inProgress ? 1 : 0),
+      (filters.inProgress !== defaultWaiversFilters.inProgress ||
+      filters.includePending !== defaultWaiversFilters.includePending
+        ? 1
+        : 0),
     [filters],
   );
 

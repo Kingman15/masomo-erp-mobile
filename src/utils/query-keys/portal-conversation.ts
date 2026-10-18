@@ -15,6 +15,8 @@ export const portalConversationKeys = {
       schoolYearId ?? null,
     ] as const,
 
+  unreadCount: () => [...portalConversationKeys.all, "unread-count"] as const,
+
   messages: (conversationId: string | null | undefined) =>
     [...portalConversationKeys.all, "messages", conversationId ?? null] as const,
 };

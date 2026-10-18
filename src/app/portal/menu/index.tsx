@@ -1,4 +1,5 @@
 import { MENU_CATEGORIES } from "@/features/portal/menu-config";
+import { MenuDynamicBadge } from "@/features/portal/menu-dynamic-badge";
 import { StudentSwitcherEntry } from "@/features/portal/student-switcher-entry";
 import { usePortalSelection } from "@/features/portal/use-portal-selection";
 import { useThemeColors } from "@/hooks/use-theme-colors";
@@ -39,6 +40,12 @@ export default function PortalMenuScreen() {
             }}
             className="flex-1 border border-border rounded-2xl bg-card active:bg-subtle active:scale-[0.98] p-4 shadow-sm"
           >
+            {category.dynamicBadge && hasSelectedStudent && (
+              <MenuDynamicBadge
+                badge={category.dynamicBadge}
+                className="absolute top-3 right-3"
+              />
+            )}
             <View
               className="w-11 h-11 rounded-full items-center justify-center mb-3"
               style={{

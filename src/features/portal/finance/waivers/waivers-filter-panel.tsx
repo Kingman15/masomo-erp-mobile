@@ -5,6 +5,7 @@ import { FEE_PAYMENT_DEROGATION_STATUS_OPTIONS } from "./fee-payment-derogation-
 import { defaultWaiversFilters, type WaiversFiltersForm } from "./waivers-filters";
 
 const IN_PROGRESS_OPTIONS = [
+  { id: "withPending", label: "En cours & en attente" },
   { id: "true", label: "Oui" },
   { id: "false", label: "Non" },
 ];
@@ -16,9 +17,11 @@ type WaiversFilterPanelProps = {
 };
 
 export function WaiversFilterPanel({ value, onApply, onClose }: WaiversFilterPanelProps) {
-  const { control, handleSubmit, reset } = useForm<WaiversFiltersForm>({
+  const { control, handleSubmit, reset, setValue, watch } = useForm<WaiversFiltersForm>({
     defaultValues: value,
   });
+
+  const includePending = watch("includePending");
 
   const handleApply = (data: WaiversFiltersForm) => {
     onApply(data);
@@ -46,8 +49,19 @@ export function WaiversFilterPanel({ value, onApply, onClose }: WaiversFilterPan
             label="En cours"
             placeholder="Tous"
             options={IN_PROGRESS_OPTIONS}
-            value={fieldValue == null ? null : fieldValue ? "true" : "false"}
-            onChange={(id) => onChange(id == null ? null : id === "true")}
+            value={
+              fieldValue == null
+                ? null
+                : fieldValue
+                  ? includePending
+                    ? "withPending"
+                    : "true"
+                  : "false"
+            }
+            onChange={(id) => {
+              onChange(id == null ? null : id === "true" || id === "withPending");
+              setValue("includePending", id === "withPending");
+            }}
           />
         )}
       />
