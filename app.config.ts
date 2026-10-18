@@ -29,6 +29,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         : "com.masomo.app",
   },
 
+  // Mises à jour OTA (EAS Update) : une mise à jour n'atteint que les APK au même fingerprint natif.
+  runtimeVersion: { policy: "fingerprint" },
+  updates: {
+    url: "https://u.expo.dev/620aca7b-b2e1-4d1e-8299-229f427e68f2",
+  },
+
   plugins: [
     ...(config.plugins ?? []),
     "@react-native-community/datetimepicker",

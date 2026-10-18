@@ -1,40 +1,32 @@
 {
   "cli": {
-    "version": ">= 12.0.0",
+    "version": ">= 16.0.0",
     "appVersionSource": "remote"
   },
   "build": {
     "development": {
       "developmentClient": true,
       "distribution": "internal",
+      "channel": "development",
+      "environment": "development",
       "android": {
         "gradleCommand": ":app:assembleDebug"
-      },
-      "env": {
-        "APP_VARIANT": "development",
-        "EXPO_PUBLIC_API_BASE_URL": "http://10.211.42.61:8000/api"
       }
     },
     "preview": {
       "distribution": "internal",
+      "channel": "preview",
+      "environment": "preview",
       "android": {
         "buildType": "apk"
-      },
-      "env": {
-        "APP_VARIANT": "preview",
-        "EXPO_PUBLIC_API_BASE_URL": "https://api-staging.masomo.app/api",
-        "EXPO_PUBLIC_SENTRY_DSN": "https://eb4da18af63ac5c11015dafb2ab2be18@o4511992066342912.ingest.us.sentry.io/4512201708863489"
       }
     },
     "production": {
       "autoIncrement": true,
+      "channel": "production",
+      "environment": "production",
       "android": {
         "buildType": "apk"
-      },
-      "env": {
-        "APP_VARIANT": "production",
-        "EXPO_PUBLIC_API_BASE_URL": "https://api.masomo.app/api",
-        "EXPO_PUBLIC_SENTRY_DSN": "https://eb4da18af63ac5c11015dafb2ab2be18@o4511992066342912.ingest.us.sentry.io/4512201708863489"
       }
     }
   },
