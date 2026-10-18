@@ -39,6 +39,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ...(config.plugins ?? []),
     "@react-native-community/datetimepicker",
     "expo-sharing",
+    // Téléphones ARM seulement : x86/x86_64 ne servent qu'aux émulateurs et alourdissent l'APK d'environ 40 Mo.
+    ["expo-build-properties", { android: { buildArchs: ["armeabi-v7a", "arm64-v8a"] } }],
     // Envoi des source maps au build : SENTRY_AUTH_TOKEN doit exister en secret EAS.
     [
       "@sentry/react-native/expo",
