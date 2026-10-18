@@ -1,0 +1,3 @@
+# Le plugin Gradle de React Native réécrit les AndroidManifest.xml des dépendances (retrait de l'attribut package)
+# lors d'un build local : sans cette exclusion, l'empreinte du poste diffère de celle du build EAS.
+node_modules/**/android/src/main/AndroidManifest.xml
