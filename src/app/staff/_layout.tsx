@@ -41,6 +41,7 @@ export default function StaffLayout() {
         <Drawer.Screen name="incidents" options={{ headerShown: false }} />
         <Drawer.Screen name="sanctions" options={{ headerShown: false }} />
         <Drawer.Screen name="students" options={{ headerShown: false }} />
+        <Drawer.Screen name="classes" options={{ headerShown: false }} />
         <Drawer.Screen name="fee-grid" options={{ headerShown: false }} />
         <Drawer.Screen name="fee-derogations" options={{ headerShown: false }} />
         <Drawer.Screen name="fees" options={{ headerShown: false }} />
@@ -56,6 +57,7 @@ export default function StaffLayout() {
         <Drawer.Screen name="documents" options={{ headerShown: false }} />
         <Drawer.Screen name="messaging" options={{ headerShown: false }} />
         <Drawer.Screen name="sync" options={{ headerShown: false }} />
+        <Drawer.Screen name="about" options={{ headerShown: false }} />
       </Drawer>
 
       {/* Hors ligne / envois en attente, au-dessus de tous les écrans enseignant. */}

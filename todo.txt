@@ -1,0 +1,8 @@
+L'enseignant doit avoir acces aux classes
+Enlever en bas la pastille demo, utiliser une barre en bas, comme c'est le cas sur le web
+Interface mobile des eleves, toujours choisir la classe
+Pas de tutoiement, ou mieux une formulaire neutre
+
+Avoir un menu à propos de l'application avec comme sur le web les infos de l'éditeur. Puis deux liens dirigeant vers les pages web legales.
+
+Menu, possibilité d'avoir des separateurs horizontals afin d'essayer de grouper les differents menus.

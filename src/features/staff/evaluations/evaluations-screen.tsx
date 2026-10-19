@@ -146,7 +146,7 @@ export function EvaluationsScreen() {
             ListEmptyComponent={
               <View className="items-center justify-center px-6 py-16">
                 <Text className="text-sm text-faint text-center">
-                  Aucune évaluation ne correspond à ta recherche.
+                  Aucune évaluation ne correspond à la recherche.
                 </Text>
               </View>
             }

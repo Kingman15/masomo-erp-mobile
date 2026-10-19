@@ -495,7 +495,7 @@ export function AttendanceBulkScreen() {
           ) : !enrollments ? (
             <Text className="text-sm text-faint text-center px-6 py-10">
               Les élèves de cette classe n&apos;ont pas été gardés sur
-              l&apos;appareil. Reconnecte-toi pour les charger.
+              l&apos;appareil. Ils seront chargés au retour de la connexion.
             </Text>
           ) : records.length === 0 ? (
             <Text className="text-sm text-faint text-center px-6 py-10">

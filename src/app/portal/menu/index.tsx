@@ -29,6 +29,18 @@ export default function PortalMenuScreen() {
             <StudentSwitcherEntry />
           </View>
         }
+        // Hors catégories : accessible sans élève choisi.
+        ListFooterComponent={
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.push("/portal/menu/about")}
+            className="mt-1 h-12 px-4 rounded-xl border border-border bg-card flex-row items-center gap-3 active:bg-subtle"
+          >
+            <Ionicons name="information-circle-outline" size={18} color={colors.foreground} />
+            <Text className="flex-1 text-sm font-medium text-foreground">À propos de l&apos;application</Text>
+            <Ionicons name="chevron-forward" size={18} color={colors.mutedForeground} />
+          </Pressable>
+        }
         renderItem={({ item: category }) => (
           <Pressable
             onPress={() => {

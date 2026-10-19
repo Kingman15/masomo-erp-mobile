@@ -145,7 +145,7 @@ export function LessonsScreen() {
             ListEmptyComponent={
               <View className="items-center justify-center px-6 py-16">
                 <Text className="text-sm text-faint text-center">
-                  Aucune leçon ne correspond à ta recherche.
+                  Aucune leçon ne correspond à la recherche.
                 </Text>
               </View>
             }

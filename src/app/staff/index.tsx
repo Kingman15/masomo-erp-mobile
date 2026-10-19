@@ -1,3 +1,4 @@
+import { DemoModeNotice } from "@/components/demo-mode-notice";
 import { BRAND_PRIMARY } from "@/constants/theme";
 import { CurrentPeriodCard } from "@/features/staff/calendar/current-period-card";
 import {
@@ -96,6 +97,7 @@ export default function StaffHomeScreen() {
           <Text className="text-sm text-muted-foreground mt-1">{greeting}</Text>
         </View>
 
+        <DemoModeNotice className="mt-3" />
         <NoAssignmentAlert />
         <CurrentPeriodCard />
 

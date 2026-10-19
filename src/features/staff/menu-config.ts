@@ -120,6 +120,13 @@ export const STAFF_MENU: StaffMenuItem[] = [
     anyPermission: ["enrollment.list.view", "core.master::students.view"],
   },
   {
+    // Comme le raccourci « Classes » du web, ouvert aux enseignants : l'API limite un enseignant à ses classes.
+    type: "link",
+    label: "Classes",
+    icon: "layers-outline",
+    href: "/staff/classes",
+  },
+  {
     type: "group",
     label: "Frais scolaires",
     icon: "wallet-outline",
@@ -226,6 +233,12 @@ export const STAFF_MENU: StaffMenuItem[] = [
     label: "Profil",
     icon: "person-outline",
     href: "/staff/profil",
+  },
+  {
+    type: "link",
+    label: "À propos",
+    icon: "information-circle-outline",
+    href: "/staff/about",
   },
 ];
 

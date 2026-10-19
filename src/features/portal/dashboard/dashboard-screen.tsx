@@ -1,4 +1,5 @@
 import { ChipSelect } from "@/components/list/chip-select";
+import { DemoModeNotice } from "@/components/demo-mode-notice";
 import { useCurrentEnrollments } from "@/hooks/queries/items/enrollment";
 import {
   usePortalHousehold,
@@ -127,6 +128,8 @@ export function DashboardScreen() {
             />
           }
         >
+          <DemoModeNotice className="mb-4" />
+
           <ChipSelect
             label="Année scolaire"
             options={schoolYears.map((sy) => ({ id: sy.id, label: sy.title }))}

@@ -12,7 +12,8 @@ import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { getSchoolClassLabel } from "../attendance/attendance-labels";
 import { EnrollmentRow } from "./enrollment-row";
 
-// Élèves inscrits sur l'année courante (consultation) ; avec une classe choisie, le total donne son effectif.
+// Élèves inscrits sur l'année courante (consultation), classe par classe : rien n'est listé avant le choix d'une classe.
+// Le total donne l'effectif de la classe.
 export function StudentsScreen() {
   const [searchTerm, setSearchTerm] = useState("");
   const [schoolClassId, setSchoolClassId] = useState<string | null>(null);
@@ -35,7 +36,10 @@ export function StudentsScreen() {
     enrollmentsHasNextPage,
     fetchNextEnrollments,
     loadEnrollments,
-  } = useEnrollmentPages({ filters: { schoolYearId, schoolClassId, searchTerm } });
+  } = useEnrollmentPages({
+    filters: { schoolYearId, schoolClassId, searchTerm },
+    enabled: Boolean(schoolClassId),
+  });
 
   const renderEnrollment = useCallback(
     ({ item }: { item: Enrollment }) => (
@@ -57,23 +61,35 @@ export function StudentsScreen() {
 
       <View className="flex-1 bg-background">
         <View className="px-4 pt-3">
-          <SearchBar placeholder="Rechercher un élève" onChangeText={setSearchTerm} />
-          <View className="mt-3">
-            <ComboBox
-              label="Classe"
-              placeholder="Toutes les classes"
-              options={(schoolClasses ?? []).map((schoolClass) => ({
-                id: schoolClass.id,
-                label: getSchoolClassLabel(schoolClass),
-              }))}
-              value={schoolClassId}
-              onChange={setSchoolClassId}
-              loading={schoolClassesIsLoading}
-            />
-          </View>
+          <ComboBox
+            label="Classe"
+            placeholder="Choisir une classe"
+            options={(schoolClasses ?? []).map((schoolClass) => ({
+              id: schoolClass.id,
+              label: getSchoolClassLabel(schoolClass),
+            }))}
+            value={schoolClassId}
+            onChange={(id) => {
+              setSchoolClassId(id);
+              // La barre de recherche disparaît sans classe : on ne garde pas un filtre devenu invisible.
+              if (!id) setSearchTerm("");
+            }}
+            loading={schoolClassesIsLoading}
+          />
+          {schoolClassId && (
+            <View className="mt-3">
+              <SearchBar placeholder="Rechercher un élève" onChangeText={setSearchTerm} />
+            </View>
+          )}
         </View>
 
-        {enrollmentsIsLoading ? (
+        {!schoolClassId ? (
+          <View className="flex-1 items-center justify-center px-6">
+            <Text className="text-sm text-faint text-center">
+              Choisir une classe pour afficher ses élèves.
+            </Text>
+          </View>
+        ) : enrollmentsIsLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />
           </View>
@@ -98,8 +114,7 @@ export function StudentsScreen() {
             ListHeaderComponent={
               enrollmentsMeta ? (
                 <Text className="px-4 py-2 text-xs text-faint">
-                  {total} élève{total > 1 ? "s" : ""}
-                  {schoolClassId ? " dans la classe" : " inscrit" + (total > 1 ? "s" : "")}
+                  {total} élève{total > 1 ? "s" : ""} dans la classe
                 </Text>
               ) : null
             }

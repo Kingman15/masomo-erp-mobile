@@ -1,3 +1,4 @@
+import { DemoModeNotice } from "@/components/demo-mode-notice";
 import {
   useVisibleStaffMenu,
   type RoutePath,
@@ -64,6 +65,8 @@ function DrawerHero() {
           </View>
         </View>
       )}
+
+      <DemoModeNotice className="mt-4" />
     </View>
   );
 }

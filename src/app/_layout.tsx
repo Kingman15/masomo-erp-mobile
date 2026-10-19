@@ -1,7 +1,6 @@
 import "../global.css";
 
 import { checkHealth } from "@/api/endpoints/health";
-import { DemoModeBadge } from "@/components/demo-mode-badge";
 import { Toast } from "@/components/toast";
 import { ChangePasswordDialog } from "@/features/portal/profil/change-password-dialog";
 import { ThemeColors } from "@/constants/colors";
@@ -165,7 +164,6 @@ function RootNavigation() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
         <Stack screenOptions={{ headerShown: false }} />
-        <DemoModeBadge />
         <Toast />
         <ChangePasswordDialog
           visible={mustChangePassword}

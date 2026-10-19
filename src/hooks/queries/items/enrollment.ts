@@ -117,10 +117,11 @@ interface UseEnrollmentPagesParams {
     schoolClassId?: string | null;
     searchTerm?: string | null;
   };
+  enabled?: boolean;
 }
 
 // Écran Élèves : liste paginée (défilement infini), triée par nom d'élève.
-export function useEnrollmentPages({ filters }: UseEnrollmentPagesParams) {
+export function useEnrollmentPages({ filters, enabled = true }: UseEnrollmentPagesParams) {
   const normalizedFilters = {
     schoolYearId: filters.schoolYearId ?? null,
     schoolClassId: filters.schoolClassId ?? null,
@@ -137,7 +138,7 @@ export function useEnrollmentPages({ filters }: UseEnrollmentPagesParams) {
         perPage,
       ),
     label: "Élèves",
-    enabled: Boolean(normalizedFilters.schoolYearId),
+    enabled: enabled && Boolean(normalizedFilters.schoolYearId),
   });
 
   return {

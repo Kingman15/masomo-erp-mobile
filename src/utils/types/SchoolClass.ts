@@ -1,4 +1,5 @@
 import { GeneralClass } from "./GeneralClass";
+import { SchoolClassHomeroomTeacher } from "./SchoolClassHomeroomTeacher";
 import { SchoolSpace } from "./SchoolSpace";
 
 export interface SchoolClass {
@@ -15,5 +16,7 @@ export interface SchoolClass {
   comments: string | null;
 
   generalClass?: GeneralClass | null;
+  // Titulaires en vigueur, principal en premier
+  homeroomTeachers?: SchoolClassHomeroomTeacher[];
   classroom?: SchoolSpace | null;
 }
