@@ -55,7 +55,7 @@ export function SubscriptionDetailScreen() {
   const amount = subscription
     ? (subscription.overrideAmount ?? subscription.pricingPlan?.baseAmount ?? null)
     : null;
-  const currency = subscription?.pricingPlan?.currency ?? "USD";
+  const currency = subscription?.pricingPlan?.currency;
   const legs = subscription?.legs ?? [];
 
   return (

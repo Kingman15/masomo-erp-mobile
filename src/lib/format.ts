@@ -29,13 +29,15 @@ export function formatNumber(
   }).format(num);
 }
 
+// Sans devise : nombre simple, jamais de devise supposée
 export function formatCurrency(
   value: number | string | null | undefined,
-  currency = "USD",
+  currency: string | null | undefined,
 ): string {
   if (value === null || value === undefined) return "—";
   const num = typeof value === "string" ? Number(value.trim()) : value;
   if (!Number.isFinite(num)) return "—";
+  if (!currency) return formatNumber(num);
   try {
     return new Intl.NumberFormat("fr-CD", {
       style: "currency",

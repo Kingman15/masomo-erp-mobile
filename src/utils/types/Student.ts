@@ -41,7 +41,6 @@ export interface Student {
   birthPlace: string | null;
   nationality: string | null;
   address: string | null;
-  isActive: boolean;
   receivesNotifications: boolean;
   notes: string | null;
   userId: string | null;

@@ -26,7 +26,7 @@ function SubscriptionFeeRowComponent({ fee }: SubscriptionFeeRowProps) {
       <View className="flex-row items-center justify-between mt-1.5">
         <Text className="text-xs text-faint">{billingPeriodLabel ?? "—"}</Text>
         <Text className="text-sm font-semibold text-foreground">
-          {formatCurrency(fee.amountNet, fee.currency ?? "USD")}
+          {formatCurrency(fee.amountNet, fee.currency)}
         </Text>
       </View>
     </View>

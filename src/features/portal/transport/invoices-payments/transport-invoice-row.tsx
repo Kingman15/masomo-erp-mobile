@@ -10,7 +10,7 @@ type TransportInvoiceRowProps = {
 };
 
 function TransportInvoiceRowComponent({ invoice, onPress }: TransportInvoiceRowProps) {
-  const currency = invoice.currency ?? "USD";
+  const currency = invoice.currency;
   const paymentsCount = invoice.payments?.length ?? 0;
   const hasRemaining =
     invoice.amountRemaining !== null && Number(invoice.amountRemaining) > 0;

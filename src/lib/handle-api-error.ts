@@ -95,9 +95,12 @@ export function handleApiError(
       onUnauthorized?.();
       break;
 
+    // Le serveur précise le motif (permission manquante, refus métier) ; générique à défaut
     case 403:
       toastNotify(
-        "Vous n'avez pas les droits nécessaires pour effectuer cette action.",
+        message !== defaultMessage
+          ? message
+          : "Vous n'avez pas les droits nécessaires pour effectuer cette action.",
         "error",
       );
       onForbidden?.();

@@ -46,7 +46,7 @@ export function InvoiceDetailScreen() {
     loadPortalTransportInvoice,
   } = usePortalTransportInvoice({ studentId: selectedStudent?.id, invoiceId: id });
 
-  const currency = invoice?.currency ?? "USD";
+  const currency = invoice?.currency;
   const lines = invoice?.lines ?? [];
   const payments = invoice?.payments ?? [];
 

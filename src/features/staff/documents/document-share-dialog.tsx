@@ -1,3 +1,4 @@
+import { CheckboxRow } from "@/components/list/checkbox-row";
 import { ComboBox } from "@/components/list/combo-box";
 import { DateField } from "@/components/list/date-field";
 import { Toast } from "@/components/toast";
@@ -5,6 +6,7 @@ import { useGeneralClasses } from "@/hooks/queries/items/general-class";
 import { useOptions } from "@/hooks/queries/items/option";
 import { useSchoolClasses } from "@/hooks/queries/items/school-class";
 import { useSections } from "@/hooks/queries/items/section";
+import { useCan } from "@/hooks/use-can";
 import { useThemeColors } from "@/hooks/use-theme-colors";
 import {
   documentShareFormSchema,
@@ -59,7 +61,8 @@ export function DocumentShareDialog({
 
   const audienceType = watch("audienceType");
   const audienceId = watch("audienceId");
-  const publishedAt = watch("publishedAt");
+
+  const canPublish = useCan("communication.documents.publish");
 
   const [sectionId, setSectionId] = useState<string | null>(null);
   const [optionId, setOptionId] = useState<string | null>(null);
@@ -107,7 +110,7 @@ export function DocumentShareDialog({
   };
 
   const onSubmit = (data: DocumentShareFormValues) => {
-    onSave(data);
+    onSave({ ...data, publish: canPublish && Boolean(data.publish) });
   };
 
   return (
@@ -247,21 +250,6 @@ export function DocumentShareDialog({
 
           <Controller
             control={control}
-            name="publishedAt"
-            render={({ field: { value, onChange } }) => (
-              <DateField
-                label="Date de publication"
-                placeholder="Non publié"
-                value={value ?? null}
-                onChange={onChange}
-              />
-            )}
-          />
-
-          <View className="mt-4" />
-
-          <Controller
-            control={control}
             name="expiresAt"
             render={({ field: { value, onChange } }) => (
               <DateField
@@ -269,7 +257,6 @@ export function DocumentShareDialog({
                 placeholder="Sans expiration"
                 value={value ?? null}
                 onChange={onChange}
-                minimumDate={publishedAt ? new Date(publishedAt) : undefined}
               />
             )}
           />
@@ -277,6 +264,23 @@ export function DocumentShareDialog({
             <Text className="text-xs text-red-500 mt-1 mb-3">
               {errors.expiresAt.message}
             </Text>
+          )}
+
+          {canPublish && (
+            <>
+              <View className="mt-4" />
+              <Controller
+                control={control}
+                name="publish"
+                render={({ field: { value, onChange } }) => (
+                  <CheckboxRow
+                    label="Publier dès l'enregistrement"
+                    value={Boolean(value)}
+                    onChange={onChange}
+                  />
+                )}
+              />
+            </>
           )}
 
           <Pressable

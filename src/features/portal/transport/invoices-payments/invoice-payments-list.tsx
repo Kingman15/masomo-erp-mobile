@@ -27,7 +27,7 @@ export function InvoicePaymentsList({ invoices }: InvoicePaymentsListProps) {
     <View className="gap-3 px-4 mt-3">
       {invoicesWithPayments.map((invoice) => {
         const payments = invoice.payments ?? [];
-        const currency = invoice.currency ?? "USD";
+        const currency = invoice.currency;
 
         return (
           <View

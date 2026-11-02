@@ -30,7 +30,7 @@ export async function show(
 export interface CreateDocumentSharePayload {
   audienceType: string;
   audienceId?: string | null;
-  publishedAt?: string | null;
+  publish?: boolean;
   expiresAt?: string | null;
 }
 
@@ -70,8 +70,8 @@ export async function store(
     if (share.audienceId) {
       formData.append(`shares[${index}][audience_id]`, share.audienceId);
     }
-    if (share.publishedAt) {
-      formData.append(`shares[${index}][published_at]`, share.publishedAt);
+    if (share.publish) {
+      formData.append(`shares[${index}][publish]`, "1");
     }
     if (share.expiresAt) {
       formData.append(`shares[${index}][expires_at]`, share.expiresAt);

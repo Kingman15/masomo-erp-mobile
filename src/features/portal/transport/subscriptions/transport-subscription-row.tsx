@@ -40,7 +40,7 @@ function TransportSubscriptionRowComponent({
           <Text className="text-sm font-semibold text-foreground">
             {formatCurrency(
               amount,
-              subscription.pricingPlan?.currency ?? "USD",
+              subscription.pricingPlan?.currency,
             )}
           </Text>
         )}

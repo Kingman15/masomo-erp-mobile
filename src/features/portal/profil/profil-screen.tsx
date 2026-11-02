@@ -55,11 +55,6 @@ function StudentRow({ student }: { student: Student }) {
           <Text className="text-xs text-faint">{metaParts.join(" · ")}</Text>
         )}
       </View>
-      {!student.isActive && (
-        <View className="px-2 py-0.5 rounded-full bg-muted">
-          <Text className="text-[10px] font-medium text-muted-foreground">Inactif</Text>
-        </View>
-      )}
     </View>
   );
 }

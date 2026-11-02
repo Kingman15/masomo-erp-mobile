@@ -97,7 +97,10 @@ export function ConversationThreadScreen() {
   const membership = serviceDesks.find(
     (desk) => desk.id === conversation?.counterpartDeskId,
   );
-  const canReply = membership?.canReply !== false;
+  // canReply null = guichet visible sans en être membre (super admin) : lecture seule, comme un observateur
+  const canReply = membership?.canReply === true;
+  // Membre du guichet (observateur compris) : seul autorisé à marquer le fil comme traité
+  const isDeskMember = membership?.canReply != null;
 
   const handleSend = async () => {
     if (!body.trim() && documents.length === 0) return;
@@ -150,7 +153,7 @@ export function ConversationThreadScreen() {
                 <ConversationStatusPill
                   awaitingSchoolReply={conversation.awaitingSchoolReply}
                 />
-                {conversation.awaitingSchoolReply && (
+                {conversation.awaitingSchoolReply && isDeskMember && (
                   <Pressable
                     onPress={() => void handleMarkHandled()}
                     disabled={markConversationHandledIsPending}

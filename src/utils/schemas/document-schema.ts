@@ -18,11 +18,10 @@ export const documentShareFormSchema = z
     }),
     audienceId: z.string().uuid("Sélection invalide").nullable().optional(),
     audienceLabel: z.string().nullable().optional(),
-    publishedAt: z
-      .string()
-      .regex(DATE_REGEX, "Date invalide")
-      .nullable()
-      .optional(),
+
+    // Publier dès l'enregistrement (communication.documents.publish) : l'API publie à la date du jour.
+    publish: z.boolean().optional(),
+
     expiresAt: z
       .string()
       .regex(DATE_REGEX, "Date invalide")
@@ -35,18 +34,6 @@ export const documentShareFormSchema = z
         code: z.ZodIssueCode.custom,
         message: "Veuillez sélectionner une audience pour ce type.",
         path: ["audienceId"],
-      });
-    }
-    if (
-      data.publishedAt &&
-      data.expiresAt &&
-      data.expiresAt < data.publishedAt
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          "La date d'expiration doit être postérieure ou égale à la date de publication.",
-        path: ["expiresAt"],
       });
     }
   });

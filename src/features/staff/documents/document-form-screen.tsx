@@ -58,7 +58,7 @@ function emptyShare(): DocumentShareFormValues {
     audienceType: "school",
     audienceId: null,
     audienceLabel: null,
-    publishedAt: null,
+    publish: false,
     expiresAt: null,
   };
 }
@@ -192,7 +192,7 @@ export function DocumentFormScreen() {
         shares: data.shares.map((share) => ({
           audienceType: share.audienceType,
           audienceId: share.audienceId ?? null,
-          publishedAt: share.publishedAt ?? null,
+          publish: share.publish ?? false,
           expiresAt: share.expiresAt ?? null,
         })),
       });
