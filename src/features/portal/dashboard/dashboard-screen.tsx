@@ -271,21 +271,30 @@ export function DashboardScreen() {
                 />
               </View>
 
-              <SectionTitle>Discipline</SectionTitle>
-              <View className="border-t border-divider pt-1">
-                <DashboardDisciplineSection
-                  discipline={studentSummary?.discipline}
-                  loading={studentSummaryIsLoading}
-                />
-              </View>
+              {/* Bloc absent de la réponse (module inactif, calcul indisponible) : section masquée plutôt qu'en chargement sans fin (idem web) */}
+              {(!studentSummary || "discipline" in studentSummary) && (
+                <>
+                  <SectionTitle>Discipline</SectionTitle>
+                  <View className="border-t border-divider pt-1">
+                    <DashboardDisciplineSection
+                      discipline={studentSummary?.discipline}
+                      loading={studentSummaryIsLoading}
+                    />
+                  </View>
+                </>
+              )}
 
-              <SectionTitle>Finances</SectionTitle>
-              <View className="border-t border-divider pt-1">
-                <DashboardFinanceSection
-                  finance={studentSummary?.finance}
-                  loading={studentSummaryIsLoading}
-                />
-              </View>
+              {(!studentSummary || "finance" in studentSummary) && (
+                <>
+                  <SectionTitle>Finances</SectionTitle>
+                  <View className="border-t border-divider pt-1">
+                    <DashboardFinanceSection
+                      finance={studentSummary?.finance}
+                      loading={studentSummaryIsLoading}
+                    />
+                  </View>
+                </>
+              )}
             </>
           )}
         </ScrollView>

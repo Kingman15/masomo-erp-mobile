@@ -26,24 +26,28 @@ function buildAlertItems(alerts: AlertsSummary): AlertItem[] {
       tone: "default",
     });
   }
-  if (alerts.overdueInstallments.count > 0) {
+  const overdueCount = alerts.overdueInstallments?.count ?? 0;
+  const pendingTransportCount = alerts.pendingTransportInvoices?.count ?? 0;
+  const upcomingCount = alerts.upcomingInstallments?.length ?? 0;
+
+  if (overdueCount > 0) {
     items.push({
       icon: "alert-circle-outline",
-      text: `${alerts.overdueInstallments.count} échéance(s) de frais en retard`,
+      text: `${overdueCount} échéance(s) de frais en retard`,
       tone: "warning",
     });
   }
-  if (alerts.pendingTransportInvoices.count > 0) {
+  if (pendingTransportCount > 0) {
     items.push({
       icon: "receipt-outline",
-      text: `${alerts.pendingTransportInvoices.count} facture(s) transport en attente`,
+      text: `${pendingTransportCount} facture(s) transport en attente`,
       tone: "default",
     });
   }
-  if (alerts.upcomingInstallments.length > 0) {
+  if (upcomingCount > 0) {
     items.push({
       icon: "time-outline",
-      text: `${alerts.upcomingInstallments.length} échéance(s) des frais à venir`,
+      text: `${upcomingCount} échéance(s) des frais à venir`,
       tone: "default",
     });
   }

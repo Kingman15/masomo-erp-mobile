@@ -67,9 +67,10 @@ export interface FinanceBlock {
   paidRate: number;
 }
 
+// Chaque groupe est absent si le module correspondant est inactif
 export interface FinanceSummary {
-  schoolFees: FinanceBlock[];
-  transport: FinanceBlock[];
+  schoolFees?: FinanceBlock[];
+  transport?: FinanceBlock[];
 }
 
 export interface CurrencyAmount {
@@ -86,19 +87,22 @@ export interface UpcomingInstallment {
   isBeyondWindow: boolean;
 }
 
+// Alertes de frais et de transport absentes si le module correspondant est inactif
 export interface AlertsSummary {
   unreadConversations: number;
   unreadAnnouncements: number;
-  overdueInstallments: { count: number; amounts: CurrencyAmount[] };
-  upcomingInstallments: UpcomingInstallment[];
-  pendingTransportInvoices: { count: number; amounts: CurrencyAmount[] };
+  overdueInstallments?: { count: number; amounts: CurrencyAmount[] };
+  upcomingInstallments?: UpcomingInstallment[];
+  pendingTransportInvoices?: { count: number; amounts: CurrencyAmount[] };
 }
 
 export interface StudentDashboardData {
   attendance: DashboardAttendance;
   academic: AcademicSummary;
-  discipline: DisciplineSummary;
-  finance: FinanceSummary;
+  // Absent si le module discipline est inactif
+  discipline?: DisciplineSummary;
+  // Absent si le bloc n'a pas pu être calculé (voir meta.unavailable)
+  finance?: FinanceSummary;
   alerts: AlertsSummary;
 }
 

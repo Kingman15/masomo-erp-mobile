@@ -124,7 +124,7 @@ export function StudentSwitcherPanel({ onClose }: StudentSwitcherPanelProps) {
         />
       )}
 
-      {studentsIsLoading || draftEnrollmentsIsLoading ? (
+      {studentsIsLoading || schoolYearsIsLoading || draftEnrollmentsIsLoading ? (
         <ActivityIndicator />
       ) : students.length === 0 ? (
         <Text className="text-base text-foreground mb-4">Aucun élève</Text>
@@ -157,11 +157,12 @@ export function StudentSwitcherPanel({ onClose }: StudentSwitcherPanelProps) {
                         .filter(Boolean)
                         .join(", ")}
                     </Text>
-                  ) : (
+                  ) : draftSchoolYearId ? (
+                    // Sans année scolaire, rien n'est sélectionnable mais on n'affiche pas « non inscrit ».
                     <Text className="text-xs text-faint">
                       Non inscrit cette année
                     </Text>
-                  )}
+                  ) : null}
                 </View>
                 {selected && (
                   <Ionicons

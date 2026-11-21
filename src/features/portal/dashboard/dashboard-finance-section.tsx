@@ -32,8 +32,8 @@ function FinanceBlockRow({ block }: { block: FinanceBlock }) {
   );
 }
 
-function FinanceGroup({ title, blocks }: { title: string; blocks: FinanceBlock[] }) {
-  if (blocks.length === 0) return null;
+function FinanceGroup({ title, blocks }: { title: string; blocks: FinanceBlock[] | undefined }) {
+  if (!blocks?.length) return null;
 
   return (
     <View>
@@ -59,7 +59,7 @@ export function DashboardFinanceSection({ finance, loading }: DashboardFinanceSe
     );
   }
 
-  if (finance.schoolFees.length === 0 && finance.transport.length === 0) {
+  if (!finance.schoolFees?.length && !finance.transport?.length) {
     return (
       <Text className="text-sm text-faint py-2.5">
         Aucune information financière disponible.
