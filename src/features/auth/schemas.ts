@@ -44,11 +44,8 @@ export const parentActivationSchema = z
         /^[a-zA-Z0-9_]+$/,
         "Le nom d'utilisateur ne peut contenir que des lettres, des chiffres et des underscores (_)",
       ),
-    password: z
-      .string()
-      .min(6, "Le mot de passe doit contenir au moins 6 caractères")
-      .regex(/[A-Z]/, "Le mot de passe doit contenir au moins une lettre majuscule")
-      .regex(/[0-9]/, "Le mot de passe doit contenir au moins un chiffre"),
+    // Compte portail : 6 caractères, sans autre contrainte (PasswordPolicy côté API) ; force signalée à part
+    password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
     passwordConfirmation: z.string().min(1, "La confirmation du mot de passe est requise"),
   })
   .refine((data) => data.password === data.passwordConfirmation, {

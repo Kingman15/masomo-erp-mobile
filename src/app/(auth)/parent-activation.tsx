@@ -8,6 +8,7 @@ import {
   AuthField,
   AuthFooter,
   AuthHeader,
+  PasswordStrengthHint,
   SchoolCard,
 } from "@/features/auth/components";
 import {
@@ -19,13 +20,14 @@ import {
 } from "@/features/auth/schemas";
 import { useThemeColors } from "@/hooks/use-theme-colors";
 import { handleApiError } from "@/lib/handle-api-error";
+import { acceptPasswordStrength } from "@/lib/password-strength";
 import { useAuthStore } from "@/stores/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { isAxiosError } from "axios";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { Pressable, Text, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
@@ -226,8 +228,13 @@ function AccountStep({
     },
   });
 
+  const [password, phone, username] = useWatch({ control, name: ["password", "phone", "username"] });
+  const identifiers = { phone, username, name: checked.accountHolderName };
+
   const onSubmit = async (values: ParentActivationForm) => {
     setServerError(null);
+    if (!(await acceptPasswordStrength(values.password, identifiers))) return;
+
     try {
       const status = await activateGuardianAccount({
         ...values,
@@ -291,7 +298,7 @@ function AccountStep({
                 value={value}
                 onChangeText={onChange}
                 onBlur={onBlur}
-                placeholder="6 caractères, une majuscule, un chiffre"
+                placeholder="Au moins 6 caractères"
                 autoCapitalize="none"
                 textContentType="newPassword"
                 secret
@@ -299,6 +306,7 @@ function AccountStep({
               />
             )}
           />
+          <PasswordStrengthHint password={password} identifiers={identifiers} />
 
           <Controller
             control={control}

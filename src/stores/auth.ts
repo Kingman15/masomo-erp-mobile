@@ -55,6 +55,7 @@ export interface User {
   name: string | null;
   username: string | null;
   email: string | null;
+  phone?: string | null;
   isSuperAdmin: boolean | null;
 
   role: {
@@ -70,6 +71,8 @@ export interface User {
   isHomeroomTeacher?: boolean;
   // Mot de passe temporaire à remplacer avant tout le reste (l'API répond 403 PASSWORD_CHANGE_REQUIRED ailleurs)
   mustChangePassword?: boolean;
+  // Longueur minimale d'un nouveau mot de passe (PasswordPolicy) ; absente d'un utilisateur gardé par une version antérieure
+  passwordMinLength?: number;
   // École de démonstration (données fictives, réinitialisées chaque nuit) : pastille permanente
   isDemo?: boolean;
 }

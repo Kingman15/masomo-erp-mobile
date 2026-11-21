@@ -1,5 +1,6 @@
 import { BRAND_PRIMARY } from "@/constants/theme";
 import { useThemeColors } from "@/hooks/use-theme-colors";
+import { analyzePassword, type PasswordIdentifiers } from "@/lib/password-strength";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
 import { useColorScheme } from "nativewind";
@@ -209,5 +210,28 @@ export function AuthFooter() {
         {"Masomo ERP — l'école connectée pour tous."}
       </Text>
     </View>
+  );
+}
+
+/** Avertissement sous un champ « nouveau mot de passe » : rien si le mot de passe est correct ou vide. */
+export function PasswordStrengthHint({
+  password,
+  identifiers,
+}: {
+  password: string | undefined;
+  identifiers?: PasswordIdentifiers;
+}) {
+  const analysis = analyzePassword(password, identifiers);
+  if (analysis.strength === "ok") return null;
+
+  return (
+    <Text
+      accessibilityLiveRegion="polite"
+      className={`text-xs mt-1 mb-2 ${
+        analysis.strength === "too-weak" ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-500"
+      }`}
+    >
+      {analysis.message}
+    </Text>
   );
 }

@@ -1,12 +1,15 @@
 import { Toast } from "@/components/toast";
+import { PasswordStrengthHint } from "@/features/auth/components";
 import { useChangePassword } from "@/hooks/queries/items/account";
 import { useThemeColors } from "@/hooks/use-theme-colors";
 import { handleApiError } from "@/lib/handle-api-error";
+import { acceptPasswordStrength } from "@/lib/password-strength";
 import { toastNotify } from "@/lib/toast";
+import { useAuthStore } from "@/stores/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import {
   ActivityIndicator,
   Modal,
@@ -17,7 +20,8 @@ import {
   View,
 } from "react-native";
 import {
-  changePasswordSchema,
+  getChangePasswordSchema,
+  passwordMinLengthFor,
   type ChangePasswordFormValues,
 } from "./change-password-schema";
 
@@ -85,6 +89,9 @@ function PasswordField({
 
 export function ChangePasswordDialog({ visible, onClose, forced = false, onLogout }: ChangePasswordDialogProps) {
   const colors = useThemeColors();
+  const user = useAuthStore((s) => s.user);
+  const minLength = passwordMinLengthFor(user);
+  const identifiers = { username: user?.username, phone: user?.phone, email: user?.email };
   const {
     control,
     handleSubmit,
@@ -92,9 +99,11 @@ export function ChangePasswordDialog({ visible, onClose, forced = false, onLogou
     setError,
     formState: { errors },
   } = useForm<ChangePasswordFormValues>({
-    resolver: zodResolver(changePasswordSchema),
+    resolver: zodResolver(getChangePasswordSchema(minLength)),
     defaultValues: EMPTY_VALUES,
   });
+
+  const newPassword = useWatch({ control, name: "newPassword" });
 
   useEffect(() => {
     if (visible) reset(EMPTY_VALUES);
@@ -103,6 +112,8 @@ export function ChangePasswordDialog({ visible, onClose, forced = false, onLogou
   const { changePassword, changePasswordIsPending } = useChangePassword();
 
   const onSubmit = async (data: ChangePasswordFormValues) => {
+    if (!(await acceptPasswordStrength(data.newPassword, identifiers))) return;
+
     try {
       await changePassword({
         current_password: data.currentPassword,
@@ -170,6 +181,7 @@ export function ChangePasswordDialog({ visible, onClose, forced = false, onLogou
               />
             )}
           />
+          <PasswordStrengthHint password={newPassword} identifiers={identifiers} />
 
           <Controller
             control={control}
