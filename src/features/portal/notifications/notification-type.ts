@@ -14,6 +14,7 @@ export const NOTIFICATION_TYPE_LABEL_MAP: Record<string, string> = {
   "communication.message.received": "Nouveau message",
   "communication.announcement.published": "Communiqué publié",
   "communication.document.shared": "Document partagé",
+  "auth.credentials.changed": "Identifiant de connexion modifié",
 };
 
 export const NOTIFICATION_TYPE_OPTIONS = Object.entries(
@@ -31,6 +32,7 @@ const NOTIFICATION_TYPE_SEVERITY: Record<string, NotificationSeverity> = {
   "communication.message.received": "info",
   "communication.announcement.published": "info",
   "communication.document.shared": "info",
+  "auth.credentials.changed": "warning",
 };
 
 export function resolveNotificationSeverity(type: string): NotificationSeverity {
