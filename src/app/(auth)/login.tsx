@@ -12,13 +12,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Redirect, router } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 export default function LoginScreen() {
   const school = useAuthStore((s) => s.school);
   const signIn = useAuthStore((s) => s.signIn);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
 
   const {
     control,
@@ -68,7 +69,7 @@ export default function LoginScreen() {
             name="username"
             render={({ field: { onChange, onBlur, value } }) => (
               <AuthField
-                label="Téléphone ou nom d'utilisateur"
+                label="Téléphone, e-mail ou nom d'utilisateur"
                 icon="person-outline"
                 value={value}
                 onChangeText={onChange}
@@ -98,6 +99,23 @@ export default function LoginScreen() {
               />
             )}
           />
+
+          {/* Pas encore de libre-service (aucun envoi e-mail/SMS) : réinitialisation par l'école */}
+          <Pressable
+            onPress={() => setForgotPasswordOpen((open) => !open)}
+            accessibilityRole="button"
+            accessibilityState={{ expanded: forgotPasswordOpen }}
+            hitSlop={8}
+            className="self-end mb-3"
+          >
+            <Text className="text-sm font-medium text-primary dark:text-violet-400">Mot de passe oublié ?</Text>
+          </Pressable>
+
+          {forgotPasswordOpen && (
+            <Text className="text-sm text-muted-foreground mb-3">
+              Contactez le secrétariat de votre école : il vous remettra un mot de passe temporaire, que vous changerez à la connexion.
+            </Text>
+          )}
 
           {serverError && (
             <Text className="text-red-600 dark:text-red-400 text-sm">{serverError}</Text>

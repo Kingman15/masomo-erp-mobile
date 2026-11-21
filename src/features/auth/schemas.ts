@@ -9,7 +9,7 @@ export const schoolCodeSchema = z.object({
 
 // Le code école vient de l'école sélectionnée (store), pas d'un champ du formulaire
 export const credentialsSchema = z.object({
-  username: z.string().min(1, "Nom d'utilisateur / e-mail est requis"),
+  username: z.string().min(1, "Téléphone, e-mail ou nom d'utilisateur requis"),
   password: z.string().min(1, "Le mot de passe est requis"),
 });
 
